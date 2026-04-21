@@ -1,0 +1,523 @@
+import { v2 as cloudinary } from 'cloudinary';
+import productModel from '../models/productModel.js';
+// 🚫 REMOVED: import { notifyNewProduct } from '../controllers/newsletterController.js';
+
+// Configure Cloudinary
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+});
+
+// ------------------- ADD PRODUCT -------------------
+const addProduct = async (req, res) => {
+  try {
+    const {
+      name,
+      description,
+      cost,
+      price,
+      discountprice,
+      quantity,
+      category,
+      subcategory,
+      bestseller,
+      status,
+      shortDescription,
+      dynamicAttributes, specs,
+      variants,
+      trackInventory, stockStatus, lowStockAlert,
+      discountStartDate, discountEndDate, taxIncluded,
+      weight, shippingClass, deliveryTime, freeShipping,
+      visibility, featuredProduct,
+      relatedProducts, warrantyDetails, returnPolicy, careInstructions,
+      // Legacy
+      brand, rating, reviewsCount, reviews
+    } = req.body;
+
+    // Separate main images and variant images
+    const mainImageFiles = (req.files || []).filter(file => file.fieldname.startsWith('image'));
+    const variantImageFiles = (req.files || []).filter(file => file.fieldname.startsWith('variantImage_'));
+
+    const imagesUrl = await Promise.all(
+      mainImageFiles.map(async file => {
+        const result = await cloudinary.uploader.upload(file.path, { resource_type: 'image' });
+        return result.secure_url;
+      })
+    );
+
+    // Parse JSON fields from FormData
+    const parseJsonField = (field, defaultValue) => {
+      if (!field) return defaultValue;
+      try {
+        return typeof field === 'string' ? JSON.parse(field) : field;
+      } catch (e) {
+        console.error(`Error parsing ${field}:`, e);
+        return defaultValue;
+      }
+    };
+
+    const parsedVariants = parseJsonField(variants, []);
+
+    // Upload and attach variant images
+    await Promise.all(variantImageFiles.map(async (file) => {
+      const index = parseInt(file.fieldname.split('_')[1]);
+      if (parsedVariants[index]) {
+        const result = await cloudinary.uploader.upload(file.path, { resource_type: 'image' });
+        parsedVariants[index].image = result.secure_url;
+      }
+    }));
+
+    const parsedSpecs = parseJsonField(specs, {});
+    const parsedReviews = parseJsonField(reviews, []);
+    const parsedDynamicAttributes = parseJsonField(dynamicAttributes, []);
+
+    const productData = {
+      name,
+      description,
+      category,
+      subcategory,
+      cost: Number(cost),
+      price: Number(price),
+      discountprice: Number(discountprice),
+      quantity: Number(quantity),
+      bestseller: bestseller === 'true' || bestseller === true,
+      image: imagesUrl,
+      status: status || 'draft',
+      date: Date.now(),
+      shortDescription: shortDescription || '',
+      dynamicAttributes: parsedDynamicAttributes,
+      specs: parsedSpecs,
+      variants: parsedVariants,
+      trackInventory: trackInventory === 'true' || trackInventory === true,
+      stockStatus: stockStatus || 'in_stock',
+      lowStockAlert: Number(lowStockAlert || 5),
+      discountStartDate: discountStartDate || undefined,
+      discountEndDate: discountEndDate || undefined,
+      taxIncluded: taxIncluded === 'true' || taxIncluded === true,
+      weight: Number(weight || 0),
+      shippingClass: shippingClass || 'normal',
+      deliveryTime: deliveryTime || '3-7 days',
+      freeShipping: freeShipping === 'true' || freeShipping === true,
+      visibility: visibility || 'public',
+      featuredProduct: featuredProduct === 'true' || featuredProduct === true,
+      relatedProducts: parseJsonField(relatedProducts, []),
+      warrantyDetails: warrantyDetails || '',
+      returnPolicy: returnPolicy || '',
+      careInstructions: careInstructions || '',
+      // Legacy
+      brand: brand || '',
+      rating: Number(rating || 0),
+      reviewsCount: Number(reviewsCount || 0),
+      reviews: parsedReviews
+    };
+
+    const product = new productModel(productData);
+    await product.save();
+
+    // 🚫 REMOVED: Product notification code
+    // if (status === 'published') {
+    //   try {
+    //     await notifyNewProduct(product);
+    //     console.log('📢 New product notification sent to subscribers');
+    //   } catch (notificationError) {
+    //     console.error('❌ Failed to send product notification:', notificationError);
+    //   }
+    // }
+
+    res.json({
+      success: true,
+      message: 'Product added successfully',
+      product
+    });
+  } catch (error) {
+    console.error("Add Product Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ------------------- LIST PRODUCTS -------------------
+const listProducts = async (req, res) => {
+  try {
+    const { status = 'all' } = req.query; // Default to 'all'
+
+    // Build query
+    let query = {};
+
+    // If status is specified and not 'all', apply status filter
+    if (status && status !== 'all') {
+      query.status = status;
+    }
+    // If status is 'all' or not provided, no status filter (get all products)
+
+    const products = await productModel.find(query);
+
+    console.log('📦 Products found:', products.length);
+    console.log('🔍 Query used:', query);
+    console.log('📊 Status breakdown:', {
+      published: products.filter(p => p.status === 'published').length,
+      draft: products.filter(p => p.status === 'draft').length,
+      archived: products.filter(p => p.status === 'archived').length
+    });
+
+    res.json({
+      success: true,
+      products,
+      count: products.length
+    });
+  } catch (error) {
+    console.error("List Products Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ------------------- REMOVE PRODUCT -------------------
+const removeProduct = async (req, res) => {
+  try {
+    await productModel.findByIdAndDelete(req.body.id);
+    res.json({
+      success: true,
+      message: "Product removed successfully"
+    });
+  } catch (error) {
+    console.error("Remove Product Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ------------------- SINGLE PRODUCT -------------------
+const singleProduct = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const product = await productModel.findById(productId);
+
+    if (!product) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    res.json({
+      success: true,
+      product
+    });
+  } catch (error) {
+    console.error("Single Product Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ------------------- UPDATE PRODUCT -------------------
+const updateProduct = async (req, res) => {
+  try {
+    // Log all fields for debugging
+    const fields = [
+      'id', 'name', 'description', 'cost', 'price', 'discountprice',
+      'quantity', 'category', 'subcategory', 'bestseller', 'status',
+      'removedImages',
+      // New furniture fields
+      'brand', 'variants', 'specs', 'rating', 'reviewsCount', 'reviews'
+    ];
+
+    fields.forEach(field => {
+      console.log(`${field}:`, req.body[field]);
+    });
+
+    const {
+      id,
+      name,
+      description,
+      cost,
+      price,
+      discountprice,
+      quantity,
+      category,
+      subcategory,
+      bestseller,
+      status,
+      removedImages,
+      // Removed: imageAltText, videoUrl, slug, tags
+      shortDescription,
+      dynamicAttributes, specs,
+      variants,
+      trackInventory, stockStatus, lowStockAlert,
+      discountStartDate, discountEndDate, taxIncluded,
+      weight, shippingClass, deliveryTime, freeShipping,
+      visibility, featuredProduct,
+      relatedProducts, warrantyDetails, returnPolicy, careInstructions,
+      // Legacy
+      brand, rating, reviewsCount, reviews
+    } = req.body;
+
+    if (!id) {
+      console.log("ERROR: No product ID provided");
+      return res.status(400).json({
+        success: false,
+        message: "Product ID is required"
+      });
+    }
+
+    const existingProduct = await productModel.findById(id);
+    if (!existingProduct) {
+      console.log("ERROR: Product not found with ID:", id);
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    console.log("Existing product status:", existingProduct.status);
+
+    // Parse JSON fields
+    const parseJsonField = (field, existingValue) => {
+      if (field === undefined) return existingValue;
+      try {
+        return typeof field === 'string' ? JSON.parse(field) : field;
+      } catch (e) {
+        console.error('Error parsing JSON field:', e);
+        return field ? [field] : existingValue; // Fallback
+      }
+    };
+
+    const parsedVariants = parseJsonField(variants, existingProduct.variants);
+    const parsedSpecs = parseJsonField(specs, existingProduct.specs);
+    const parsedReviews = parseJsonField(reviews, existingProduct.reviews);
+    const parsedDynamicAttributes = parseJsonField(dynamicAttributes, existingProduct.dynamicAttributes);
+    const parsedRelatedProducts = parseJsonField(relatedProducts, existingProduct.relatedProducts);
+
+    // Base update data
+    const updateData = {
+      name: name !== undefined ? name : existingProduct.name,
+      description: description !== undefined ? description : existingProduct.description,
+      category: category !== undefined ? category : existingProduct.category,
+      subcategory: subcategory !== undefined ? subcategory : existingProduct.subcategory,
+      cost: cost !== undefined ? Number(cost) : existingProduct.cost,
+      price: price !== undefined ? Number(price) : existingProduct.price,
+      discountprice: discountprice !== undefined ? Number(discountprice) : existingProduct.discountprice,
+      quantity: quantity !== undefined ? Number(quantity) : existingProduct.quantity,
+      bestseller: bestseller !== undefined ? (bestseller === 'true' || bestseller === true) : existingProduct.bestseller,
+      status: status !== undefined ? status : existingProduct.status,
+      shortDescription: shortDescription !== undefined ? shortDescription : existingProduct.shortDescription,
+      dynamicAttributes: parsedDynamicAttributes,
+      specs: parsedSpecs,
+      variants: parsedVariants,
+      trackInventory: trackInventory !== undefined ? (trackInventory === 'true' || trackInventory === true) : existingProduct.trackInventory,
+      stockStatus: stockStatus !== undefined ? stockStatus : existingProduct.stockStatus,
+      lowStockAlert: lowStockAlert !== undefined ? Number(lowStockAlert) : existingProduct.lowStockAlert,
+      discountStartDate: discountStartDate !== undefined ? discountStartDate : existingProduct.discountStartDate,
+      discountEndDate: discountEndDate !== undefined ? discountEndDate : existingProduct.discountEndDate,
+      taxIncluded: taxIncluded !== undefined ? (taxIncluded === 'true' || taxIncluded === true) : existingProduct.taxIncluded,
+      weight: weight !== undefined ? Number(weight) : existingProduct.weight,
+      shippingClass: shippingClass !== undefined ? shippingClass : existingProduct.shippingClass,
+      deliveryTime: deliveryTime !== undefined ? deliveryTime : existingProduct.deliveryTime,
+      freeShipping: freeShipping !== undefined ? (freeShipping === 'true' || freeShipping === true) : existingProduct.freeShipping,
+      visibility: visibility !== undefined ? visibility : existingProduct.visibility,
+      featuredProduct: featuredProduct !== undefined ? (featuredProduct === 'true' || featuredProduct === true) : existingProduct.featuredProduct,
+      relatedProducts: parsedRelatedProducts,
+      warrantyDetails: warrantyDetails !== undefined ? warrantyDetails : existingProduct.warrantyDetails,
+      returnPolicy: returnPolicy !== undefined ? returnPolicy : existingProduct.returnPolicy,
+      careInstructions: careInstructions !== undefined ? careInstructions : existingProduct.careInstructions,
+
+      // Legacy
+      brand: brand !== undefined ? brand : existingProduct.brand,
+      rating: rating !== undefined ? Number(rating) : existingProduct.rating,
+      reviewsCount: reviewsCount !== undefined ? Number(reviewsCount) : existingProduct.reviewsCount,
+      reviews: parsedReviews
+    };
+
+    // ------------------- IMAGE HANDLING -------------------
+    let finalImages = [...existingProduct.image];
+
+    // Handle removed images
+    let removedImageUrls = [];
+    try {
+      removedImageUrls = typeof removedImages === "string"
+        ? JSON.parse(removedImages)
+        : removedImages || [];
+      console.log("Removed images:", removedImageUrls);
+    } catch (e) {
+      console.error("Error parsing removedImages:", e);
+    }
+
+    if (removedImageUrls.length > 0) {
+      const normalizeUrl = url => url.replace(/^https?:/, "").trim();
+      finalImages = finalImages.filter(img =>
+        !removedImageUrls.some(removed => normalizeUrl(removed) === normalizeUrl(img))
+      );
+
+      // Delete removed images from Cloudinary
+      for (const imgUrl of removedImageUrls) {
+        try {
+          const match = imgUrl.match(/upload\/(?:v\d+\/)?(.+)\.\w+$/);
+          const publicId = match ? match[1] : null;
+          if (publicId) {
+            await cloudinary.uploader.destroy(publicId);
+            console.log(`Deleted image from Cloudinary: ${publicId}`);
+          }
+        } catch (err) {
+          console.error("Cloudinary deletion error:", err);
+        }
+      }
+    }
+
+    // Handle new image uploads
+    if (req.files && req.files.length > 0) {
+      const mainImageFiles = req.files.filter(file => file.fieldname.startsWith('image'));
+      const variantImageFiles = req.files.filter(file => file.fieldname.startsWith('variantImage_'));
+
+      if (mainImageFiles.length > 0) {
+        const newImageUrls = await Promise.all(
+          mainImageFiles.map(file =>
+            cloudinary.uploader.upload(file.path, {
+              resource_type: "image",
+              folder: "products"
+            }).then(res => res.secure_url)
+          )
+        );
+        finalImages = [...finalImages, ...newImageUrls];
+        console.log(`Added ${newImageUrls.length} new images`);
+      }
+
+      // Upload and attach variant images
+      await Promise.all(variantImageFiles.map(async (file) => {
+        const index = parseInt(file.fieldname.split('_')[1]);
+        if (updateData.variants[index]) {
+          const result = await cloudinary.uploader.upload(file.path, { resource_type: "image", folder: "products" });
+          updateData.variants[index].image = result.secure_url;
+        }
+      }));
+    }
+
+    updateData.image = finalImages;
+
+    // Perform the update
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      updateData,
+      { new: true, runValidators: true }
+    );
+
+    // 🚫 REMOVED: Product notification code
+    // if (status === 'published' && existingProduct.status !== 'published') {
+    //   try {
+    //     await notifyNewProduct(updatedProduct);
+    //     console.log('📢 New product notification sent to subscribers');
+    //   } catch (notificationError) {
+    //     console.error('❌ Failed to send product notification:', notificationError);
+    //   }
+    // }
+
+    res.json({
+      success: true,
+      message: "Product updated successfully",
+      product: updatedProduct
+    });
+
+  } catch (error) {
+    console.error("Update Product Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ------------------- UPDATE PRODUCT STATUS -------------------
+const updateProductStatus = async (req, res) => {
+  try {
+    const { id, status } = req.body;
+
+    if (!id || !status) {
+      return res.status(400).json({
+        success: false,
+        message: "Product ID and status are required"
+      });
+    }
+
+    const validStatuses = ['draft', 'published', 'archived', 'scheduled'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid status. Must be: ${validStatuses.join(', ')}`
+      });
+    }
+
+    const existingProduct = await productModel.findById(id);
+    if (!existingProduct) {
+      return res.status(404).json({
+        success: false,
+        message: "Product not found"
+      });
+    }
+
+    const updatedProduct = await productModel.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    // 🚫 REMOVED: Product notification code
+    // if (status === 'published' && existingProduct.status !== 'published') {
+    //   try {
+    //     await notifyNewProduct(updatedProduct);
+    //     console.log('📢 New product notification sent to subscribers');
+    //   } catch (notificationError) {
+    //     console.error('❌ Failed to send product notification:', notificationError);
+    //   }
+    // }
+
+    res.json({
+      success: true,
+      message: "Product status updated successfully",
+      product: updatedProduct
+    });
+  } catch (error) {
+    console.error("Update Product Status Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+// ------------------- GET PRODUCTS BY STATUS -------------------
+const getProductsByStatus = async (req, res) => {
+  try {
+    const { status } = req.params;
+    const products = await productModel.find({ status });
+
+    res.json({
+      success: true,
+      products
+    });
+  } catch (error) {
+    console.error("Get Products By Status Error:", error);
+    res.status(500).json({
+      success: false,
+      message: error.message
+    });
+  }
+};
+
+export {
+  addProduct,
+  listProducts,
+  removeProduct,
+  singleProduct,
+  updateProduct,
+  updateProductStatus,
+  getProductsByStatus
+};

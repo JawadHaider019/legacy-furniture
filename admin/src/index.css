@@ -1,0 +1,92 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand-cream: #F9F8F6;
+  --brand-ink: #111111;
+  --brand-muted: #666666;
+  --brand-bronze: #7D6B5D;
+  --brand-wood: #4A3728;
+}
+
+@layer base {
+  html {
+    font-size: 14px;
+  }
+
+  body {
+    @apply bg-[#F9F8F6] text-[#111111] antialiased;
+    font-size: 14px;
+    font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Cormorant Garamond', serif;
+    @apply font-medium tracking-tight;
+  }
+}
+
+.luxury-underline {
+  @apply relative after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-0 after:bg-[#111111] after:transition-all hover:after:w-full;
+}
+
+.luxury-card {
+  @apply bg-white border border-[#7D6B5D]/10 rounded-sm shadow-sm;
+}
+
+.luxury-button {
+  @apply px-4 py-2 bg-[#111111] text-white font-medium rounded-sm transition-all hover:bg-[#4A3728] active:scale-[0.98];
+}
+
+.luxury-input {
+  @apply w-full px-4 py-3 bg-white border border-[#7D6B5D]/20 focus:border-[#111111] outline-none transition-all rounded-sm font-medium text-sm;
+}
+
+.luxury-badge {
+  @apply px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm border inline-flex items-center gap-2;
+}
+
+.luxury-badge-draft {
+  @apply bg-brand-cream text-brand-muted border-brand-bronze/10;
+}
+
+.luxury-badge-published {
+  @apply bg-green-50 text-green-700 border-green-200;
+}
+
+.luxury-badge-archived {
+  @apply bg-red-50 text-red-700 border-red-200;
+}
+
+.luxury-badge-scheduled {
+  @apply bg-blue-50 text-blue-700 border-blue-200;
+}
+
+.luxury-row {
+  @apply border-b border-brand-bronze/5 hover:bg-brand-cream/50 transition-colors duration-300;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #F9F8F6;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #7D6B5D44;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #7D6B5D;
+}

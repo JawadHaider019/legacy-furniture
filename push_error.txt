@@ -1,0 +1,106 @@
+﻿git : remote: error: GH013: 
+Repository rule violations 
+found for refs/heads/main.    
+    
+At line:1 char:1
++ git push origin main 2>&1 | 
+Out-File -FilePath 
+push_error.txt -Encodi ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : 
+    NotSpecified: (remote: e  
+  rror: ...s/main.        :   
+ String) [], RemoteExcepti    
+on
+    + FullyQualifiedErrorId : 
+    NativeCommandError
+ 
+remote: 
+remote: - GITHUB PUSH 
+PROTECTION        
+remote:   ΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇ
+öΓÇöΓÇöΓÇöΓÇö        
+remote:     Resolve the 
+following violations before 
+pushing again        
+remote: 
+remote:     - Push cannot 
+contain secrets        
+remote: 
+remote:             
+remote:      (?) Learn how to 
+resolve a blocked push        
+remote:      https://docs.gith
+ub.com/code-security/secret-sc
+anning/working-with-secret-sca
+nning-and-push-protection/work
+ing-with-push-protection-from-
+the-command-line#resolving-a-b
+locked-push        
+remote:             
+remote:             
+remote:       ΓÇöΓÇö Mapbox 
+Secret Access Token ΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+Çö        
+remote:        locations:     
+   
+remote:          - commit: 2bb
+97f3037c18c482cc2c7604c8ed9eaa
+3f71e33        
+remote:            path: backe
+nd/node_modules/@mapbox/parse-
+mapbox-token/test.js:32       
+ 
+remote:             
+remote:        (?) To push, 
+remove secret from commit(s) 
+or follow this URL to allow 
+the secret.        
+remote:        https://github.
+com/JawadHaider019/legacy-furn
+iture/security/secret-scanning
+/unblock-secret/3CfONJONRF7Dy2
+jp1xg4UMGdhi6        
+remote:             
+remote:             
+remote:       ΓÇöΓÇö Mapbox 
+Secret Access Token ΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+ÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓÇöΓ
+Çö        
+remote:        locations:     
+   
+remote:          - commit: 2bb
+97f3037c18c482cc2c7604c8ed9eaa
+3f71e33        
+remote:            path: backe
+nd/node_modules/@mapbox/parse-
+mapbox-token/test.js:47       
+ 
+remote:             
+remote:        (?) To push, 
+remove secret from commit(s) 
+or follow this URL to allow 
+the secret.        
+remote:        https://github.
+com/JawadHaider019/legacy-furn
+iture/security/secret-scanning
+/unblock-secret/3CfONOFC6o0ZDG
+z5i09U2ZzNHrY        
+remote:             
+remote: 
+remote: 
+To https://github.com/JawadHai
+der019/legacy-furniture.git
+ ! [remote rejected] main -> 
+main (push declined due to 
+repository rule violations)
+error: failed to push some 
+refs to 'https://github.com/Ja
+wadHaider019/legacy-furniture.
+git'
