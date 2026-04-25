@@ -74,9 +74,7 @@ export default function Footer() {
                     <p className="text-[10px] uppercase tracking-widest text-white/30">
                         @{new Date().getFullYear()} LEGACY FURNITURE & CARPETS. All rights reserved.
                     </p>
-                    <div className="flex gap-2 text-[10px] uppercase tracking-widest text-white/30">
-                        Developed by<a href="https://www.jawumitech.com" className="text-white transition-colors">JawumiTech</a>
-                    </div>
+
                 </div>
             </div>
         </footer>
