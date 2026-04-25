@@ -14,7 +14,9 @@ import {
   faPlus,
   faSave,
   faCloudUploadAlt,
-  faTrash
+  faTrash,
+  faBoxes,
+  faBox
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
@@ -278,10 +280,14 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
       formDataToSend.append("specs", JSON.stringify(formData.specs));
       formDataToSend.append("variants", JSON.stringify(formData.variants));
 
-      // Append variant images
-      formData.variants.forEach((v, index) => {
-        if (v.image && typeof v.image !== 'string') {
-          formDataToSend.append(`variantImage_${index}`, v.image);
+      // Append variant images (Multiple images per variant)
+      formData.variants.forEach((v, vIndex) => {
+        if (v.images && Array.isArray(v.images)) {
+          v.images.forEach((img, imgIndex) => {
+            if (img && typeof img !== 'string') {
+              formDataToSend.append(`variant_${vIndex}_image_${imgIndex}`, img);
+            }
+          });
         }
       });
 
@@ -560,6 +566,45 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
             </div>
           </div>
         </div>
+
+        {/* Variants View */}
+        {product.variants && product.variants.length > 0 && (
+          <div className="p-8 bg-brand-cream/10 border border-brand-bronze/10">
+            <div className="flex items-center gap-3 mb-6">
+              <FontAwesomeIcon icon={faBoxes} className="text-brand-bronze/40 text-xs" />
+              <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted">Product Variations</h4>
+            </div>
+            <div className="space-y-6">
+              {product.variants.map((v, idx) => (
+                <div key={idx} className="flex gap-4 p-4 bg-white/50 border border-brand-bronze/5">
+                  <div className="flex gap-2 shrink-0 overflow-x-auto max-w-[200px] custom-scrollbar pb-1">
+                    {(v.images || (v.image ? [v.image] : [])).map((img, iIndex) => (
+                      <img key={iIndex} src={img} className="w-12 h-12 object-cover border border-brand-bronze/10 rounded" alt="variant" />
+                    ))}
+                    {(!v.images || v.images.length === 0) && !v.image && (
+                      <div className="w-12 h-12 bg-brand-cream rounded flex items-center justify-center border border-brand-bronze/10">
+                        <FontAwesomeIcon icon={faBox} className="text-brand-muted/20 text-xs" />
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1">
+                    <div className="flex justify-between mb-1">
+                      <span className="text-xs font-bold text-brand-ink uppercase">{v.name}</span>
+                      <span className="text-xs font-serif text-brand-bronze">Rs {v.price?.toLocaleString()}</span>
+                    </div>
+                    <p className="text-[9px] text-brand-muted leading-relaxed italic line-clamp-2 mb-2">
+                      {v.description || 'No specific details provided.'}
+                    </p>
+                    <div className="flex gap-4">
+                      <span className="text-[8px] font-bold uppercase text-brand-muted opacity-60">Stock: {v.stock}</span>
+                      <span className="text-[8px] font-bold uppercase text-brand-muted opacity-60">SKU: {v.sku}</span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
@@ -711,9 +756,9 @@ const EditMode = ({
                   onChange={onChange}
                   className="luxury-input"
                 >
-                  <option value="draft">Draft Portfolio</option>
-                  <option value="published">Live Selection</option>
-                  <option value="archived">Archived Legacy</option>
+                  <option value="draft">Draft</option>
+                  <option value="private">Private</option>
+                  <option value="public">Public</option>
                 </select>
               </div>
               <div className="flex items-end">
@@ -802,7 +847,10 @@ const EditMode = ({
               <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Variants</h3>
               <button
                 type="button"
-                onClick={() => onChange({ target: { name: 'variants', value: [...formData.variants, { name: "", price: "", stock: "", sku: "", image: "" }] } })}
+                onClick={() => {
+                  const newVariants = [...formData.variants, { name: "", price: "", discountPrice: "", stock: "", sku: "", images: [], description: "" }];
+                  setFormData(prev => ({ ...prev, variants: newVariants }));
+                }}
                 className="text-[10px] font-bold uppercase text-brand-bronze"
               >
                 + Add Variant
@@ -811,67 +859,66 @@ const EditMode = ({
 
             <div className="space-y-4">
               {formData.variants.map((v, vIndex) => (
-                <div key={vIndex} className="p-6 bg-brand-cream/20 border border-brand-bronze/10 rounded-sm">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                <div key={vIndex} className="p-6 bg-brand-cream/20 border border-brand-bronze/10 rounded-sm relative">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
                     <div className="space-y-2">
-                      <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Image</label>
-                      <label className="w-10 h-10 aspect-square relative flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden flex-shrink-0">
-                        {v.image ? (
-                          <img src={typeof v.image === 'string' ? v.image : URL.createObjectURL(v.image)} alt="variant" className="w-full h-full object-cover" />
-                        ) : (
-                          <FontAwesomeIcon icon={faCloudUploadAlt} className="text-xs text-brand-bronze/50" />
-                        )}
-                        <input type="file" onChange={(e) => {
-                          const newVariants = [...formData.variants];
-                          newVariants[vIndex].image = e.target.files[0];
-                          onChange({ target: { name: 'variants', value: newVariants } });
-                        }} hidden accept="image/*" />
-                      </label>
-                    </div>
-                    <div className="space-y-2 col-span-1">
-                      <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Name</label>
+                      <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Name</label>
                       <input
                         type="text"
-                        placeholder="Variant Name"
+                        placeholder="e.g. Large / Oak Wood"
                         value={v.name}
                         onChange={(e) => {
                           const newVariants = [...formData.variants];
                           newVariants[vIndex].name = e.target.value;
-                          onChange({ target: { name: 'variants', value: newVariants } });
+                          setFormData(prev => ({ ...prev, variants: newVariants }));
                         }}
                         className="luxury-input text-xs"
                       />
                     </div>
-                    <div className="space-y-2">
-                      <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Price</label>
-                      <input
-                        type="number"
-                        placeholder="Price"
-                        value={v.price}
-                        onChange={(e) => {
-                          const newVariants = [...formData.variants];
-                          newVariants[vIndex].price = e.target.value;
-                          onChange({ target: { name: 'variants', value: newVariants } });
-                        }}
-                        className="luxury-input text-xs"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Stock</label>
-                      <input
-                        type="number"
-                        placeholder="Stock"
-                        value={v.stock}
-                        onChange={(e) => {
-                          const newVariants = [...formData.variants];
-                          newVariants[vIndex].stock = e.target.value;
-                          onChange({ target: { name: 'variants', value: newVariants } });
-                        }}
-                        className="luxury-input text-xs"
-                      />
-                    </div>
-                    <div className="space-y-2 flex items-end gap-2">
-                      <div className="flex-1">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Price</label>
+                        <input
+                          type="number"
+                          placeholder="Price"
+                          value={v.price}
+                          onChange={(e) => {
+                            const newVariants = [...formData.variants];
+                            newVariants[vIndex].price = e.target.value;
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                          className="luxury-input text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Stock</label>
+                        <input
+                          type="number"
+                          placeholder="Qty"
+                          value={v.stock}
+                          onChange={(e) => {
+                            const newVariants = [...formData.variants];
+                            newVariants[vIndex].stock = e.target.value;
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                          className="luxury-input text-xs"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Discount (Sale)</label>
+                        <input
+                          type="number"
+                          placeholder="Sale Price"
+                          value={v.discountPrice}
+                          onChange={(e) => {
+                            const newVariants = [...formData.variants];
+                            newVariants[vIndex].discountPrice = e.target.value;
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                          className="luxury-input text-xs text-red-500 font-bold"
+                        />
+                      </div>
+                      <div className="space-y-1">
                         <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">SKU</label>
                         <input
                           type="text"
@@ -880,23 +927,66 @@ const EditMode = ({
                           onChange={(e) => {
                             const newVariants = [...formData.variants];
                             newVariants[vIndex].sku = e.target.value;
-                            onChange({ target: { name: 'variants', value: newVariants } });
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
                           }}
                           className="luxury-input text-xs"
                         />
                       </div>
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const newVariants = formData.variants.filter((_, i) => i !== vIndex);
-                          onChange({ target: { name: 'variants', value: newVariants } });
-                        }}
-                        className="text-red-400 p-2"
-                      >
-                        <FontAwesomeIcon icon={faTrashAlt} />
-                      </button>
                     </div>
                   </div>
+
+                  <div className="space-y-2 mb-4">
+                    <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Description</label>
+                    <textarea
+                      placeholder="Specific details for this variant..."
+                      value={v.description}
+                      onChange={(e) => {
+                        const newVariants = [...formData.variants];
+                        newVariants[vIndex].description = e.target.value;
+                        setFormData(prev => ({ ...prev, variants: newVariants }));
+                      }}
+                      className="luxury-input text-xs min-h-[60px] resize-none"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-[8px] font-bold uppercase tracking-widest text-brand-muted opacity-60 mb-2 block">Variant Images</label>
+                    <div className="flex flex-wrap gap-3">
+                      {v.images?.map((img, imgIndex) => (
+                        <div key={imgIndex} className="relative w-14 h-14 border rounded-sm overflow-hidden group/img">
+                          <img src={typeof img === 'string' ? img : URL.createObjectURL(img)} alt="variant" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => {
+                            const newVariants = [...formData.variants];
+                            newVariants[vIndex].images = newVariants[vIndex].images.filter((_, i) => i !== imgIndex);
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                            <FontAwesomeIcon icon={faTimes} className="text-white text-[10px]" />
+                          </button>
+                        </div>
+                      ))}
+                      <label className="w-14 h-14 flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden text-brand-bronze/50">
+                        <FontAwesomeIcon icon={faCloudUploadAlt} className="text-xs" />
+                        <span className="text-[7px] mt-1 uppercase font-bold">Add</span>
+                        <input type="file" multiple onChange={(e) => {
+                          const files = Array.from(e.target.files);
+                          const newVariants = [...formData.variants];
+                          newVariants[vIndex].images = [...(newVariants[vIndex].images || []), ...files];
+                          setFormData(prev => ({ ...prev, variants: newVariants }));
+                        }} hidden accept="image/*" />
+                      </label>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const newVariants = formData.variants.filter((_, i) => i !== vIndex);
+                      setFormData(prev => ({ ...prev, variants: newVariants }));
+                    }}
+                    className="absolute top-2 right-2 text-brand-muted hover:text-red-400 p-2 transition-colors"
+                  >
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </div>
               ))}
             </div>

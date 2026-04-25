@@ -58,7 +58,7 @@ export default function Orders({ orders }) {
                     <div className="space-y-8">
                         {orders.map((order, idx) => (
                             <motion.div
-                                key={order.id}
+                                key={order._id || order.id}
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: idx * 0.1 }}
@@ -68,9 +68,9 @@ export default function Orders({ orders }) {
                                 <div className="p-6 md:p-8 border-b border-brand-ink/5 flex flex-col md:flex-row justify-between gap-6 bg-brand-cream/10">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-ink">Order #{order.id}</span>
+                                            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-ink">Order #{order._id || order.id}</span>
                                             <div className="px-3 py-1 bg-brand-ink text-white text-[8px] uppercase tracking-widest font-bold">
-                                                {order.status}
+                                                {order.status || 'Order Placed'}
                                             </div>
                                         </div>
                                         <p className="text-[10px] text-brand-muted uppercase tracking-[0.2em] font-bold">
@@ -81,7 +81,7 @@ export default function Orders({ orders }) {
                                         <div className="flex items-center gap-6 md:text-right">
                                             <div className="space-y-1">
                                                 <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted opacity-40 block">Total</span>
-                                                <span className="text-xl font-sans font-black">{currency}{order.total.toLocaleString()}</span>
+                                                <span className="text-xl font-sans font-black">{currency}{(order.amount || order.total).toLocaleString()}</span>
                                             </div>
                                             <button
                                                 className="w-10 h-10 border border-brand-ink/10 flex items-center justify-center hover:bg-brand-ink hover:text-white transition-all group/btn"
@@ -90,12 +90,12 @@ export default function Orders({ orders }) {
                                             </button>
                                         </div>
                                         <span className="text-[8px] uppercase tracking-widest font-bold text-brand-muted opacity-60">
-                                            Incl. {currency}{order.deliveryCharges.toLocaleString()} Shipping
+                                            Incl. {currency}{order.deliveryCharges?.toLocaleString() || 0} Shipping
                                         </span>
                                     </div>
                                 </div>
 
-                                {/* STATUS TIMELINE ... */}
+                                {/* STATUS TIMELINE */}
                                 <div className="px-6 md:px-8 py-6 border-b border-brand-ink/5 overflow-x-auto no-scrollbar">
                                     <div className="min-w-[500px] flex justify-between relative">
                                         {/* Tracking Line */}
@@ -103,20 +103,25 @@ export default function Orders({ orders }) {
                                         <div
                                             className="absolute top-4 left-0 h-[2px] bg-brand-bronze z-0 transition-all duration-1000"
                                             style={{
-                                                width: order.status === 'manifesting' ? '0%' :
-                                                    order.status === 'processing' ? '33%' :
-                                                        order.status === 'shipped' ? '66%' : '100%'
+                                                width: (order.status === 'Order Placed') ? '0%' :
+                                                    (order.status === 'Packing') ? '25%' :
+                                                        (order.status === 'Shipped') ? '50%' :
+                                                            (order.status === 'Out for delivery') ? '75%' :
+                                                                (order.status === 'Delivered') ? '100%' : '0%'
                                             }}
                                         />
 
                                         {[
-                                            { id: 'manifesting', label: 'Order Placed', icon: Package },
-                                            { id: 'processing', label: 'Processing', icon: Clock },
-                                            { id: 'shipped', label: 'Shipped', icon: Ship },
-                                            { id: 'delivered', label: 'Delivered', icon: CheckCircle2 }
+                                            { id: 'Order Placed', label: 'Placed', icon: Package },
+                                            { id: 'Packing', label: 'Packing', icon: Package },
+                                            { id: 'Shipped', label: 'Shipped', icon: Ship },
+                                            { id: 'Out for delivery', label: 'Transit', icon: Clock },
+                                            { id: 'Delivered', label: 'Delivered', icon: CheckCircle2 }
                                         ].map((step, sIdx) => {
-                                            const isPast = ['manifesting', 'processing', 'shipped', 'delivered'].indexOf(order.status) >= ['manifesting', 'processing', 'shipped', 'delivered'].indexOf(step.id);
-                                            const isCurrent = order.status === step.id;
+                                            const statuses = ['Order Placed', 'Packing', 'Shipped', 'Out for delivery', 'Delivered'];
+                                            const currentStatus = order.status || 'Order Placed';
+                                            const isPast = statuses.indexOf(currentStatus) >= statuses.indexOf(step.id);
+                                            const isCurrent = currentStatus === step.id;
 
                                             return (
                                                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
@@ -143,7 +148,10 @@ export default function Orders({ orders }) {
                                                 <h4 className="text-[12px] font-black uppercase tracking-widest text-brand-ink">{item.name}</h4>
                                                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                                                     <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">Qty: {item.quantity}</span>
-                                                    {Object.entries(item.variants).map(([k, v]) => (
+                                                    {item.variant && (
+                                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">Variant: {item.variant}</span>
+                                                    )}
+                                                    {item.variants && Object.entries(item.variants).map(([k, v]) => (
                                                         <span key={k} className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">{k}: {v}</span>
                                                     ))}
                                                 </div>
@@ -159,12 +167,16 @@ export default function Orders({ orders }) {
                                 <div className="px-6 md:px-8 py-4 bg-brand-ink/5 flex items-center gap-6 overflow-x-auto no-scrollbar">
                                     <div className="flex items-center gap-2 shrink-0">
                                         <Clock size={14} className="text-brand-bronze" />
-                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-ink">Delivery in progress</span>
+                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-ink">
+                                            {order.status === 'Delivered' ? 'Order Delivered' : 'Delivery in progress'}
+                                        </span>
                                     </div>
                                     <div className="w-[1px] h-4 bg-brand-ink/10" />
                                     <div className="flex items-center gap-2 shrink-0">
                                         <MapPin size={14} className="text-brand-muted" />
-                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">{order.shippingDetails.city} Shipping Address</span>
+                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">
+                                            {(order.address?.city || order.shippingDetails?.city)} Shipping Address
+                                        </span>
                                     </div>
                                 </div>
                             </motion.div>

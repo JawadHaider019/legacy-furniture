@@ -189,7 +189,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                 <AnimatePresence mode="popLayout">
                                     {filteredProducts.map(product => (
                                         <motion.div
-                                            key={product.id}
+                                            key={product._id}
                                             layout
                                             initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, scale: 1 }}
@@ -198,8 +198,8 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                         >
                                             <ProductCard
                                                 product={product}
-                                                isWishlisted={wishlistItems.includes(product.id)}
-                                                onWishlistToggle={() => onWishlistToggle(product.id)}
+                                                isWishlisted={wishlistItems.includes(product._id)}
+                                                onWishlistToggle={() => onWishlistToggle(product._id)}
                                             />
                                         </motion.div>
                                     ))}

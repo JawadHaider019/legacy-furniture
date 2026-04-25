@@ -72,13 +72,13 @@ const Setting = () => {
     },
     contact: {
       customerSupport: {
-        email: "naturabliss@gmail.com",
-        phone: "+92-333-3333",
+        email: "legacyfurniture18@gmail.com",
+        phone: "+447424757756",
         hours: "24/7"
       }
     },
     location: {
-      displayAddress: "123 Natural Street, Green Valley, PK",
+      displayAddress: "London, United Kingdom",
       googleMapsLink: ""
     },
     socialMedia: {
@@ -227,13 +227,13 @@ const Setting = () => {
             },
             contact: data.data.contact || {
               customerSupport: {
-                email: "naturabliss@gmail.com",
-                phone: "+92-333-3333",
+                email: "legacyfurniture18@gmail.com",
+                phone: "+447424757756",
                 hours: "24/7"
               }
             },
             location: data.data.location || {
-              displayAddress: "123 Natural Street, Green Valley, PK",
+              displayAddress: "London, United Kingdom",
               googleMapsLink: ""
             },
             socialMedia: data.data.socialMedia || {
@@ -560,8 +560,8 @@ const Setting = () => {
 
       // ✅ FIX: Create proper customerSupport object structure
       const customerSupportData = {
-        email: businessDetails.contact.customerSupport.email || "codewithjerry0o0@gmail.com",
-        phone: businessDetails.contact.customerSupport.phone || "+92-317 5546007",
+        email: businessDetails.contact.customerSupport.email || "legacyfurniture18@gmail.com",
+        phone: businessDetails.contact.customerSupport.phone || "+447424757756",
         hours: businessDetails.contact.customerSupport.hours || "24/7"
       };
 

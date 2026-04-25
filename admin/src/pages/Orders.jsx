@@ -779,6 +779,140 @@ const BillingSummary = ({ order }) => {
   );
 };
 
+const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-[100] p-4">
+      <div className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto bg-brand-cream rounded-2xl p-6 md:p-8">
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-brand-ink/50 hover:text-brand-ink transition-colors z-10"
+        >
+          <FontAwesomeIcon icon={faXmark} className="text-2xl" />
+        </button>
+
+        <h2 className="text-2xl font-serif text-brand-ink mb-1">Order Details</h2>
+        <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold mb-6">#{order._id?.slice(-12).toUpperCase()}</p>
+
+        {/* Customer + Shipping */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div className="bg-white p-5 rounded-xl border border-brand-bronze/10">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
+              <FontAwesomeIcon icon={faUser} className="text-brand-bronze" /> Customer
+            </h3>
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-brand-ink flex items-center justify-center font-bold text-white text-sm shrink-0">
+                {customerInfo.name?.split(' ').map(p => p[0]).join('').toUpperCase().slice(0, 2)}
+              </div>
+              <div>
+                <p className="font-bold text-brand-ink text-sm">{customerInfo.name}</p>
+                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">{order.isGuest ? 'Guest' : 'Registered'}</p>
+              </div>
+            </div>
+            <div className="border-t border-brand-bronze/5 pt-3 space-y-2">
+              <div className="flex items-center gap-2 text-sm text-brand-muted">
+                <FontAwesomeIcon icon={faEnvelope} className="text-brand-bronze/60 w-4 shrink-0" />
+                <span className="break-all">{customerInfo.email}</span>
+              </div>
+              <div className="flex items-center gap-2 text-sm text-brand-muted">
+                <FontAwesomeIcon icon={faPhone} className="text-brand-bronze/60 w-4 shrink-0" />
+                <span>{customerInfo.phone}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl border border-brand-bronze/10">
+            <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
+              <FontAwesomeIcon icon={faShippingFast} className="text-brand-bronze" /> Delivery Address
+            </h3>
+            <div className="space-y-1 text-sm mb-4">
+              {order.address?.firstName && <p className="font-bold text-brand-ink">{order.address.firstName} {order.address.lastName}</p>}
+              {order.address?.street && <p className="text-brand-muted">{order.address.street}</p>}
+              <p className="text-brand-muted">{[order.address?.city, order.address?.state, order.address?.zipCode].filter(Boolean).join(', ')}</p>
+            </div>
+            <div className="border-t border-brand-bronze/5 pt-3 grid grid-cols-2 gap-3 text-sm">
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold mb-0.5">Payment</p>
+                <p className="font-bold text-brand-ink">{order.paymentMethod || 'COD'}</p>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold mb-0.5">Date</p>
+                <p className="font-bold text-brand-ink">{new Date(order.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Summary Bar */}
+        <div className="bg-brand-ink rounded-xl p-4 mb-6 flex flex-wrap gap-4 justify-between items-center">
+          <div>
+            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Status</p>
+            <p className="text-white font-bold text-sm">{order.status}</p>
+          </div>
+          <div>
+            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Items</p>
+            <p className="text-white font-bold text-sm">{order.items?.length || 0}</p>
+          </div>
+          <div>
+            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Delivery</p>
+            <p className="text-white font-bold text-sm">{order.deliveryCharges > 0 ? `${currency}${order.deliveryCharges.toFixed(2)}` : 'FREE'}</p>
+          </div>
+          <div>
+            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Order Total</p>
+            <p className="text-brand-bronze font-black text-2xl">{currency}{order.amount?.toFixed(2)}</p>
+          </div>
+        </div>
+
+        {/* Products */}
+        <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
+          <FontAwesomeIcon icon={faBox} className="text-brand-bronze" /> Products Ordered
+        </h3>
+        <div className="space-y-3">
+          {order.items?.map((item, idx) => (
+            <div key={idx} className="flex items-center gap-4 bg-white p-4 rounded-xl border border-brand-bronze/10 hover:shadow-md transition-shadow">
+              {(() => {
+                const imgSrc = Array.isArray(item.image)
+                  ? item.image[0]
+                  : typeof item.image === 'string' && item.image.length > 10
+                    ? item.image
+                    : null;
+                return imgSrc ? (
+                  <img
+                    src={imgSrc}
+                    alt={item.name}
+                    className="w-16 h-16 object-cover rounded-lg border border-brand-bronze/10 shrink-0"
+                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                  />
+                ) : null;
+              })()}
+              {!((Array.isArray(item.image) && item.image[0]) || (typeof item.image === 'string' && item.image.length > 10)) && (
+                <div className="w-16 h-16 bg-brand-cream rounded-lg flex items-center justify-center shrink-0">
+                  <FontAwesomeIcon icon={faBox} className="text-brand-muted" />
+                </div>
+              )}
+              <div className="flex-1 min-w-0">
+                <h4 className="font-bold text-brand-ink text-sm uppercase tracking-wider truncate mb-1">{item.name}</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {item.variant && (
+                    <span className="px-2 py-0.5 bg-brand-bronze/10 text-brand-bronze text-[9px] uppercase tracking-widest font-bold rounded">{item.variant}</span>
+                  )}
+                  <span className="px-2 py-0.5 bg-brand-ink/5 text-brand-ink text-[9px] uppercase tracking-widest font-bold rounded">Qty: {item.quantity}</span>
+                  <span className="px-2 py-0.5 bg-brand-ink/5 text-brand-muted text-[9px] uppercase tracking-widest font-bold rounded">{currency}{item.price?.toFixed(2)} each</span>
+                </div>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="font-black text-brand-ink text-sm">{currency}{(item.price * item.quantity).toFixed(2)}</p>
+                <p className="text-[9px] text-brand-muted font-bold tracking-widest uppercase mt-0.5">subtotal</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const OrderCard = ({
   order,
   onStatusChange,
@@ -793,6 +927,7 @@ const OrderCard = ({
 
   const screenshotUrl = order.verifiedPayment?.screenshot || order.paymentScreenshot;
   const [showImageModal, setShowImageModal] = useState(false);
+  const [showOrderDetailsModal, setShowOrderDetailsModal] = useState(false);
 
   // Get initials for the avatar
   const getInitials = (name) => {
@@ -858,7 +993,7 @@ const OrderCard = ({
           </div>
         </div>
 
-        <div className="space-y-3 max-h-48 overflow-y-auto pr-2 scrollbar-hide">
+        <div className="space-y-3 pr-2 scrollbar-hide">
           {order.items.slice(0, 4).map((item, idx) => (
             <div key={idx} className="flex items-center justify-between group/item">
               <span className="text-sm font-medium text-brand-ink/80 truncate flex-1 pr-4">{item.name}</span>
@@ -885,7 +1020,7 @@ const OrderCard = ({
 
         <div className="grid grid-cols-2 gap-3">
           <button
-            onClick={() => setShowImageModal(true)}
+            onClick={() => setShowOrderDetailsModal(true)}
             className="px-4 py-3 rounded-xl border border-brand-bronze/20 text-brand-ink text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors flex items-center justify-center gap-2"
           >
             <FontAwesomeIcon icon={faFileAlt} className="text-brand-bronze" />
@@ -929,6 +1064,12 @@ const OrderCard = ({
         imageUrl={screenshotUrl}
         isOpen={showImageModal}
         onClose={() => setShowImageModal(false)}
+      />
+      <OrderDetailsModal
+        order={order}
+        customerInfo={customerInfo}
+        isOpen={showOrderDetailsModal}
+        onClose={() => setShowOrderDetailsModal(false)}
       />
     </div>
   );
@@ -1168,7 +1309,7 @@ const Orders = () => {
             onClearSearch={() => setSearchTerm('')}
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {filteredOrders.map((order) => (
               <OrderCard
                 key={order._id}

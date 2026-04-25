@@ -112,7 +112,7 @@ const Add = () => {
     setShippingClass("normal");
     setDeliveryTime("3-7 days");
     setFreeShipping(false);
-    setStatus("published");
+    setStatus("draft");
     setVisibility("public");
     setFeaturedProduct(false);
     setBestseller(false);
@@ -169,9 +169,13 @@ const Add = () => {
 
       // Removed imageAltText and videoUrl appending
 
-      variants.forEach((v, index) => {
-        if (v.image && typeof v.image !== 'string') {
-          formData.append(`variantImage_${index}`, v.image);
+      variants.forEach((v, vIndex) => {
+        if (v.images && Array.isArray(v.images)) {
+          v.images.forEach((img, imgIndex) => {
+            if (img && typeof img !== 'string') {
+              formData.append(`variant_${vIndex}_image_${imgIndex}`, img);
+            }
+          });
         }
       });
 
@@ -322,55 +326,84 @@ const Add = () => {
               <FontAwesomeIcon icon={faBoxes} className="text-brand-bronze" /> Product Variants
             </h3>
             <div className="space-y-6">
-              {variants.map((variant, index) => (
-                <div key={index} className="bg-white border border-brand-bronze/20 p-5 rounded-sm shadow-sm relative">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                    <div className="luxury-input-group">
+              {variants.map((variant, vIndex) => (
+                <div key={vIndex} className="bg-white border border-brand-bronze/20 p-4 rounded-sm shadow-sm relative">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                    <div className="luxury-input-group col-span-1 ">
                       <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Name</label>
                       <input type="text" value={variant.name} onChange={e => {
-                        const newVar = [...variants]; newVar[index].name = e.target.value; setVariants(newVar);
+                        const newVar = [...variants]; newVar[vIndex].name = e.target.value; setVariants(newVar);
                       }} className="luxury-input !text-sm" placeholder="e.g. Black / Large" />
                     </div>
-                    <div className="luxury-input-group">
-                      <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Price (Rs)</label>
-                      <input type="number" value={variant.price} onChange={e => {
-                        const newVar = [...variants]; newVar[index].price = e.target.value; setVariants(newVar);
-                      }} className="luxury-input !text-sm" placeholder="Price" />
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 col-span-2">
+                      <div className="luxury-input-group">
+                        <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Price (Rs)</label>
+                        <input type="number" value={variant.price} onChange={e => {
+                          const newVar = [...variants]; newVar[vIndex].price = e.target.value; setVariants(newVar);
+                        }} className="luxury-input !text-sm" placeholder="Price" />
+                      </div>
+                      <div className="luxury-input-group">
+                        <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Stock</label>
+                        <input type="number" value={variant.stock} onChange={e => {
+                          const newVar = [...variants]; newVar[vIndex].stock = e.target.value; setVariants(newVar);
+                        }} className="luxury-input !text-sm" placeholder="Qty" />
+                      </div>
+                      <div className="luxury-input-group">
+                        <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Discount Price (Sale)</label>
+                        <input type="number" value={variant.discountPrice} onChange={e => {
+                          const newVar = [...variants]; newVar[vIndex].discountPrice = e.target.value; setVariants(newVar);
+                        }} className="luxury-input !text-sm text-red-500 font-bold" placeholder="0" />
+                      </div>
+                      <div className="luxury-input-group">
+                        <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">SKU</label>
+                        <input type="text" value={variant.sku} onChange={e => {
+                          const newVar = [...variants]; newVar[vIndex].sku = e.target.value; setVariants(newVar);
+                        }} className="luxury-input !text-sm" placeholder="SKU" />
+                      </div>
                     </div>
-                    <div className="luxury-input-group">
-                      <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Stock</label>
-                      <input type="number" value={variant.stock} onChange={e => {
-                        const newVar = [...variants]; newVar[index].stock = e.target.value; setVariants(newVar);
-                      }} className="luxury-input !text-sm" placeholder="Quantity" />
-                    </div>
-                    <div className="luxury-input-group">
-                      <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Image</label>
-                      <label className="w-10 h-10 aspect-square relative flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden">
-                        {variant.image ? (
-                          <img src={typeof variant.image === 'string' ? variant.image : URL.createObjectURL(variant.image)} alt="variant" className="w-full h-full object-cover" />
-                        ) : (
-                          <FontAwesomeIcon icon={faCloudUploadAlt} className="text-xs text-brand-bronze/50" />
-                        )}
-                        <input type="file" onChange={(e) => {
+                  </div>
+
+                  <div className="luxury-input-group mb-4">
+                    <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Description / Details</label>
+                    <textarea value={variant.description} onChange={e => {
+                      const newVar = [...variants]; newVar[vIndex].description = e.target.value; setVariants(newVar);
+                    }} className="luxury-input !text-sm min-h-[80px]" placeholder="Specific details for this variant..." />
+                  </div>
+
+                  <div className="luxury-input-group">
+                    <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-2">Variant Images</label>
+                    <div className="flex flex-wrap gap-3">
+                      {variant.images?.map((img, imgIndex) => (
+                        <div key={imgIndex} className="relative w-16 h-16 border rounded-sm overflow-hidden group">
+                          <img src={typeof img === 'string' ? img : URL.createObjectURL(img)} alt="variant" className="w-full h-full object-cover" />
+                          <button type="button" onClick={() => {
+                            const newVar = [...variants];
+                            newVar[vIndex].images = newVar[vIndex].images.filter((_, i) => i !== imgIndex);
+                            setVariants(newVar);
+                          }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                            <FontAwesomeIcon icon={faTrashAlt} className="text-white text-xs" />
+                          </button>
+                        </div>
+                      ))}
+                      <label className="w-16 h-16 flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden text-brand-bronze/50">
+                        <FontAwesomeIcon icon={faCloudUploadAlt} className="text-sm" />
+                        <span className="text-[8px] mt-1">Add</span>
+                        <input type="file" multiple onChange={(e) => {
+                          const files = Array.from(e.target.files);
                           const newVar = [...variants];
-                          newVar[index].image = e.target.files[0];
+                          newVar[vIndex].images = [...(newVar[vIndex].images || []), ...files];
                           setVariants(newVar);
                         }} hidden accept="image/*" />
                       </label>
                     </div>
-                    <div className="luxury-input-group relative pr-8">
-                      <label className="block text-[8px] font-bold uppercase tracking-widest text-brand-muted mb-1">SKU</label>
-                      <input type="text" value={variant.sku} onChange={e => {
-                        const newVar = [...variants]; newVar[index].sku = e.target.value; setVariants(newVar);
-                      }} className="luxury-input !text-sm" placeholder="SKU" />
-                      <button type="button" onClick={() => setVariants(variants.filter((_, i) => i !== index))} className="absolute right-0 top-[26px] text-red-400 hover:text-red-500">
-                        <FontAwesomeIcon icon={faTrashAlt} />
-                      </button>
-                    </div>
                   </div>
+
+                  <button type="button" onClick={() => setVariants(variants.filter((_, i) => i !== vIndex))} className="absolute top-2 right-2 text-brand-muted hover:text-red-400 p-2 transition-colors">
+                    <FontAwesomeIcon icon={faTrashAlt} />
+                  </button>
                 </div>
               ))}
-              <button type="button" onClick={() => setVariants([...variants, { name: "", price: "", stock: "", sku: "" }])} className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-bronze hover:text-brand-ink">
+              <button type="button" onClick={() => setVariants([...variants, { name: "", price: "", discountPrice: "", stock: "", sku: "", images: [], description: "" }])} className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-bronze hover:text-brand-ink">
                 + Add Variant
               </button>
             </div>
@@ -503,9 +536,8 @@ const Add = () => {
                   <label className="block text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-2">Status</label>
                   <select value={status} onChange={e => setStatus(e.target.value)} className="luxury-input bg-transparent">
                     <option value="draft">Draft</option>
-                    <option value="published">Published</option>
-                    <option value="scheduled">Scheduled</option>
-                    <option value="archived">Archived</option>
+                    <option value="private">Private</option>
+                    <option value="public">Public</option>
                   </select>
                 </div>
                 <div className="luxury-input-group">
@@ -566,8 +598,8 @@ const Add = () => {
             </button>
           </div>
         </form>
-      </div>
-    </div>
+      </div >
+    </div >
   );
 };
 

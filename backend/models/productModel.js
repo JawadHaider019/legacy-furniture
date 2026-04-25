@@ -31,7 +31,9 @@ const productSchema = new mongoose.Schema({
         price: { type: Number },
         stock: { type: Number },
         sku: { type: String },
-        image: { type: String }
+        images: { type: Array }, // Support multiple images per variant
+        description: { type: String }, // Support description per variant
+        discountPrice: { type: Number, default: 0 } // Support discount price per variant
     }],
 
     // 5. INVENTORY
@@ -58,7 +60,7 @@ const productSchema = new mongoose.Schema({
     // 9. PRODUCT STATUS & VISIBILITY
     status: {
         type: String,
-        enum: ['draft', 'published', 'archived', 'scheduled'],
+        enum: ['draft', 'private', 'public'],
         default: 'draft'
     },
     visibility: { type: String, enum: ['public', 'private'], default: 'public' },

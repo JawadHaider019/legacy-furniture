@@ -1,9 +1,9 @@
 import express from "express"
-import { 
-  placeOrder, 
-  allOrders, 
-  userOrders, 
-  updateStatus, 
+import {
+  placeOrder,
+  allOrders,
+  userOrders,
+  updateStatus,
   cancelOrder,
   cancelGuestOrder,
   getCancellationReasons,
@@ -42,6 +42,19 @@ orderRoutes.post("/cancel-guest", cancelGuestOrder)
 // Public routes
 orderRoutes.get("/cancellation-reasons", getCancellationReasons)
 orderRoutes.post("/check-stock", checkStock)
+orderRoutes.post("/sync-statuses", async (req, res) => {
+  try {
+    const { orderIds } = req.body;
+    if (!orderIds || !Array.isArray(orderIds)) {
+      return res.json({ success: false, message: "orderIds array required" });
+    }
+    const { default: orderModel } = await import("../models/orderModel.js");
+    const orders = await orderModel.find({ _id: { $in: orderIds } }).select("status date deliveryCharges amount payment");
+    res.json({ success: true, orders });
+  } catch (error) {
+    res.json({ success: false, message: error.message });
+  }
+});
 
 // Notification routes (require auth)
 orderRoutes.get("/notifications", authUser, getUserNotifications)

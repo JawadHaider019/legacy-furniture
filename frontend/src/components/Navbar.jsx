@@ -187,8 +187,8 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
                                         <h5 className="text-[9px] uppercase tracking-widest font-black text-brand-ink/40 mb-2">Contact</h5>
-                                        <p className="text-xs font-light">info@legacyfurniture.com</p>
-                                        <p className="text-xs font-light">+1 (800) 123 4567</p>
+                                        <p className="text-xs font-light">legacyfurniture18@gmail.com</p>
+                                        <p className="text-xs font-light">+44 7424 757756</p>
 
                                     </div>
                                     <div>

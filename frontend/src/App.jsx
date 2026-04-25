@@ -1,5 +1,6 @@
 import { useContext, useState, useEffect } from 'react';
-import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { ShopContext } from './context/ShopContext';
 import { slugify } from './utils/slugify';
 import Navbar from './components/Navbar';
@@ -71,7 +72,7 @@ function Home({ wishlistItems, toggleWishlist }) {
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
                             viewport={{ once: true }}
-                            className="aspect-[4/5] overflow-hidden"
+                            className="aspect-[1/1] overflow-hidden"
                         >
                             <img
                                 src="https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&q=80&w=1000"
@@ -146,7 +147,14 @@ function Home({ wishlistItems, toggleWishlist }) {
 
 export default function App() {
     const [cartOpen, setCartOpen] = useState(false);
-    const [wishlistItems, setWishlistItems] = useState([]);
+    const [wishlistItems, setWishlistItems] = useState(() => {
+        const saved = localStorage.getItem('auden-wishlist');
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    useEffect(() => {
+        localStorage.setItem('auden-wishlist', JSON.stringify(wishlistItems));
+    }, [wishlistItems]);
     const [orders, setOrders] = useState(() => {
         const saved = localStorage.getItem('auden-orders');
         return saved ? JSON.parse(saved) : [];
@@ -159,6 +167,39 @@ export default function App() {
         localStorage.setItem('auden-orders', JSON.stringify(orders));
     }, [orders]);
 
+    const { products, cartItems, getCartAmount, placeOrder, deliverySettings, backendUrl } = useContext(ShopContext);
+
+    // Sync order statuses with backend on mount
+    useEffect(() => {
+        const syncOrderStatuses = async () => {
+            try {
+                if (!orders || orders.length === 0) return;
+
+                const orderIds = orders.map(o => o._id);
+                // Only sync if we have backend URL and actual _ids (not temp ones)
+                if (!backendUrl || !orderIds.some(id => id)) return;
+
+                const res = await axios.post(`${backendUrl}/api/order/sync-statuses`, { orderIds });
+
+                if (res.data.success && res.data.orders) {
+                    setOrders(prevOrders => {
+                        const updatedOrders = [...prevOrders];
+                        res.data.orders.forEach(liveOrder => {
+                            const index = updatedOrders.findIndex(o => o._id === liveOrder._id);
+                            if (index !== -1) {
+                                updatedOrders[index].status = liveOrder.status;
+                            }
+                        });
+                        return updatedOrders;
+                    });
+                }
+            } catch (err) {
+                console.error("Failed to sync order statuses:", err.message);
+            }
+        };
+
+        syncOrderStatuses();
+    }, [backendUrl]); // Run once on mount or when backendUrl is available
     const toggleWishlist = (id) => {
         setWishlistItems(prev =>
             prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
@@ -167,12 +208,61 @@ export default function App() {
 
     const handlePlaceOrder = async (details) => {
         setIsOrdering(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        // Logic will be updated when order API is integrated
-        setCartOpen(false);
+
+        // Prepare items array for backend
+        const items = [];
+        Object.keys(cartItems).forEach(itemId => {
+            const product = products.find(p => p._id === itemId);
+            if (product) {
+                Object.keys(cartItems[itemId]).forEach(variantKey => {
+                    const quantity = cartItems[itemId][variantKey];
+                    if (quantity > 0) {
+                        const variantObj = product.variants?.find(v => v.name === variantKey);
+                        items.push({
+                            id: itemId,
+                            name: product.name,
+                            quantity: quantity,
+                            price: variantObj?.price || product.price,
+                            image: (variantObj?.images && variantObj.images[0]) || variantObj?.image || product.image[0],
+                            variant: variantKey
+                        });
+                    }
+                });
+            }
+        });
+
+        const total = getCartAmount();
+        const deliveryFee = deliverySettings?.mode === 'fixed'
+            ? (deliverySettings.freeDeliveryAbove && total >= deliverySettings.freeDeliveryAbove ? 0 : deliverySettings.fixedCharge)
+            : 49;
+
+        const orderData = {
+            items,
+            amount: total + deliveryFee,
+            address: {
+                street: details.address,
+                city: details.city,
+                zipCode: details.zipCode,
+                firstName: details.firstName,
+                lastName: details.lastName
+            },
+            deliveryCharges: deliveryFee,
+            customerDetails: {
+                name: `${details.firstName} ${details.lastName}`,
+                email: details.email,
+                phone: details.phone
+            }
+        };
+
+        const result = await placeOrder(orderData);
+
+        if (result.success) {
+            setCartOpen(false);
+            setOrderSuccess(true);
+            // Optionally add to local orders state
+            setOrders(prev => [{ ...orderData, _id: result.orderId, date: Date.now(), status: 'Order Placed' }, ...prev]);
+        }
         setIsOrdering(false);
-        setOrderSuccess(true);
     };
 
     return (
@@ -411,7 +501,22 @@ function RouterContent({
                                                             </button>
                                                         </div>
                                                         <div className="flex justify-between items-end">
-                                                            <span className="text-[10px] font-semibold text-brand-muted uppercase tracking-widest">Qty: {cartItems[itemId][variantKey]}</span>
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="text-[10px] font-semibold text-brand-muted uppercase tracking-widest">Qty:</span>
+                                                                <div className="flex items-center border border-brand-ink/10 h-6">
+                                                                    <button
+                                                                        onClick={() => updateQuantity(itemId, variantKey, cartItems[itemId][variantKey] - 1)}
+                                                                        className="w-6 h-full flex items-center justify-center text-brand-ink hover:bg-brand-ink/5 transition-colors"
+                                                                    >-</button>
+                                                                    <span className="w-6 text-center text-[10px] font-bold text-brand-ink">
+                                                                        {cartItems[itemId][variantKey]}
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => updateQuantity(itemId, variantKey, cartItems[itemId][variantKey] + 1)}
+                                                                        className="w-6 h-full flex items-center justify-center text-brand-ink hover:bg-brand-ink/5 transition-colors"
+                                                                    >+</button>
+                                                                </div>
+                                                            </div>
                                                             <p className="text-sm font-sans font-bold">{currency}{(productData.price * cartItems[itemId][variantKey]).toLocaleString()}</p>
                                                         </div>
                                                     </div>
@@ -456,7 +561,7 @@ function RouterContent({
                 )}
             </AnimatePresence>
 
-            <div className="fixed bottom-18 right-10 z-[40] flex flex-col gap-4">
+            {/* <div className="fixed bottom-18 right-10 z-[40] flex flex-col gap-4">
                 <motion.button
                     whileHover={{ scale: 1.1 }}
                     whileTap={{ scale: 0.9 }}
@@ -468,7 +573,7 @@ function RouterContent({
                     </div>
                 </motion.button>
 
-            </div>
+            </div> */}
         </div>
     );
 }

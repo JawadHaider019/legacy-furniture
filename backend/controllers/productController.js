@@ -37,7 +37,7 @@ const addProduct = async (req, res) => {
 
     // Separate main images and variant images
     const mainImageFiles = (req.files || []).filter(file => file.fieldname.startsWith('image'));
-    const variantImageFiles = (req.files || []).filter(file => file.fieldname.startsWith('variantImage_'));
+    const variantImageFiles = (req.files || []).filter(file => file.fieldname.startsWith('variant_'));
 
     const imagesUrl = await Promise.all(
       mainImageFiles.map(async file => {
@@ -59,12 +59,16 @@ const addProduct = async (req, res) => {
 
     const parsedVariants = parseJsonField(variants, []);
 
-    // Upload and attach variant images
+    // Upload and attach variant images (Multiple images per variant)
     await Promise.all(variantImageFiles.map(async (file) => {
-      const index = parseInt(file.fieldname.split('_')[1]);
-      if (parsedVariants[index]) {
-        const result = await cloudinary.uploader.upload(file.path, { resource_type: 'image' });
-        parsedVariants[index].image = result.secure_url;
+      // Expecting fieldname format: variant_0_image_1
+      const parts = file.fieldname.split('_');
+      const vIndex = parseInt(parts[1]);
+
+      if (parsedVariants[vIndex]) {
+        if (!parsedVariants[vIndex].images) parsedVariants[vIndex].images = [];
+        const result = await cloudinary.uploader.upload(file.path, { resource_type: 'image', folder: "products/variants" });
+        parsedVariants[vIndex].images.push(result.secure_url);
       }
     }));
 
@@ -142,7 +146,7 @@ const addProduct = async (req, res) => {
 // ------------------- LIST PRODUCTS -------------------
 const listProducts = async (req, res) => {
   try {
-    const { status = 'all' } = req.query; // Default to 'all'
+    const { status = 'public' } = req.query; // Default to 'public'
 
     // Build query
     let query = {};
@@ -151,16 +155,16 @@ const listProducts = async (req, res) => {
     if (status && status !== 'all') {
       query.status = status;
     }
-    // If status is 'all' or not provided, no status filter (get all products)
+    // If status is 'all', no status filter (get all products)
 
     const products = await productModel.find(query);
 
     console.log('📦 Products found:', products.length);
     console.log('🔍 Query used:', query);
     console.log('📊 Status breakdown:', {
-      published: products.filter(p => p.status === 'published').length,
-      draft: products.filter(p => p.status === 'draft').length,
-      archived: products.filter(p => p.status === 'archived').length
+      public: products.filter(p => p.status === 'public').length,
+      private: products.filter(p => p.status === 'private').length,
+      draft: products.filter(p => p.status === 'draft').length
     });
 
     res.json({
@@ -376,7 +380,7 @@ const updateProduct = async (req, res) => {
     // Handle new image uploads
     if (req.files && req.files.length > 0) {
       const mainImageFiles = req.files.filter(file => file.fieldname.startsWith('image'));
-      const variantImageFiles = req.files.filter(file => file.fieldname.startsWith('variantImage_'));
+      const variantImageFiles = req.files.filter(file => file.fieldname.startsWith('variant_'));
 
       if (mainImageFiles.length > 0) {
         const newImageUrls = await Promise.all(
@@ -391,12 +395,16 @@ const updateProduct = async (req, res) => {
         console.log(`Added ${newImageUrls.length} new images`);
       }
 
-      // Upload and attach variant images
+      // Upload and attach variant images (Multiple images per variant)
       await Promise.all(variantImageFiles.map(async (file) => {
-        const index = parseInt(file.fieldname.split('_')[1]);
-        if (updateData.variants[index]) {
-          const result = await cloudinary.uploader.upload(file.path, { resource_type: "image", folder: "products" });
-          updateData.variants[index].image = result.secure_url;
+        // Expecting fieldname format: variant_0_image_1
+        const parts = file.fieldname.split('_');
+        const vIndex = parseInt(parts[1]);
+
+        if (updateData.variants[vIndex]) {
+          if (!updateData.variants[vIndex].images) updateData.variants[vIndex].images = [];
+          const result = await cloudinary.uploader.upload(file.path, { resource_type: "image", folder: "products/variants" });
+          updateData.variants[vIndex].images.push(result.secure_url);
         }
       }));
     }
@@ -447,7 +455,7 @@ const updateProductStatus = async (req, res) => {
       });
     }
 
-    const validStatuses = ['draft', 'published', 'archived', 'scheduled'];
+    const validStatuses = ['draft', 'private', 'public'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({
         success: false,

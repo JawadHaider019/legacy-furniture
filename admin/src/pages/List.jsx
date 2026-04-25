@@ -56,7 +56,7 @@ const List = ({ token }) => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const response = await axios.get(backendUrl + '/api/product/list')
+      const response = await axios.get(backendUrl + '/api/product/list?status=all')
 
       if (response.data.success) {
         setProducts(response.data.products)
@@ -185,19 +185,13 @@ const List = ({ token }) => {
               </p>
             </div>
 
-            <div className="luxury-card p-6 sm:p-10 mb-10 overflow-hidden">
-              <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-6">
-                <div className="flex items-center gap-6">
-                  <div className="px-6 py-2 bg-brand-ink text-brand-cream text-[10px] font-bold uppercase tracking-[0.2em] rounded-sm shadow-lg">
-                    {products.length} Products
-                  </div>
-                </div>
-              </div>
+            <div className="overflow-hidden">
+
 
               {products.length === 0 ? (
                 <EmptyState type="products" />
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {products.map((item, index) => (
                     <ProductListView
                       key={index}
@@ -276,11 +270,11 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
   const getArrayLength = (arr) => Array.isArray(arr) ? arr.length : 0;
 
   return (
-    <div className="group bg-white border border-brand-bronze/10 p-6 rounded-sm hover:shadow-2xl hover:shadow-brand-bronze/5 hover:border-brand-bronze/30 transition-all duration-700 h-full flex flex-col relative overflow-hidden">
+    <div className="group bg-white border border-brand-bronze/10 p-5 rounded-sm hover:shadow-2xl hover:shadow-brand-bronze/5 hover:border-brand-bronze/30 transition-all duration-700 h-full flex flex-col relative overflow-hidden">
       {/* Decorative Corner */}
-      <div className="absolute -top-12 -right-12 w-24 h-24 bg-brand-cream/30 rotate-45 transform transition-transform group-hover:scale-110"></div>
+      <div className="absolute -top-12 -right-12 w-24 h-20 bg-brand-cream/30 rotate-45 transform transition-transform group-hover:scale-110"></div>
 
-      <div className="relative mb-8 aspect-[4/3] overflow-hidden bg-brand-cream border border-brand-bronze/5">
+      <div className="relative mb-4 aspect-[4/3] overflow-hidden bg-brand-cream border border-brand-bronze/5">
         <img
           src={item.image?.[0] || '/placeholder-image.jpg'}
           alt={item.name}
@@ -312,7 +306,7 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
       </div>
 
       <div className="flex-1 flex flex-col">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-2">
           <div className="flex-1">
             <h3 className="font-serif text-lg text-brand-ink mb-1 group-hover:text-brand-bronze transition-colors truncate">
               {item.name}
@@ -322,9 +316,9 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
             </p>
           </div>
           <div className="text-right">
-            <p className="text-sm font-serif text-brand-ink">Rs {item.price.toLocaleString()}</p>
+            <p className="text-lg font-serif text-brand-ink">Rs {item.price.toLocaleString()}</p>
             {item.discountprice > 0 && (
-              <p className="text-[9px] text-red-400 line-through">Rs {item.discountprice.toLocaleString()}</p>
+              <p className="text-sm text-red-400 line-through">Rs {item.discountprice.toLocaleString()}</p>
             )}
           </div>
         </div>
@@ -348,7 +342,7 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
               <button
                 onClick={() => handleStockUpdate(localQuantity - 1)}
                 disabled={isUpdatingStock}
-                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[10px] transition-all"
+                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[12px] transition-all"
               >
                 <FontAwesomeIcon icon={faMinus} />
               </button>
@@ -358,7 +352,7 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
               <button
                 onClick={() => handleStockUpdate(localQuantity + 1)}
                 disabled={isUpdatingStock}
-                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[10px] transition-all"
+                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[12px] transition-all"
               >
                 <FontAwesomeIcon icon={faPlus} />
               </button>
@@ -383,9 +377,8 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
 const StatusDropdown = ({ currentStatus, onStatusChange }) => {
   const statusOptions = [
     { value: 'draft', label: 'Draft', class: 'luxury-badge-draft' },
-    { value: 'published', label: 'Published', class: 'luxury-badge-published' },
-    { value: 'archived', label: 'Archived', class: 'luxury-badge-archived' },
-    { value: 'scheduled', label: 'Scheduled', class: 'luxury-badge-scheduled' },
+    { value: 'private', label: 'Private', class: 'luxury-badge-archived' },
+    { value: 'public', label: 'Public', class: 'luxury-badge-published' },
   ]
 
   const currentOption = statusOptions.find(o => o.value === currentStatus) || statusOptions[0];

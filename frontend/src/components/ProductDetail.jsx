@@ -15,7 +15,7 @@ import toast from 'react-hot-toast';
 export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLogin }) {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const { products, addToCart, currency, getProductReviews, addProductReview, backendUrl, user } = useContext(ShopContext);
+    const { products, addToCart, currency, getProductReviews, addProductReview, backendUrl, user, deliverySettings } = useContext(ShopContext);
 
     // Lightbox State
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
@@ -65,9 +65,21 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
     useEffect(() => {
         if (product && product.variants && product.variants[selectedVariantIndex]) {
             const variant = product.variants[selectedVariantIndex];
-            setCurrentPrice(variant.price || product.price);
+
+            // MSRP is the base price of the variant, or falling back to product base price
+            const msrp = Number(variant.price) || Number(product.price);
+
+            // Current Price is the variant's discount price, 
+            // fallback to variant's base price (if no variant discount), 
+            // fallback to product's discount price, 
+            // finally fallback to product's base price.
+            let price = Number(variant.discountPrice) || Number(variant.price) || Number(product.discountprice) || Number(product.price);
+
+            setCurrentMSRP(msrp);
+            setCurrentPrice(price);
         } else if (product) {
-            setCurrentPrice(product.price);
+            setCurrentPrice(Number(product.discountprice) || Number(product.price));
+            setCurrentMSRP(Number(product.price));
         }
     }, [selectedVariantIndex, product]);
 
@@ -110,7 +122,11 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.5 }}
-                                        src={(product.variants && product.variants[selectedVariantIndex]?.image) || (product.image && product.image[selectedImage])}
+                                        src={
+                                            (product.variants && product.variants[selectedVariantIndex]?.images && product.variants[selectedVariantIndex].images[0]) ||
+                                            (product.variants && product.variants[selectedVariantIndex]?.image) ||
+                                            (product.image && product.image[selectedImage])
+                                        }
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                         referrerPolicy="no-referrer"
@@ -120,14 +136,26 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
 
                             {/* Thumbnails */}
                             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
+                                {/* Variant Specific Images */}
+                                {product.variants && product.variants[selectedVariantIndex]?.images?.map((img, idx) => (
+                                    <button
+                                        key={`variant-${idx}`}
+                                        onClick={() => setSelectedImage(idx)}
+                                        className={`relative flex-shrink-0 w-24 aspect-square overflow-hidden border-2 transition-all ${selectedImage === idx ? 'border-brand-ink' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                    >
+                                        <img src={img} alt={`${product.name} variant view ${idx}`} className="w-full h-full object-cover" />
+                                    </button>
+                                ))}
+
+                                {/* Main Product Images */}
                                 {product.image?.map((img, idx) => (
                                     <button
-                                        key={idx}
+                                        key={`main-${idx}`}
                                         onClick={() => {
                                             setLightboxIndex(idx);
                                             setIsLightboxOpen(true);
                                         }}
-                                        className={`relative flex-shrink-0 w-24 aspect-square overflow-hidden border-2 transition-all ${selectedImage === idx ? 'border-brand-ink' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                                        className="relative flex-shrink-0 w-24 aspect-square overflow-hidden border-2 transition-all border-transparent opacity-60 hover:opacity-100"
                                     >
                                         <img src={img} alt={`${product.name} view ${idx}`} className="w-full h-full object-cover" />
                                     </button>
@@ -172,35 +200,26 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 <div className="space-y-4 mb-8">
                                     {currentMSRP > 0 && (
                                         <div className="flex items-center gap-3 text-brand-muted italic">
-                                            <span className="text-lg line-through">${currentMSRP.toFixed(2)}</span>
+                                            <span className="text-lg line-through">{currency}{currentMSRP.toFixed(2)}</span>
                                             <span className="text-sm font-bold text-red-600 uppercase tracking-widest">{discountValue}% Off MSRP</span>
                                         </div>
                                     )}
                                     <div className="flex flex-col gap-1">
                                         <span className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-bronze">Sale Price</span>
                                         <p className="text-4xl md:text-5xl font-sans font-black text-brand-ink">
-                                            ${currentPrice.toFixed(2)}
+                                            {currency}{currentPrice.toFixed(2)}
                                         </p>
                                     </div>
-                                    <div className="flex items-center gap-2 text-[11px] font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-sm w-fit border border-green-100">
-                                        <Truck size={14} />
-                                        Free Shipping over $49.99*
-                                    </div>
+
+                                    {deliverySettings?.freeDeliveryAbove > 0 && (
+                                        <div className="flex items-center gap-2 text-[11px] font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-sm w-fit border border-green-100">
+                                            <Truck size={14} />
+                                            Free Shipping over {currency}{deliverySettings.freeDeliveryAbove.toLocaleString()}
+                                        </div>
+                                    )}
                                 </div>
 
-                                <div className="p-6 bg-brand-ink/[0.03] space-y-4 mb-10">
-                                    <p className="text-[10px] uppercase tracking-widest font-bold text-brand-ink/60">Delivery Estimation</p>
-                                    <div className="flex gap-2">
-                                        <input
-                                            type="text"
-                                            placeholder="Enter Zip Code"
-                                            value={zipCode}
-                                            onChange={(e) => setZipCode(e.target.value)}
-                                            className="flex-1 bg-white border border-brand-ink/10 px-4 py-3 text-xs tracking-widest outline-none focus:border-brand-ink transition-all"
-                                        />
-                                        <button className="px-6 bg-brand-ink text-white text-[10px] font-bold uppercase tracking-widest hover:bg-black transition-all">Check</button>
-                                    </div>
-                                </div>
+
 
                                 {/* VARIANTS */}
                                 {product.variants && product.variants.length > 0 && (
@@ -271,6 +290,11 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         <div className="pt-4 space-y-4">
                                             <p className="text-[11px] font-bold text-brand-ink/40 uppercase tracking-widest italic">Item#: {product.specs?.sku}</p>
                                             <p className="text-[12px] font-light leading-relaxed text-brand-ink mb-6">
+                                                {product.variants && product.variants[selectedVariantIndex]?.description ? (
+                                                    <span className="block mb-4 p-4 bg-brand-cream/30 border-l-2 border-brand-bronze italic">
+                                                        {product.variants[selectedVariantIndex].description}
+                                                    </span>
+                                                ) : null}
                                                 {product.description}
                                             </p>
                                             <div className="p-4 bg-brand-ink/5 rounded-sm">

@@ -3,7 +3,7 @@ import {
   validateCityAndZipCode,
   getCities,
   getCitySuggestions,
-  getPakistanStates,
+  getUKRegions,
   getZipCodeInfo,
   getUsage
 } from '../controllers/locationsController.js';
@@ -19,9 +19,9 @@ router.get('/cities/suggestions', getCitySuggestions);
 router.get('/zipcode/:zipCode', getZipCodeInfo);
 
 // ============================
-// Pakistan Data Endpoints
+// UK Data Endpoints
 // ============================
-router.get('/pakistan/states', getPakistanStates);
+router.get('/uk/regions', getUKRegions);
 
 // ============================
 // Utility endpoints

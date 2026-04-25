@@ -10,137 +10,26 @@ const MONTHLY_LIMIT = 10000;
 // Hardcoded cities & ZIP codes (Primary Fallback)
 // ============================
 export const citiesData = {
-  Punjab: [
-    { city: "Lahore", zip: "54000" },
-    { city: "Faisalabad", zip: "38000" },
-    { city: "Rawalpindi", zip: "46000" },
-    { city: "Gujranwala", zip: "52250" },
-    { city: "Multan", zip: "60000" },
-    { city: "Sargodha", zip: "40100" },
-    { city: "Sialkot", zip: "51310" },
-    { city: "Bahawalpur", zip: "63100" },
-    { city: "Jhang", zip: "35000" },
-    { city: "Sheikhupura", zip: "39350" },
-    { city: "Gujrat", zip: "50700" },
-    { city: "Sahiwal", zip: "57000" },
-    { city: "Okara", zip: "56300" },
-    { city: "Rahim Yar Khan", zip: "64200" },
-    { city: "Kasur", zip: "54660" },
-    { city: "Dera Ghazi Khan", zip: "32200" },
-    { city: "Wah Cantonment", zip: "47040" },
-    { city: "Burewala", zip: "59150" },
-    { city: "Hafizabad", zip: "52110" },
-    { city: "Chiniot", zip: "35450" },
-    { city: "Jhelum", zip: "49600" },
-    { city: "Kamoke", zip: "52770" },
-    { city: "Khanewal", zip: "58200" },
-    { city: "Sadiqabad", zip: "64350" },
-    { city: "Muridke", zip: "39000" },
-    { city: "Khanpur", zip: "61120" },
-    { city: "Bahawalnagar", zip: "63100" },
-    { city: "Muzaffargarh", zip: "34200" },
-    { city: "Mandi Bahauddin", zip: "50300" },
-    { city: "Daska", zip: "51310" },
-    { city: "Pakpattan", zip: "57400" },
-    { city: "Chakwal", zip: "48800" },
-    { city: "Gojra", zip: "36120" },
-    { city: "Vehari", zip: "61100" },
-    { city: "Ahmedpur East", zip: "63140" },
-    { city: "Chishtian", zip: "64350" },
-    { city: "Samundri", zip: "36100" },
-    { city: "Ferozewala", zip: "40150" },
-    { city: "Attock", zip: "43600" },
-    { city: "Jaranwala", zip: "37250" },
-    { city: "Hasilpur", zip: "63150" },
-    { city: "Kamalia", zip: "36300" },
-    { city: "Kot Abdul Malik", zip: "56100" },
-    { city: "Arif Wala", zip: "57350" },
-    { city: "Gujranwala Cantonment", zip: "52260" },
-    { city: "Jampur", zip: "33100" },
-    { city: "Jatoi", zip: "34400" },
-    { city: "Wazirabad", zip: "52000" },
-    { city: "Layyah", zip: "31200" },
-    { city: "Shujabad", zip: "59250" },
-    { city: "Haroonabad", zip: "61120" },
-    { city: "Jalalpur Jattan", zip: "52370" },
-    { city: "Lodhran", zip: "59300" },
-    { city: "Kot Addu", zip: "32220" },
-    { city: "Mian Channu", zip: "58000" },
-    { city: "Khushab", zip: "40350" },
-    { city: "Rajanpur", zip: "33500" },
-    { city: "Taxila", zip: "47080" },
-    { city: "Bhakkar", zip: "30100" },
-    { city: "Narowal", zip: "51800" },
-    { city: "Mianwali", zip: "42200" },
-    { city: "Shakargarh", zip: "51600" },
-    { city: "Mailsi", zip: "61200" },
-    { city: "Dipalpur", zip: "57410" },
-    { city: "Haveli Lakha", zip: "56150" },
-    { city: "Lalamusa", zip: "50760" },
-    { city: "Sambrial", zip: "51320" },
-    { city: "Bhalwal", zip: "50590" },
-    { city: "Taunsa", zip: "32100" },
-    { city: "Phool Nagar", zip: "55230" },
-    { city: "Pattoki", zip: "57300" },
-    { city: "Jauharabad", zip: "41200" },
-    { city: "Chichawatni", zip: "57110" },
-    { city: "Farooqabad", zip: "39500" },
-    { city: "Sangla Hill", zip: "51620" },
-    { city: "Gujar Khan", zip: "47650" },
-    { city: "Kharian", zip: "50200" },
-    { city: "Pasrur", zip: "51400" },
-    { city: "Kot Radha Kishan", zip: "54710" },
-    { city: "Ludhewala Waraich", zip: "52380" },
-    { city: "Renala Khurd", zip: "56200" }
+  "England": [
+    { city: "London", zip: "WC2N 5DU" },
+    { city: "Manchester", zip: "M1 1AE" },
+    { city: "Birmingham", zip: "B1 1BB" },
+    { city: "Leeds", zip: "LS1 1UR" },
+    { city: "Liverpool", zip: "L1 1DP" },
   ],
-  Sindh: [
-    { city: "Karachi", zip: "74200" },
-    { city: "Hyderabad", zip: "71000" },
-    { city: "Sukkur", zip: "65200" },
-    { city: "Larkana", zip: "77150" },
-    { city: "Nawabshah", zip: "67450" },
-    { city: "Mirpur Khas", zip: "69000" },
-    { city: "Khairpur", zip: "66100" },
-    { city: "Jacobabad", zip: "79000" },
-    { city: "Dadu", zip: "76300" },
-    { city: "Thatta", zip: "73000" },
-    { city: "Sanghar", zip: "68000" },
-    { city: "Shikarpur", zip: "78100" },
-    { city: "Umerkot", zip: "69230" },
-    { city: "Jamshoro", zip: "76080" },
-    { city: "Badin", zip: "71050" },
-    { city: "Tando Adam", zip: "70050" },
-    { city: "Tando Allahyar", zip: "70060" },
-    { city: "Kotri", zip: "71020" },
-    { city: "Ghotki", zip: "65000" },
-    { city: "Kamber", zip: "78300" },
-    { city: "Sakrand", zip: "67450" },
+  "Scotland": [
+    { city: "Edinburgh", zip: "EH1 1YZ" },
+    { city: "Glasgow", zip: "G1 1XQ" },
+    { city: "Aberdeen", zip: "AB10 1FY" },
   ],
-  "Khyber Pakhtunkhwa": [
-    { city: "Peshawar", zip: "25000" },
-    { city: "Mardan", zip: "23200" },
-    { city: "Swat", zip: "19130" },
-    { city: "Abbottabad", zip: "22010" },
-    { city: "Dera Ismail Khan", zip: "29200" },
-    { city: "Charsadda", zip: "24650" },
-    { city: "Nowshera", zip: "24120" },
-    { city: "Bannu", zip: "28100" },
-    { city: "Kohat", zip: "26000" },
-    { city: "Chitral", zip: "17200" },
-    { city: "Mingora", zip: "19130" },
-    { city: "Haripur", zip: "22620" },
-    { city: "Swabi", zip: "23560" },
+  "Wales": [
+    { city: "Cardiff", zip: "CF10 1DD" },
+    { city: "Swansea", zip: "SA1 1DW" },
   ],
-  Balochistan: [
-    { city: "Quetta", zip: "87300" },
-    { city: "Turbat", zip: "85500" },
-    { city: "Gwadar", zip: "91200" },
-    { city: "Khuzdar", zip: "89300" },
-    { city: "Sibi", zip: "82100" },
-    { city: "Zhob", zip: "89000" },
-    { city: "Kalat", zip: "85100" },
-    { city: "Chaman", zip: "86000" },
-  ],
+  "Northern Ireland": [
+    { city: "Belfast", zip: "BT1 5GS" },
+    { city: "Londonderry", zip: "BT48 6DQ" },
+  ]
 };
 // ============================
 // Helper Functions
@@ -152,14 +41,14 @@ const normalizeText = (text) => {
 const findCityInState = (city, state) => {
   const normalizedCity = normalizeText(city);
   const normalizedState = normalizeText(state);
-  
+
   const stateData = citiesData[Object.keys(citiesData).find(
     s => normalizeText(s) === normalizedState
   )];
-  
+
   if (!stateData) return null;
-  
-  return stateData.find(c => 
+
+  return stateData.find(c =>
     normalizeText(c.city) === normalizedCity ||
     normalizeText(c.city).includes(normalizedCity) ||
     normalizedCity.includes(normalizeText(c.city))
@@ -169,7 +58,7 @@ const findCityInState = (city, state) => {
 const validateZipCodeLocal = (zipCode, city, state) => {
   const cityData = findCityInState(city, state);
   if (!cityData) return false;
-  
+
   return cityData.zip === zipCode.toString();
 };
 
@@ -178,7 +67,7 @@ const getCitiesForState = (state) => {
   const stateKey = Object.keys(citiesData).find(
     s => normalizeText(s) === normalizedState
   );
-  
+
   return stateKey ? citiesData[stateKey] : [];
 };
 
@@ -187,20 +76,20 @@ const getCitiesForState = (state) => {
 // ============================
 export const validateCityAndZipCode = async (req, res) => {
   try {
-    const { city, state, zipCode, country = 'Pakistan' } = req.body;
+    const { city, state, zipCode, country = 'United Kingdom' } = req.body;
 
     console.log('📍 Validation request received:', { city, state, zipCode, country });
 
     if (!city || !state) {
-      return res.status(400).json({ 
-        success: false, 
-        message: 'City and state are required' 
+      return res.status(400).json({
+        success: false,
+        message: 'City and state are required'
       });
     }
 
     // Step 1: Try local validation first (from hardcoded data)
     const localCityValidation = validateCityLocal(city, state);
-    
+
     // Step 2: If local validation fails or needs enhancement, use API
     let apiCityValidation = null;
     if (!localCityValidation.isValid) {
@@ -214,11 +103,11 @@ export const validateCityAndZipCode = async (req, res) => {
       zipValidation = {
         isValid: localZipValid,
         source: 'Local Database',
-        message: localZipValid ? 
-          `ZIP code ${zipCode} is valid for ${city}` : 
+        message: localZipValid ?
+          `ZIP code ${zipCode} is valid for ${city}` :
           `ZIP code ${zipCode} not found for ${city}`
       };
-      
+
       // If local validation fails, try API
       if (!localZipValid) {
         const apiZipValidation = await validateZipCode(zipCode, city, state, country);
@@ -248,19 +137,19 @@ export const validateCityAndZipCode = async (req, res) => {
         city: finalCityValidation?.source || localCityValidation.source,
         zip: zipValidation?.source || 'Not applicable'
       },
-      usage: { 
-        monthlyUsed: apiRequests, 
-        monthlyRemaining: MONTHLY_LIMIT - apiRequests 
+      usage: {
+        monthlyUsed: apiRequests,
+        monthlyRemaining: MONTHLY_LIMIT - apiRequests
       }
     });
 
   } catch (error) {
     console.error('❌ Error in validateCityAndZipCode:', error.response?.data || error.message);
-    res.status(500).json({ 
-      success: false, 
-      message: 'Failed to validate location', 
+    res.status(500).json({
+      success: false,
+      message: 'Failed to validate location',
       error: error.message,
-      details: error.response?.data 
+      details: error.response?.data
     });
   }
 };
@@ -270,7 +159,7 @@ export const validateCityAndZipCode = async (req, res) => {
 // ============================
 const validateCityLocal = (city, state) => {
   const cityData = findCityInState(city, state);
-  
+
   if (cityData) {
     return {
       isValid: true,
@@ -283,7 +172,7 @@ const validateCityLocal = (city, state) => {
       verified: true
     };
   }
-  
+
   return {
     isValid: false,
     confidence: 0,
@@ -308,7 +197,7 @@ const validateCityInState = async (city, state, country) => {
 
     const searchQuery = `${city}, ${state}, ${country}`;
     const encodedQuery = encodeURIComponent(searchQuery);
-    
+
     const url = `https://api.geoapify.com/v1/geocode/search?text=${encodedQuery}&apiKey=${GEOAPIFY_API_KEY}&limit=10`;
 
     console.log(`🔍 API Validating city: "${city}" in state: "${state}"`);
@@ -319,12 +208,12 @@ const validateCityInState = async (city, state, country) => {
     if (response.data?.features?.length > 0) {
       const matchingCities = response.data.features.filter(feature => {
         const props = feature.properties;
-        const isPakistan = props.country === 'Pakistan';
+        const isUK = props.country === 'United Kingdom';
         const stateMatch = props.state?.toLowerCase().includes(state.toLowerCase());
-        const cityMatch = props.city?.toLowerCase().includes(city.toLowerCase()) || 
-                         props.name?.toLowerCase().includes(city.toLowerCase());
-        
-        return isPakistan && stateMatch && cityMatch;
+        const cityMatch = props.city?.toLowerCase().includes(city.toLowerCase()) ||
+          props.name?.toLowerCase().includes(city.toLowerCase());
+
+        return isUK && stateMatch && cityMatch;
       });
 
       if (matchingCities.length > 0) {
@@ -369,7 +258,7 @@ const validateCityInState = async (city, state, country) => {
 // ============================
 export const getCities = async (req, res) => {
   try {
-    const { state, search, country = 'Pakistan' } = req.query;
+    const { state, search, country = 'United Kingdom' } = req.query;
 
     console.log('🏙️ Get cities request:', { state, search, country });
 
@@ -382,7 +271,7 @@ export const getCities = async (req, res) => {
 
     // Get cities from hardcoded database first
     const localCities = getCitiesForState(state);
-    
+
     let filteredCities = localCities.map(cityData => ({
       name: cityData.city,
       state: state,
@@ -395,7 +284,7 @@ export const getCities = async (req, res) => {
     // Apply search filter if provided
     if (search && search.trim().length > 0) {
       const searchTerm = normalizeText(search);
-      filteredCities = filteredCities.filter(city => 
+      filteredCities = filteredCities.filter(city =>
         normalizeText(city.name).includes(searchTerm)
       );
     }
@@ -426,7 +315,7 @@ export const getCities = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error in getCities:', error.response?.data || error.message);
-    
+
     res.status(500).json({
       success: false,
       message: 'Failed to fetch cities',
@@ -456,9 +345,9 @@ const getCitiesFromAPI = async (state, search, country) => {
       return response.data.features
         .filter(feature => {
           const props = feature.properties;
-          return props.country === 'Pakistan' && 
-                 props.state?.toLowerCase().includes(state.toLowerCase()) &&
-                 (props.city || props.name);
+          return props.country === 'United Kingdom' &&
+            props.state?.toLowerCase().includes(state.toLowerCase()) &&
+            (props.city || props.name);
         })
         .map(feature => {
           const props = feature.properties;
@@ -473,7 +362,7 @@ const getCitiesFromAPI = async (state, search, country) => {
             verified: props.rank?.confidence > 0.7
           };
         })
-        .filter((city, index, self) => 
+        .filter((city, index, self) =>
           index === self.findIndex(c => c.name === city.name)
         )
         .sort((a, b) => a.name.localeCompare(b.name));
@@ -491,7 +380,7 @@ const getCitiesFromAPI = async (state, search, country) => {
 // ============================
 export const getCitySuggestions = async (req, res) => {
   try {
-    const { state, query, limit = 10, country = 'Pakistan' } = req.query;
+    const { state, query, limit = 10, country = 'United Kingdom' } = req.query;
 
     console.log('💡 City suggestions request:', { state, query, limit });
 
@@ -518,7 +407,7 @@ export const getCitySuggestions = async (req, res) => {
     // Get suggestions from hardcoded database first
     const localCities = getCitiesForState(state);
     let suggestions = localCities
-      .filter(cityData => 
+      .filter(cityData =>
         normalizeText(cityData.city).includes(normalizeText(searchTerm))
       )
       .map(cityData => ({
@@ -558,7 +447,7 @@ export const getCitySuggestions = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error in getCitySuggestions:', error.response?.data || error.message);
-    
+
     res.status(500).json({
       success: false,
       message: 'Failed to fetch city suggestions',
@@ -584,9 +473,9 @@ const getCitySuggestionsFromAPI = async (state, query, limit, country) => {
       return response.data.features
         .filter(feature => {
           const props = feature.properties;
-          return props.country === 'Pakistan' && 
-                 props.state?.toLowerCase().includes(state.toLowerCase()) &&
-                 (props.city || props.name);
+          return props.country === 'United Kingdom' &&
+            props.state?.toLowerCase().includes(state.toLowerCase()) &&
+            (props.city || props.name);
         })
         .map(feature => {
           const props = feature.properties;
@@ -600,7 +489,7 @@ const getCitySuggestionsFromAPI = async (state, query, limit, country) => {
             verified: props.rank?.confidence > 0.7
           };
         })
-        .filter((suggestion, index, self) => 
+        .filter((suggestion, index, self) =>
           index === self.findIndex(s => s.name === suggestion.name)
         )
         .slice(0, parseInt(limit));
@@ -673,7 +562,7 @@ export const getZipCodeInfo = async (req, res) => {
 
   } catch (error) {
     console.error('❌ Error in getZipCodeInfo:', error.response?.data || error.message);
-    
+
     res.status(500).json({
       success: false,
       message: 'Failed to get ZIP code information',
@@ -687,7 +576,7 @@ export const getZipCodeInfo = async (req, res) => {
 // ============================
 const getZipCodeInfoFromAPI = async (zipCode) => {
   try {
-    const searchQuery = `${zipCode}, Pakistan`;
+    const searchQuery = `${zipCode}, United Kingdom`;
     const encodedQuery = encodeURIComponent(searchQuery);
     const url = `https://api.geoapify.com/v1/geocode/search?text=${encodedQuery}&apiKey=${GEOAPIFY_API_KEY}&limit=20`;
 
@@ -696,7 +585,7 @@ const getZipCodeInfoFromAPI = async (zipCode) => {
 
     if (response.data?.features?.length > 0) {
       return response.data.features
-        .filter(feature => feature.properties.country === 'Pakistan')
+        .filter(feature => feature.properties.country === 'United Kingdom')
         .map(feature => {
           const props = feature.properties;
           return {
@@ -723,9 +612,9 @@ const getZipCodeInfoFromAPI = async (zipCode) => {
 };
 
 // ============================
-// Get All Pakistan States from Hardcoded Data
+// Get All United Kingdom States from Hardcoded Data
 // ============================
-export const getPakistanStates = (req, res) => {
+export const getUKRegions = (req, res) => {
   const states = Object.keys(citiesData).map(state => ({
     name: state,
     cityCount: citiesData[state].length,
@@ -750,15 +639,15 @@ const getValidationMessage = (cityValidation, zipValidation) => {
   if (!cityValidation?.isValid) {
     return `Invalid city: ${cityValidation?.message || 'City not found'}`;
   }
-  
+
   if (zipValidation && !zipValidation.isValid) {
     return `City validated but ZIP code issue: ${zipValidation.message}`;
   }
-  
+
   if (cityValidation.isValid && (!zipValidation || zipValidation.isValid)) {
     return 'Location validated successfully';
   }
-  
+
   return 'Please verify your location details';
 };
 
@@ -777,12 +666,12 @@ const validateZipCode = async (zipCode, city, state, country) => {
     if (response.data?.features?.length > 0) {
       const matchingLocations = response.data.features.filter(feature => {
         const props = feature.properties;
-        const isPakistan = props.country === 'Pakistan';
+        const isUK = props.country === 'United Kingdom';
         const zipMatch = props.postcode === zipCode.toString();
         const cityMatch = props.city?.toLowerCase().includes(city.toLowerCase()) ||
-                         props.name?.toLowerCase().includes(city.toLowerCase());
-        
-        return isPakistan && zipMatch && cityMatch;
+          props.name?.toLowerCase().includes(city.toLowerCase());
+
+        return isUK && zipMatch && cityMatch;
       });
 
       if (matchingLocations.length > 0) {

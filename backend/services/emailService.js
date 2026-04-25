@@ -487,9 +487,9 @@ export const sendOrderConfirmationEmail = async (order) => {
                 </div>
                 
                 <div class="footer">
-                    <p><strong>Pure Clay</strong> - Pakistan's Leading Organic Foods Brand</p>
-                    <p>📍 Talagang, Punjab, Pakistan</p>
-                    <p>📧 ${process.env.EMAIL_USER} | 📞 +92-324 1572294</p>
+                    <p><strong>Pure Clay</strong> - The UK's Leading Organic Foods Brand</p>
+                    <p>📍 London, United Kingdom</p>
+                    <p>📧 ${process.env.EMAIL_USER} | 📞 +44 20 7946 0958</p>
                     
                     <p style="font-size: 12px; margin-top: 15px;">
                         This email was sent to confirm your order with Pure Clay.<br>
@@ -720,7 +720,7 @@ export const sendContactEmailToBusiness = async (contactData) => {
                 </div>
                 <div class="footer">
                     <p>This email was automatically sent from your website contact form.</p>
-                    <p><strong>Pure Clay</strong> | Talagang, Pakistan</p>
+                    <p><strong>Pure Clay</strong> | London, United Kingdom</p>
                     <p>Received: ${new Date().toLocaleString()}</p>
                 </div>
             </div>

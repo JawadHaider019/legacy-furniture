@@ -8,14 +8,8 @@ export default function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 mb-12 md:mb-20">
                     <div className="md:col-span-1">
                         <h2 className="text-2xl font-serif tracking-[0.2em] uppercase mb-8">
-
-
                             LEGACY FURNITURE
-
-
-
-
-                            <span className="text-white/30 font-light">&</span> CARPETS
+                            <span className="text-white/30 font-light"> &</span> CARPETS
                         </h2>
                         <p className="text-brand-cream/50 font-light text-sm leading-relaxed mb-8">
                             Crafting environments that inspire contemplative living. We believe in the beauty of simplicity and the permanence of quality.
@@ -43,38 +37,42 @@ export default function Footer() {
                         <ul className="space-y-4 text-sm font-light">
                             <li><Link to="/about" className="hover:text-white transition-colors italic">Discover More</Link></li>
                             <li><Link to="/orders" className="hover:text-white transition-colors">Track Order</Link></li>
-                            <li><a href="#" className="hover:text-white transition-colors">Shipping & Returns</a></li>
+                            <li><a href="#" className="hover:text-white transition-colors">Shipping &amp; Returns</a></li>
                             <li><Link to="/contact" className="hover:text-white transition-colors">Contact Us</Link></li>
                             <li><a href="#" className="hover:text-white transition-colors">Trade Program</a></li>
                         </ul>
                     </div>
 
                     <div>
-                        <h4 className="text-[11px] uppercase tracking-[0.3em] font-bold text-white/40 mb-8">Auden Journal</h4>
-                        <p className="text-sm font-light text-brand-cream/50 mb-6">
-                            Design stories delivered to your inbox.
-                        </p>
-                        <form className="relative" onSubmit={(e) => e.preventDefault()}>
-                            <input
-                                type="email"
-                                placeholder="Email address"
-                                className="w-full bg-transparent border-b border-white/20 py-2 text-sm font-light focus:outline-none focus:border-white transition-colors"
-                            />
-                            <button
-                                type="submit"
-                                className="absolute right-0 bottom-2 text-[10px] uppercase tracking-widest font-bold"
-                            >
-                                Sign Up
-                            </button>
-                        </form>
+                        <h4 className="text-[11px] uppercase tracking-[0.3em] font-bold text-white/40 mb-8">Contact Us</h4>
+                        <ul className="space-y-4 text-sm font-light">
+                            <li className="flex items-start gap-3">
+                                <span className="text-white/30 text-xs mt-1">✉</span>
+                                <a href="mailto:legacyfurniture18@gmail.com" className="hover:text-white transition-colors text-brand-cream/70 break-all">
+                                    legacyfurniture18@gmail.com
+                                </a>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="text-white/30 text-xs mt-1">☎</span>
+                                <a href="tel:+447424757756" className="hover:text-white transition-colors text-brand-cream/70">
+                                    +44 7424 757756
+                                </a>
+                            </li>
+                            <li className="flex items-start gap-3">
+                                <span className="text-white/30 text-xs mt-1">📍</span>
+                                <span className="text-brand-cream/70">London, United Kingdom</span>
+                            </li>
+                        </ul>
                     </div>
                 </div>
 
                 <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
                     <p className="text-[10px] uppercase tracking-widest text-white/30">
-                        @{new Date().getFullYear()} LEGACY FURNITURE & CARPETS. All rights reserved.
+                        &copy;{new Date().getFullYear()} LEGACY FURNITURE &amp; CARPETS. All rights reserved.
                     </p>
-
+                    <p className="text-[10px] uppercase tracking-widest text-white/20">
+                        London, United Kingdom
+                    </p>
                 </div>
             </div>
         </footer>

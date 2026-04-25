@@ -86,6 +86,20 @@ const ShopContextProvider = (props) => {
             cartData[itemId][variantName] += 1;
         }
         setCartItems(cartData);
+        toast.success("Added to cart", {
+            style: {
+                background: '#1A1A1A',
+                color: '#F4F1ED',
+                fontSize: '10px',
+                textTransform: 'uppercase',
+                borderRadius: '0px',
+                border: '1px solid rgba(244, 241, 237, 0.1)'
+            },
+            iconTheme: {
+                primary: '#C5A059',
+                secondary: '#F4F1ED',
+            },
+        });
     };
 
     const getCartCount = () => {
@@ -214,13 +228,42 @@ const ShopContextProvider = (props) => {
         initData();
     }, [token]);
 
+    const placeOrder = async (orderData) => {
+        try {
+            const response = await axios.post(`${backendUrl}/api/order/place`, orderData, {
+                headers: { token }
+            });
+            if (response.data.success) {
+                setCartItems({});
+                toast.success("Order Placed Successfully", {
+                    style: {
+                        background: '#1A1A1A',
+                        color: '#F4F1ED',
+                        fontSize: '10px',
+                        textTransform: 'uppercase',
+                        borderRadius: '0px'
+                    }
+                });
+                return { success: true, orderId: response.data.orderId };
+            } else {
+                toast.error(response.data.message);
+                return { success: false, message: response.data.message };
+            }
+        } catch (error) {
+            console.error("Order placement error:", error);
+            const message = error.response?.data?.message || error.message;
+            toast.error(message);
+            return { success: false, message };
+        }
+    };
+
     const value = {
         products, categories, blogs, currency, delivery_fee, deliverySettings,
         cartItems, addToCart, getCartCount, updateQuantity,
         getCartAmount, backendUrl, loading,
         getProductReviews, addProductReview,
         token, setToken, user, setUser, logout,
-        login, register
+        login, register, placeOrder
     };
 
     return (

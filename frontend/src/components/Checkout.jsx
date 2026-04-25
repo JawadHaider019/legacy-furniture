@@ -1,12 +1,14 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     ArrowLeft, Ship,
     MapPin, Phone, Mail, User,
-    ChevronRight, CheckCircle2, ShieldCheck
+    ChevronRight, CheckCircle2, ShieldCheck, Loader2
 } from 'lucide-react';
+import axios from 'axios';
+import toast from 'react-hot-toast';
 
 export default function Checkout({ onPlaceOrder, isOrdering }) {
     const navigate = useNavigate();
@@ -20,12 +22,92 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
         firstName: '', lastName: '', email: '', phone: '',
         address: '', city: '', zipCode: ''
     });
+    const [suggestions, setSuggestions] = useState([]);
+    const [showSuggestions, setShowSuggestions] = useState(false);
+    const [isLoadingPostcode, setIsLoadingPostcode] = useState(false);
 
     const handleInputChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+
+        if (name === 'zipCode') {
+            if (value.length > 1) {
+                fetchPostcodeSuggestions(value);
+            } else {
+                setSuggestions([]);
+                setShowSuggestions(false);
+            }
+        }
     };
 
-    const handleNext = () => setStep(prev => prev + 1);
+    const fetchPostcodeSuggestions = async (query) => {
+        try {
+            const response = await axios.get(`https://api.postcodes.io/postcodes/${query}/autocomplete`);
+            if (response.data.result) {
+                setSuggestions(response.data.result);
+                setShowSuggestions(true);
+            }
+        } catch (error) {
+            console.error("Postcode autocomplete error:", error);
+        }
+    };
+
+    const selectPostcode = async (postcode) => {
+        setFormData({ ...formData, zipCode: postcode });
+        setSuggestions([]);
+        setShowSuggestions(false);
+        setIsLoadingPostcode(true);
+
+        try {
+            const response = await axios.get(`https://api.postcodes.io/postcodes/${postcode}`);
+            if (response.data.result) {
+                const { admin_district, region, parliamentary_constituency } = response.data.result;
+                setFormData(prev => ({
+                    ...prev,
+                    zipCode: postcode,
+                    city: admin_district || region || parliamentary_constituency || prev.city
+                }));
+            }
+        } catch (error) {
+            console.error("Postcode detail error:", error);
+        } finally {
+            setIsLoadingPostcode(false);
+        }
+    };
+
+    const validateStep1 = () => {
+        const { firstName, lastName, email, phone, address, city, zipCode } = formData;
+        if (!firstName || !lastName || !email || !phone || !address || !city || !zipCode) {
+            toast.error("Please fill in all fields");
+            return false;
+        }
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            toast.error("Please enter a valid email address");
+            return false;
+        }
+
+        const phoneRegex = /^(?:(?:\+44\s?|0)7\d{3}\s?\d{6}|(?:\+44\s?|0)[12358]\d{2,4}\s?\d{5,7})$/;
+        if (!phoneRegex.test(phone)) {
+            toast.error("Please enter a valid UK phone number");
+            return false;
+        }
+
+        const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
+        if (!postcodeRegex.test(zipCode)) {
+            toast.error("Please enter a valid UK Postcode");
+            return false;
+        }
+
+        return true;
+    };
+
+    const handleNext = () => {
+        if (validateStep1()) {
+            setStep(prev => prev + 1);
+        }
+    };
     const handlePrev = () => setStep(prev => prev - 1);
 
     if (Object.keys(cartItems).length === 0) {
@@ -87,7 +169,38 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                                     <InputField label="Home Address" name="address" value={formData.address} onChange={handleInputChange} />
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
                                         <InputField label="City" name="city" value={formData.city} onChange={handleInputChange} />
-                                        <InputField label="Zip Code" name="zipCode" value={formData.zipCode} onChange={handleInputChange} />
+                                        <div className="relative">
+                                            <InputField
+                                                label="Zip Code"
+                                                name="zipCode"
+                                                value={formData.zipCode}
+                                                onChange={handleInputChange}
+                                                autoComplete="off"
+                                                placeholder="e.g. SW1A 1AA"
+                                            />
+                                            {isLoadingPostcode && <Loader2 className="absolute right-4 bottom-4 animate-spin text-brand-bronze" size={16} />}
+
+                                            <AnimatePresence>
+                                                {showSuggestions && suggestions && suggestions.length > 0 && (
+                                                    <motion.div
+                                                        initial={{ opacity: 0, y: -10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        exit={{ opacity: 0, y: -10 }}
+                                                        className="absolute z-50 w-full bg-white border border-brand-ink/10 shadow-xl mt-1 max-h-48 overflow-y-auto no-scrollbar"
+                                                    >
+                                                        {suggestions.map((s, i) => (
+                                                            <button
+                                                                key={i}
+                                                                onClick={() => selectPostcode(s)}
+                                                                className="w-full text-left px-6 py-3 text-[10px] uppercase font-bold tracking-widest hover:bg-brand-ink hover:text-white transition-colors border-b border-brand-ink/5 last:border-0"
+                                                            >
+                                                                {s}
+                                                            </button>
+                                                        ))}
+                                                    </motion.div>
+                                                )}
+                                            </AnimatePresence>
+                                        </div>
                                     </div>
                                     <button
                                         onClick={handleNext}

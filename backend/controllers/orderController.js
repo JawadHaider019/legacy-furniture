@@ -8,7 +8,7 @@ import { sendOrderConfirmationEmail } from '../services/emailService.js';
 // 🆕 Notification Types
 const NOTIFICATION_TYPES = {
   ORDER_PLACED: 'order_placed',
-  ORDER_CANCELLED: 'order_cancelled', 
+  ORDER_CANCELLED: 'order_cancelled',
   ORDER_STATUS_UPDATED: 'order_status_updated',
   LOW_STOCK: 'low_stock',
   OUT_OF_STOCK: 'out_of_stock',
@@ -31,10 +31,10 @@ const createNotification = async (notificationData) => {
 // 🆕 Send Order Placed Notification with Customer Details
 const sendOrderPlacedNotification = async (order) => {
   const shortOrderId = order._id.toString().slice(-6);
-  
+
   const customerName = order.customerDetails?.name || 'Customer';
   const customerEmail = order.customerDetails?.email || '';
-  
+
   // Send notification to order owner if they have userId (logged-in users)
   if (order.userId) {
     await createNotification({
@@ -83,9 +83,9 @@ const sendOrderPlacedNotification = async (order) => {
 const sendOrderCancelledNotification = async (order, cancelledBy, reason = '') => {
   const shortOrderId = order._id.toString().slice(-6);
   const cancelledByText = cancelledBy === 'user' ? 'You have' : 'Admin has';
-  
+
   const customerName = order.customerDetails?.name || 'Customer';
-  
+
   if (order.userId) {
     await createNotification({
       userId: order.userId,
@@ -249,26 +249,26 @@ const sendLowStockNotification = async (product) => {
 // 🆕 Helper function for product validation and stock check
 const validateAndProcessItems = async (items) => {
   const validatedItems = [];
-  
+
   for (const item of items) {
     let product;
-    
+
     if (item.id) {
       product = await productModel.findById(item.id);
     }
-    
+
     if (!product && item._id) {
       product = await productModel.findById(item._id);
     }
-    
+
     if (!product && item.productId) {
       product = await productModel.findById(item.productId);
     }
-    
+
     if (!product && item.name) {
-      product = await productModel.findOne({ 
-        name: item.name, 
-        status: 'published' 
+      product = await productModel.findOne({
+        name: item.name,
+        status: 'published'
       });
     }
 
@@ -301,7 +301,7 @@ const validateAndProcessItems = async (items) => {
       actualProduct: product
     });
   }
-  
+
   return validatedItems;
 };
 
@@ -312,22 +312,22 @@ const reduceInventory = async (validatedItems) => {
 
     const updateResult = await productModel.findByIdAndUpdate(
       validatedItem.id,
-      { 
-        $inc: { 
+      {
+        $inc: {
           quantity: -validatedItem.quantity,
           totalSales: validatedItem.quantity
-        } 
+        }
       },
       { new: true }
     );
-    
+
     if (updateResult) {
       console.log(`✅ Reduced stock for ${updateResult.name} by ${validatedItem.quantity}. New stock: ${updateResult.quantity}`);
-      
+
       if (updateResult.quantity <= 10 && updateResult.quantity > 0) {
         await sendLowStockNotification(updateResult);
       }
-      
+
       if (updateResult.quantity === 0) {
         await createNotification({
           userId: 'admin',
@@ -351,18 +351,18 @@ const reduceInventory = async (validatedItems) => {
 const placeOrder = async (req, res) => {
   try {
     console.log("🛒 ========== ORDER PLACEMENT ==========");
-    
+
     const { items, amount, address, deliveryCharges, customerDetails } = req.body;
-    
+
     // 🆕 IMPORTANT: req.userId will be undefined for guests
     let userId = null;
-    
+
     // Check if token is provided in headers (logged-in user)
     if (req.headers.token) {
       // In a real implementation, you would verify the token here
       userId = req.userId; // This comes from auth middleware
     }
-    
+
     const isGuest = !userId;
 
     console.log("👤 User info for order:", {
@@ -386,9 +386,9 @@ const placeOrder = async (req, res) => {
 
     // Customer details validation
     if (!customerDetails || !customerDetails.name || !customerDetails.email || !customerDetails.phone) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Customer details (name, email, phone) are required" 
+      return res.status(400).json({
+        success: false,
+        message: "Customer details (name, email, phone) are required"
       });
     }
 
@@ -397,11 +397,20 @@ const placeOrder = async (req, res) => {
       return res.status(400).json({ success: false, message: "Invalid email format" });
     }
 
-    const phoneDigits = customerDetails.phone.replace(/\D/g, '');
-    if (!/^03\d{9}$/.test(phoneDigits)) {
-      return res.status(400).json({ 
-        success: false, 
-        message: "Please enter a valid Pakistani phone number (03XXXXXXXXX)" 
+    const phoneRegex = /^(?:(?:\+44\s?|0)7\d{3}\s?\d{6}|(?:\+44\s?|0)[12358]\d{2,4}\s?\d{5,7})$/;
+    if (!phoneRegex.test(customerDetails.phone.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid UK phone number"
+      });
+    }
+
+    // UK Postcode validation
+    const postcodeRegex = /^[A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2}$/i;
+    if (!postcodeRegex.test(address.zipCode?.trim())) {
+      return res.status(400).json({
+        success: false,
+        message: "Please enter a valid UK Postcode"
       });
     }
 
@@ -461,14 +470,14 @@ const placeOrder = async (req, res) => {
 
     // ✅ SEND ORDER CONFIRMATION EMAIL
     const customerEmail = newOrder.customerDetails?.email;
-    
+
     if (customerEmail) {
       console.log(`📧 Attempting to send order confirmation email to: ${customerEmail}`);
-      
+
       // Use try-catch specifically for email to not block order success
       try {
         const emailSent = await sendOrderConfirmationEmail(newOrder);
-        
+
         if (emailSent) {
           console.log(`✅ Order confirmation email sent successfully to ${customerEmail}`);
         } else {
@@ -484,9 +493,9 @@ const placeOrder = async (req, res) => {
 
     // Clear cart only for logged-in users
     if (userId) {
-      await userModel.findByIdAndUpdate(userId, { 
+      await userModel.findByIdAndUpdate(userId, {
         cartData: {},
-        cartDeals: {} 
+        cartDeals: {}
       });
       console.log(`✅ Cleared cart for logged-in user: ${userId}`);
     }
@@ -494,9 +503,9 @@ const placeOrder = async (req, res) => {
     // Send notifications
     await sendOrderPlacedNotification(newOrder);
 
-    res.json({ 
-      success: true, 
-      message: "Order Placed Successfully", 
+    res.json({
+      success: true,
+      message: "Order Placed Successfully",
       orderId: newOrder._id,
       deliveryCharges: newOrder.deliveryCharges,
       customerDetails: newOrder.customerDetails,
@@ -505,9 +514,9 @@ const placeOrder = async (req, res) => {
 
   } catch (error) {
     console.error("❌ Error in placeOrder:", error);
-    res.status(500).json({ 
-      success: false, 
-      message: error.message || "Failed to place order" 
+    res.status(500).json({
+      success: false,
+      message: error.message || "Failed to place order"
     });
   }
 };
@@ -527,30 +536,30 @@ const allOrders = async (req, res) => {
 const userOrders = async (req, res) => {
   try {
     const userId = req.userId;
-    
+
     if (!userId) {
-      return res.status(401).json({ 
-        success: false, 
-        message: "Please login to view your orders" 
+      return res.status(401).json({
+        success: false,
+        message: "Please login to view your orders"
       });
     }
-    
+
     // Find all orders for this user - EACH ORDER IS SEPARATE
     const orders = await orderModel.find({ userId }).sort({ date: -1 });
-    
+
     console.log("📦 USER ORDERS RETRIEVED:", {
       userId: userId,
       totalOrders: orders.length, // This should be the count of separate orders
       orderIds: orders.map(o => o._id.toString()) // Log each order ID to verify they're separate
     });
-    
+
     // Return orders array - each element is a separate order
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       orders: orders, // This is an array of separate order objects
-      count: orders.length 
+      count: orders.length
     });
-    
+
   } catch (error) {
     console.error("❌ Error in userOrders:", error);
     res.json({ success: false, message: error.message });
@@ -561,48 +570,48 @@ const userOrders = async (req, res) => {
 const getGuestOrders = async (req, res) => {
   try {
     const { email, phone } = req.body;
-    
+
     console.log("🔍 getGuestOrders called with:", { email, phone });
-    
+
     if (!email && !phone) {
-      return res.json({ 
-        success: false, 
-        message: "Email or phone is required to find guest orders" 
+      return res.json({
+        success: false,
+        message: "Email or phone is required to find guest orders"
       });
     }
-    
+
     // Build OR conditions array
     let orConditions = [];
-    
+
     if (email) {
-      orConditions.push({ 
-        'customerDetails.email': email.trim().toLowerCase() 
+      orConditions.push({
+        'customerDetails.email': email.trim().toLowerCase()
       });
     }
-    
+
     if (phone) {
       const phoneDigits = phone.replace(/\D/g, '');
-      orConditions.push({ 
-        'customerDetails.phone': { 
-          $regex: phoneDigits, 
-          $options: 'i' 
-        } 
+      orConditions.push({
+        'customerDetails.phone': {
+          $regex: phoneDigits,
+          $options: 'i'
+        }
       });
     }
-    
+
     // Query with OR condition
     const query = {
       isGuest: true,
       $or: orConditions
     };
-    
+
     console.log("🔍 Final query:", JSON.stringify(query, null, 2));
-    
+
     // Find ALL guest orders matching criteria - EACH ORDER IS SEPARATE
     const orders = await orderModel.find(query).sort({ date: -1 });
-    
+
     console.log(`📦 Found ${orders.length} guest orders - each is a separate order`);
-    
+
     // Return full order details including category and subcategory
     const safeOrders = orders.map(order => ({
       _id: order._id,
@@ -635,13 +644,13 @@ const getGuestOrders = async (req, res) => {
       payment: order.payment,
       isGuest: true
     }));
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       orders: safeOrders, // This is an array of separate order objects
-      count: orders.length 
+      count: orders.length
     });
-    
+
   } catch (error) {
     console.error("❌ Error in getGuestOrders:", error);
     res.json({ success: false, message: error.message });
@@ -663,25 +672,25 @@ const getOrderDetails = async (req, res) => {
     const isAdmin = userId === 'admin';
     const isOwner = order.userId && order.userId.toString() === userId;
     const isGuestOrder = order.isGuest;
-    
+
     // For guest orders, we need to verify via email/phone
     if (!isAdmin && !isOwner && isGuestOrder) {
       // Guest users need to verify with email/phone
-      return res.json({ 
-        success: false, 
-        message: "Please verify your email/phone to view this guest order" 
-      });
-    }
-    
-    if (!isAdmin && !isOwner) {
-      return res.json({ 
-        success: false, 
-        message: "Unauthorized to view this order" 
+      return res.json({
+        success: false,
+        message: "Please verify your email/phone to view this guest order"
       });
     }
 
-    res.json({ 
-      success: true, 
+    if (!isAdmin && !isOwner) {
+      return res.json({
+        success: false,
+        message: "Unauthorized to view this order"
+      });
+    }
+
+    res.json({
+      success: true,
       order,
       customerDetails: order.customerDetails
     });
@@ -696,51 +705,51 @@ const getOrderDetails = async (req, res) => {
 const getGuestOrderDetails = async (req, res) => {
   try {
     const { orderId, email, phone } = req.body;
-    
+
     if (!orderId) {
       return res.json({ success: false, message: "Order ID is required" });
     }
-    
+
     if (!email && !phone) {
-      return res.json({ 
-        success: false, 
-        message: "Email or phone is required to verify guest order" 
+      return res.json({
+        success: false,
+        message: "Email or phone is required to verify guest order"
       });
     }
-    
+
     const order = await orderModel.findById(orderId);
     if (!order) {
       return res.json({ success: false, message: "Order not found" });
     }
-    
+
     if (!order.isGuest) {
-      return res.json({ 
-        success: false, 
-        message: "This is not a guest order" 
+      return res.json({
+        success: false,
+        message: "This is not a guest order"
       });
     }
-    
+
     // Verify with email
     if (email && order.customerDetails.email.toLowerCase() !== email.trim().toLowerCase()) {
-      return res.json({ 
-        success: false, 
-        message: "Email does not match this order" 
+      return res.json({
+        success: false,
+        message: "Email does not match this order"
       });
     }
-    
+
     // Verify with phone (last 4 digits for privacy)
     if (phone) {
       const orderPhoneDigits = order.customerDetails.phone.replace(/\D/g, '');
       const inputPhoneDigits = phone.replace(/\D/g, '');
-      
+
       if (!orderPhoneDigits.includes(inputPhoneDigits.slice(-4))) {
-        return res.json({ 
-          success: false, 
-          message: "Phone number does not match this order" 
+        return res.json({
+          success: false,
+          message: "Phone number does not match this order"
         });
       }
     }
-    
+
     // Return order details (hide sensitive info)
     const safeOrder = {
       _id: order._id,
@@ -765,9 +774,9 @@ const getGuestOrderDetails = async (req, res) => {
       },
       isGuest: true
     };
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       order: safeOrder
     });
 
@@ -781,7 +790,7 @@ const getGuestOrderDetails = async (req, res) => {
 const updateStatus = async (req, res) => {
   try {
     const { orderId, status, cancellationReason } = req.body;
-    
+
     if (!orderId || !status) {
       return res.json({ success: false, message: "Order ID and status are required" });
     }
@@ -792,9 +801,9 @@ const updateStatus = async (req, res) => {
     }
 
     const oldStatus = currentOrder.status;
-    const updateData = { 
-      status, 
-      updatedAt: new Date() 
+    const updateData = {
+      status,
+      updatedAt: new Date()
     };
 
     if (status === "Cancelled" && currentOrder.status !== "Cancelled") {
@@ -807,11 +816,11 @@ const updateStatus = async (req, res) => {
         if (item.id) {
           await productModel.findByIdAndUpdate(
             item.id,
-            { 
-              $inc: { 
+            {
+              $inc: {
                 quantity: item.quantity,
                 totalSales: -item.quantity
-              } 
+              }
             }
           );
           console.log(`✅ Restored stock for item: ${item.name}, Qty: ${item.quantity}`);
@@ -822,8 +831,8 @@ const updateStatus = async (req, res) => {
     }
 
     const updatedOrder = await orderModel.findByIdAndUpdate(
-      orderId, 
-      updateData, 
+      orderId,
+      updateData,
       { new: true }
     );
 
@@ -835,10 +844,10 @@ const updateStatus = async (req, res) => {
       await sendOr9yMnTm4NSzvG9rrwjM2ec8xZgh1cafXH8(updatedOrder, oldStatus, status);
     }
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: "Order status updated successfully",
-      order: updatedOrder 
+      order: updatedOrder
     });
 
   } catch (error) {
@@ -862,7 +871,7 @@ const cancelOrder = async (req, res) => {
     }
 
     const order = await orderModel.findById(orderId);
-    
+
     if (!order) {
       return res.json({ success: false, message: "Order not found" });
     }
@@ -874,9 +883,9 @@ const cancelOrder = async (req, res) => {
 
     const nonCancellableStatuses = ["Shipped", "Out for delivery", "Delivered", "Cancelled"];
     if (nonCancellableStatuses.includes(order.status)) {
-      return res.json({ 
-        success: false, 
-        message: `Order cannot be cancelled as it is already ${order.status.toLowerCase()}` 
+      return res.json({
+        success: false,
+        message: `Order cannot be cancelled as it is already ${order.status.toLowerCase()}`
       });
     }
 
@@ -886,11 +895,11 @@ const cancelOrder = async (req, res) => {
         if (item.id) {
           await productModel.findByIdAndUpdate(
             item.id,
-            { 
-              $inc: { 
+            {
+              $inc: {
                 quantity: item.quantity,
                 totalSales: -item.quantity
-              } 
+              }
             }
           );
           console.log(`✅ Restored stock for: ${item.name}, Qty: ${item.quantity}`);
@@ -900,7 +909,7 @@ const cancelOrder = async (req, res) => {
 
     const updatedOrder = await orderModel.findByIdAndUpdate(
       orderId,
-      { 
+      {
         status: "Cancelled",
         cancellationReason: cancellationReason.trim(),
         cancelledAt: new Date(),
@@ -912,10 +921,10 @@ const cancelOrder = async (req, res) => {
 
     await sendOrderCancelledNotification(updatedOrder, 'user', cancellationReason);
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: "Order cancelled successfully",
-      order: updatedOrder 
+      order: updatedOrder
     });
 
   } catch (error) {
@@ -938,14 +947,14 @@ const cancelGuestOrder = async (req, res) => {
     }
 
     if (!email && !phone) {
-      return res.json({ 
-        success: false, 
-        message: "Email or phone is required to cancel guest order" 
+      return res.json({
+        success: false,
+        message: "Email or phone is required to cancel guest order"
       });
     }
 
     const order = await orderModel.findById(orderId);
-    
+
     if (!order) {
       return res.json({ success: false, message: "Order not found" });
     }
@@ -956,32 +965,32 @@ const cancelGuestOrder = async (req, res) => {
 
     // Verify guest identity
     let isVerified = false;
-    
+
     if (email && order.customerDetails.email.toLowerCase() === email.trim().toLowerCase()) {
       isVerified = true;
     }
-    
+
     if (phone && !isVerified) {
       const orderPhoneDigits = order.customerDetails.phone.replace(/\D/g, '');
       const inputPhoneDigits = phone.replace(/\D/g, '');
-      
+
       if (orderPhoneDigits.includes(inputPhoneDigits.slice(-4))) {
         isVerified = true;
       }
     }
-    
+
     if (!isVerified) {
-      return res.json({ 
-        success: false, 
-        message: "Unable to verify your identity. Please check your email/phone." 
+      return res.json({
+        success: false,
+        message: "Unable to verify your identity. Please check your email/phone."
       });
     }
 
     const nonCancellableStatuses = ["Shipped", "Out for delivery", "Delivered", "Cancelled"];
     if (nonCancellableStatuses.includes(order.status)) {
-      return res.json({ 
-        success: false, 
-        message: `Order cannot be cancelled as it is already ${order.status.toLowerCase()}` 
+      return res.json({
+        success: false,
+        message: `Order cannot be cancelled as it is already ${order.status.toLowerCase()}`
       });
     }
 
@@ -991,11 +1000,11 @@ const cancelGuestOrder = async (req, res) => {
         if (item.id) {
           await productModel.findByIdAndUpdate(
             item.id,
-            { 
-              $inc: { 
+            {
+              $inc: {
                 quantity: item.quantity,
                 totalSales: -item.quantity
-              } 
+              }
             }
           );
           console.log(`✅ Restored stock for: ${item.name}, Qty: ${item.quantity}`);
@@ -1005,7 +1014,7 @@ const cancelGuestOrder = async (req, res) => {
 
     const updatedOrder = await orderModel.findByIdAndUpdate(
       orderId,
-      { 
+      {
         status: "Cancelled",
         cancellationReason: cancellationReason.trim(),
         cancelledAt: new Date(),
@@ -1017,10 +1026,10 @@ const cancelGuestOrder = async (req, res) => {
 
     await sendOrderCancelledNotification(updatedOrder, 'user', cancellationReason);
 
-    res.json({ 
-      success: true, 
+    res.json({
+      success: true,
       message: "Order cancelled successfully",
-      order: updatedOrder 
+      order: updatedOrder
     });
 
   } catch (error) {
@@ -1043,9 +1052,9 @@ const getUserNotifications = async (req, res) => {
       .limit(parseInt(limit))
       .exec();
 
-    const unreadCount = await notificationModel.countDocuments({ 
-      userId, 
-      isRead: false 
+    const unreadCount = await notificationModel.countDocuments({
+      userId,
+      isRead: false
     });
 
     res.json({
@@ -1071,9 +1080,9 @@ const getAdminNotifications = async (req, res) => {
       .limit(parseInt(limit))
       .exec();
 
-    const unreadCount = await notificationModel.countDocuments({ 
-      isAdmin: true, 
-      isRead: false 
+    const unreadCount = await notificationModel.countDocuments({
+      isAdmin: true,
+      isRead: false
     });
 
     res.json({
@@ -1094,9 +1103,9 @@ const markNotificationAsRead = async (req, res) => {
     const { notificationId } = req.body;
     const userId = req.userId;
 
-    const notification = await notificationModel.findOne({ 
-      _id: notificationId, 
-      userId 
+    const notification = await notificationModel.findOne({
+      _id: notificationId,
+      userId
     });
 
     if (!notification) {
@@ -1125,7 +1134,7 @@ const markAllNotificationsAsRead = async (req, res) => {
 
     await notificationModel.updateMany(
       { userId, isRead: false },
-      { 
+      {
         isRead: true,
         readAt: new Date()
       }
@@ -1168,40 +1177,40 @@ const getCancellationReasons = async (req, res) => {
 const checkStock = async (req, res) => {
   try {
     const { productId, quantity } = req.body;
-    
+
     const product = await productModel.findById(productId);
     if (!product) {
       return res.json({ success: false, message: "Product not found" });
     }
-    
+
     if (product.quantity < quantity) {
-      return res.json({ 
-        success: false, 
+      return res.json({
+        success: false,
         message: `Only ${product.quantity} items available`,
         availableQuantity: product.quantity
       });
     }
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       message: "Product available",
       availableQuantity: product.quantity
     });
-    
+
   } catch (error) {
     console.error("❌ Error in checkStock:", error);
     res.json({ success: false, message: error.message });
   }
 };
 
-export { 
-  placeOrder, 
-  allOrders, 
-  userOrders, 
+export {
+  placeOrder,
+  allOrders,
+  userOrders,
   getOrderDetails,
   getGuestOrderDetails,
   getGuestOrders,
-  updateStatus, 
+  updateStatus,
   cancelOrder,
   cancelGuestOrder,
   getCancellationReasons,
