@@ -44,6 +44,16 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
         .filter(p => p.category === product?.category && p._id !== product?._id)
         .slice(0, 4);
 
+    const allDisplayImages = useMemo(() => {
+        if (!product) return [];
+        const variantImages = (product.variants && product.variants[selectedVariantIndex]?.images) ||
+            ((product.variants && product.variants[selectedVariantIndex]?.image) ? [product.variants[selectedVariantIndex].image] : []);
+        if (variantImages.length > 0) {
+            return Array.from(new Set(variantImages));
+        }
+        return Array.from(new Set(product.image || []));
+    }, [product, selectedVariantIndex]);
+
     useEffect(() => {
         window.scrollTo(0, 0);
         if (product) {
@@ -105,7 +115,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
         <>
 
 
-            <div className="min-h-screen pt-24 pb-8 md:pb-16 px-4 md:px-6 bg-white">
+            <div className="min-h-screen pt-30 pb-8 md:pb-16 px-4 md:px-6 bg-white">
 
                 <div className="max-w-7xl mx-auto">
 
@@ -114,7 +124,13 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                         {/* LEFT: Image Gallery */}
                         <div className="lg:col-span-7 flex flex-col gap-4">
                             {/* Main Image */}
-                            <div className="relative aspect-[1/1] overflow-hidden bg-white shadow-sm cursor-zoom-in group">
+                            <div
+                                className="relative aspect-[1/1] overflow-hidden bg-white shadow-sm cursor-zoom-in group"
+                                onClick={() => {
+                                    setLightboxIndex(selectedImage);
+                                    setIsLightboxOpen(true);
+                                }}
+                            >
                                 <AnimatePresence mode="wait">
                                     <motion.img
                                         key={selectedImage}
@@ -122,11 +138,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.5 }}
-                                        src={
-                                            (product.variants && product.variants[selectedVariantIndex]?.images && product.variants[selectedVariantIndex].images[0]) ||
-                                            (product.variants && product.variants[selectedVariantIndex]?.image) ||
-                                            (product.image && product.image[selectedImage])
-                                        }
+                                        src={allDisplayImages[selectedImage] || allDisplayImages[0]}
                                         alt={product.name}
                                         className="w-full h-full object-cover"
                                         referrerPolicy="no-referrer"
@@ -136,26 +148,11 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
 
                             {/* Thumbnails */}
                             <div className="flex gap-4 overflow-x-auto no-scrollbar pb-2">
-                                {/* Variant Specific Images */}
-                                {product.variants && product.variants[selectedVariantIndex]?.images?.map((img, idx) => (
+                                {allDisplayImages.map((img, idx) => (
                                     <button
-                                        key={`variant-${idx}`}
+                                        key={`thumb-${idx}`}
                                         onClick={() => setSelectedImage(idx)}
                                         className={`relative flex-shrink-0 w-24 aspect-square overflow-hidden border-2 transition-all ${selectedImage === idx ? 'border-brand-ink' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                                    >
-                                        <img src={img} alt={`${product.name} variant view ${idx}`} className="w-full h-full object-cover" />
-                                    </button>
-                                ))}
-
-                                {/* Main Product Images */}
-                                {product.image?.map((img, idx) => (
-                                    <button
-                                        key={`main-${idx}`}
-                                        onClick={() => {
-                                            setLightboxIndex(idx);
-                                            setIsLightboxOpen(true);
-                                        }}
-                                        className="relative flex-shrink-0 w-24 aspect-square overflow-hidden border-2 transition-all border-transparent opacity-60 hover:opacity-100"
                                     >
                                         <img src={img} alt={`${product.name} view ${idx}`} className="w-full h-full object-cover" />
                                     </button>
@@ -163,7 +160,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                             </div>
 
                             <div className="text-premium-xs text-brand-muted text-center mt-2">
-                                {selectedImage + 1} / {product.image?.length || 0}
+                                {selectedImage + 1} / {allDisplayImages.length || 0}
                             </div>
                         </div>
 
@@ -233,7 +230,10 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                 {product.variants.map((variant, idx) => (
                                                     <button
                                                         key={idx}
-                                                        onClick={() => setSelectedVariantIndex(idx)}
+                                                        onClick={() => {
+                                                            setSelectedVariantIndex(idx);
+                                                            setSelectedImage(0);
+                                                        }}
                                                         className={`px-5 py-3 text-[10px] font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
                                                     >
                                                         {variant.name}
@@ -275,9 +275,18 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             {product && isWishlisted(product._id) ? 'Favorite' : 'Add to Wishlist'}
                                         </span>
                                     </button>
-                                    <button className="py-4 border border-brand-ink/10 flex items-center justify-center gap-3 hover:bg-white transition-all">
+                                    <button
+                                        onClick={() => {
+                                            navigator.clipboard.writeText(window.location.href);
+                                            toast.success("Link copied to clipboard", {
+                                                style: { background: '#1A1A1A', color: '#F4F1ED', fontSize: '10px', textTransform: 'uppercase', borderRadius: '0px' },
+                                                icon: '🔗'
+                                            });
+                                        }}
+                                        className="py-4 border border-brand-ink/10 flex items-center justify-center gap-3 hover:bg-white transition-all"
+                                    >
                                         <Share2 size={16} strokeWidth={1.5} />
-                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-black">Link</span>
+                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-black">Copy Link</span>
                                     </button>
                                 </div>
 
@@ -425,29 +434,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
 
                             {/* Review Gallery & Content */}
                             <div className="lg:col-span-3">
-                                <div className="mb-12">
-                                    <h4 className="text-[12px] md:text-sm uppercase font-black tracking-widest text-brand-ink/40 mb-6">Customer Artifact Gallery</h4>
-                                    <div className="flex flex-wrap gap-4">
-                                        {(product.image || []).map((img, i) => (
-                                            <div
-                                                key={i}
-                                                onClick={() => {
-                                                    setLightboxIndex(i);
-                                                    setIsLightboxOpen(true);
-                                                }}
-                                                className="w-24 aspect-square overflow-hidden bg-brand-ink/5 border border-brand-ink/5 hover:border-brand-ink/20 transition-all cursor-pointer group relative"
-                                            >
-                                                <img src={img} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all group-hover:scale-110 duration-700" />
-                                                <div className="absolute inset-0 bg-brand-ink/20 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                                                    <Maximize2 size={16} className="text-white translate-y-2 group-hover:translate-y-0 transition-transform" />
-                                                </div>
-                                            </div>
-                                        ))}
-                                        <div className="w-24 aspect-square bg-brand-ink/5 border-2 border-dashed border-brand-ink/10 flex items-center justify-center text-[12px] md:text-sm font-black uppercase tracking-widest text-brand-muted hover:bg-brand-cream transition-colors cursor-pointer">
-                                            +12 More
-                                        </div>
-                                    </div>
-                                </div>
+
 
                                 <div className="flex items-center justify-between border-b border-brand-ink/5 pb-4 mb-12">
                                     <span className="text-[12px] md:text-sm font-black uppercase tracking-widest">Showing {product.reviews?.length || 0} of {product.reviewsCount} Reviews</span>
@@ -607,19 +594,19 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     key={lightboxIndex}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    src={product.image[lightboxIndex]}
+                                    src={allDisplayImages[lightboxIndex]}
                                     className="max-w-full max-h-[80vh] object-contain shadow-2xl"
                                 />
 
                                 <button
-                                    onClick={() => setLightboxIndex(prev => (prev > 0 ? prev - 1 : product.image.length - 1))}
+                                    onClick={() => setLightboxIndex(prev => (prev > 0 ? prev - 1 : allDisplayImages.length - 1))}
                                     className="absolute left-0 h-full px-8 text-white/20 hover:text-white transition-colors group"
                                 >
                                     <ChevronLeft size={64} strokeWidth={1} className="group-hover:scale-125 transition-transform" />
                                 </button>
 
                                 <button
-                                    onClick={() => setLightboxIndex(prev => (prev < product.image.length - 1 ? prev + 1 : 0))}
+                                    onClick={() => setLightboxIndex(prev => (prev < allDisplayImages.length - 1 ? prev + 1 : 0))}
                                     className="absolute right-0 h-full px-8 text-white/20 hover:text-white transition-colors group"
                                 >
                                     <ChevronRight size={64} strokeWidth={1} className="group-hover:scale-125 transition-transform" />
@@ -627,7 +614,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                             </div>
 
                             <div className="absolute bottom-10 flex gap-4 overflow-x-auto p-4 max-w-full no-scrollbar">
-                                {product.image.map((img, i) => (
+                                {allDisplayImages.map((img, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setLightboxIndex(i)}
