@@ -15,6 +15,9 @@ export default {
           wood: '#4A3728',
         }
       },
+      fontSize: {
+        'md': '0.9375rem', // 15px
+      },
       fontFamily: {
         serif: ['"Cormorant Garamond"', 'serif'],
         sans: ['"Inter"', 'ui-sans-serif', 'system-ui', 'sans-serif'],

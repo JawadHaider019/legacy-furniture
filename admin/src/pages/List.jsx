@@ -177,7 +177,7 @@ const List = ({ token }) => {
             <div className="mb-12 text-left">
               <div className="flex items-center justify-start gap-3 mb-3">
                 <div className="h-[1px] w-8 bg-brand-bronze/40"></div>
-                <p className="text-[10px] tracking-[0.4em] text-brand-bronze uppercase font-bold">Products List</p>
+                <p className="text-[12px] md:text-sm tracking-[0.4em] text-brand-bronze uppercase font-bold">Products List</p>
               </div>
               <h1 className="text-4xl sm:text-5xl font-serif text-brand-ink tracking-tight">All Products</h1>
               <p className="text-brand-muted mt-4 text-sm sm:text-base font-medium italic">
@@ -209,27 +209,12 @@ const List = ({ token }) => {
           </>
         ) : (
           <div className="animate-in fade-in duration-700">
-            <div className="flex items-center justify-between mb-12">
-              <button
-                onClick={() => setViewMode('list')}
-                className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-[0.3em] text-brand-muted hover:text-brand-ink transition-colors group"
-              >
-                <div className="w-8 h-8 rounded-full border border-brand-bronze/20 flex items-center justify-center group-hover:bg-brand-ink group-hover:text-brand-cream group-hover:border-brand-ink transition-all">
-                  <FontAwesomeIcon icon={faPlus} className="rotate-45" />
-                </div>
-                Back to List
-              </button>
-              <div className="flex items-center gap-3">
-                <div className="h-[1px] w-8 bg-brand-bronze/40"></div>
-                <h2 className="text-xs font-serif italic text-brand-bronze uppercase tracking-[0.2em]">Edit Product</h2>
-              </div>
-            </div>
             {selectedProduct && (
               <ProductDetails
                 product={selectedProduct}
                 token={token}
                 onUpdate={fetchProducts}
-                onClose={() => setViewMode('list')}
+                onBack={() => setViewMode('list')}
               />
             )}
           </div>
@@ -297,7 +282,7 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
 
         {item.bestseller && (
           <div className="absolute top-4 left-4">
-            <span className="luxury-badge bg-brand-ink text-white border-none text-[8px] flex items-center gap-2">
+            <span className="luxury-badge bg-brand-ink text-white border-none text-[12px] md:text-sm flex items-center gap-2">
               <FontAwesomeIcon icon={faStar} className="text-brand-bronze" />
               Bestseller
             </span>
@@ -311,12 +296,12 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
             <h3 className="font-serif text-lg text-brand-ink mb-1 group-hover:text-brand-bronze transition-colors truncate">
               {item.name}
             </h3>
-            <p className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">
+            <p className="text-[12px] md:text-sm font-bold uppercase tracking-widest text-brand-muted opacity-60">
               Ref: {item._id.slice(-8).toUpperCase()}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-lg font-serif text-brand-ink">Rs {item.price.toLocaleString()}</p>
+            <p className="text-lg font-sans font-bold text-brand-ink">Rs {item.price.toLocaleString()}</p>
             {item.discountprice > 0 && (
               <p className="text-sm text-red-400 line-through">Rs {item.discountprice.toLocaleString()}</p>
             )}
@@ -342,17 +327,17 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
               <button
                 onClick={() => handleStockUpdate(localQuantity - 1)}
                 disabled={isUpdatingStock}
-                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[12px] transition-all"
+                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[12px] md:text-sm transition-all"
               >
                 <FontAwesomeIcon icon={faMinus} />
               </button>
-              <span className={`text-xs font-bold leading-none w-8 text-center ${isUpdatingStock ? 'opacity-30' : ''}`}>
+              <span className={`text-sm font-bold leading-none w-8 text-center ${isUpdatingStock ? 'opacity-30' : ''}`}>
                 {localQuantity}
               </span>
               <button
                 onClick={() => handleStockUpdate(localQuantity + 1)}
                 disabled={isUpdatingStock}
-                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[12px] transition-all"
+                className="w-6 h-6 border border-brand-bronze/10 text-brand-muted hover:bg-white hover:text-brand-ink flex items-center justify-center text-[12px] md:text-sm transition-all"
               >
                 <FontAwesomeIcon icon={faPlus} />
               </button>
@@ -366,6 +351,7 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
             <MobileActionButton onClick={() => onDelete(item._id)} variant="danger" icon="delete" label="Delete" />
           </div>
           <div className="hidden lg:flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+            <ActionButton onClick={() => onEdit(item)} variant="edit" icon="edit" label="Update Product" />
             <ActionButton onClick={() => onDelete(item._id)} variant="danger" icon="delete" label="Delete Product" />
           </div>
         </div>
@@ -397,7 +383,7 @@ const StatusDropdown = ({ currentStatus, onStatusChange }) => {
         ))}
       </select>
       <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none opacity-40">
-        <FontAwesomeIcon icon={faPlus} className="text-[8px] rotate-45" />
+        <FontAwesomeIcon icon={faPlus} className="text-[12px] md:text-sm rotate-45" />
       </div>
     </div>
   )
@@ -419,7 +405,7 @@ const MobileActionButton = ({ onClick, variant, icon, label }) => {
   return (
     <button
       onClick={onClick}
-      className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-[10px] font-bold uppercase tracking-widest rounded-sm border transition-all ${variants[variant]}`}
+      className={`flex-1 flex items-center justify-center gap-2 px-3 py-3 text-[12px] md:text-sm font-bold uppercase tracking-widest rounded-sm border transition-all ${variants[variant]}`}
     >
       <FontAwesomeIcon icon={icons[icon]} />
       {label}
@@ -431,6 +417,7 @@ const ActionButton = ({ onClick, variant, icon, label }) => {
   const variants = {
     ghost: "text-brand-muted hover:text-brand-ink hover:bg-brand-cream border-transparent",
     danger: "text-red-400 hover:text-red-600 hover:bg-red-50 border-transparent",
+    edit: "text-brand-bronze hover:text-white hover:bg-brand-bronze border-brand-bronze/10",
   }
 
   const icons = {
@@ -442,7 +429,7 @@ const ActionButton = ({ onClick, variant, icon, label }) => {
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-3 py-2 text-[10px] font-bold uppercase tracking-widest rounded-sm border transition-all duration-300 ${variants[variant]}`}
+      className={`inline-flex items-center gap-2 px-3 py-2 text-[12px] md:text-sm font-bold uppercase tracking-widest rounded-sm border transition-all duration-300 ${variants[variant]}`}
       title={label}
     >
       <FontAwesomeIcon icon={icons[icon]} className="text-xs" />
@@ -467,9 +454,9 @@ const EmptyState = ({ type }) => (
       </div>
       <div>
         <h3 className="text-xl font-serif text-brand-ink mb-2 italic">No Products Found</h3>
-        <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted">No {type} have been added yet.</p>
+        <p className="text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] text-brand-muted">No {type} have been added yet.</p>
       </div>
-      <button className="luxury-button !px-10 !py-4 text-[10px] uppercase tracking-[0.3em]">
+      <button className="luxury-button !px-10 !py-4 text-[12px] md:text-sm uppercase tracking-[0.3em]">
         Add Product
       </button>
     </div>
@@ -539,14 +526,14 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
               </div>
 
               <div className="p-6 bg-brand-cream/50 border border-brand-bronze/5">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted mb-4">Inventory Summary</h4>
+                <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] text-brand-muted mb-4">Inventory Summary</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <p className="text-[9px] uppercase tracking-widest text-brand-muted opacity-60 mb-1">Quantity Available</p>
+                    <p className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted opacity-60 mb-1">Quantity Available</p>
                     <p className="text-xl font-serif text-brand-ink">{product.quantity}</p>
                   </div>
                   <div>
-                    <p className="text-[9px] uppercase tracking-widest text-brand-muted opacity-60 mb-1">Total Sales</p>
+                    <p className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted opacity-60 mb-1">Total Sales</p>
                     <p className="text-xl font-serif text-brand-ink">{product.totalSales || 0}</p>
                   </div>
                 </div>
@@ -556,7 +543,7 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
             <div className="lg:col-span-7 space-y-10">
               <section>
                 <div className="flex items-center gap-4 mb-6">
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Description</h4>
+                  <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Description</h4>
                   <div className="flex-1 h-[1px] bg-brand-bronze/10"></div>
                 </div>
                 <p className="text-sm text-brand-muted leading-relaxed font-medium italic">
@@ -566,29 +553,29 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
 
               <div className="grid grid-cols-2 gap-12">
                 <section>
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted mb-4">Categories</h4>
+                  <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] text-brand-muted mb-4">Categories</h4>
                   <div className="space-y-4">
                     <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2">
-                      <span className="text-[9px] uppercase tracking-widest text-brand-muted">Category</span>
-                      <span className="text-[11px] font-bold text-brand-ink uppercase tracking-wider">{getCategoryName(product.category)}</span>
+                      <span className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted">Category</span>
+                      <span className="text-[12px] md:text-sm font-bold text-brand-ink uppercase tracking-wider">{getCategoryName(product.category)}</span>
                     </div>
                     <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2">
-                      <span className="text-[9px] uppercase tracking-widest text-brand-muted">Sub Category</span>
-                      <span className="text-[11px] font-bold text-brand-ink uppercase tracking-wider">{getSubcategoryName(product.category, product.subcategory)}</span>
+                      <span className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted">Sub Category</span>
+                      <span className="text-[12px] md:text-sm font-bold text-brand-ink uppercase tracking-wider">{getSubcategoryName(product.category, product.subcategory)}</span>
                     </div>
                   </div>
                 </section>
 
                 <section>
-                  <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted mb-4">Pricing Details</h4>
+                  <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] text-brand-muted mb-4">Pricing Details</h4>
                   <div className="space-y-4">
                     <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2">
-                      <span className="text-[9px] uppercase tracking-widest text-brand-muted">Cost Price</span>
-                      <span className="text-[11px] font-bold text-brand-ink uppercase tracking-wider">Rs {product.cost?.toLocaleString() || 0}</span>
+                      <span className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted">Cost Price</span>
+                      <span className="text-[12px] md:text-sm font-bold text-brand-ink uppercase tracking-wider">Rs {product.cost?.toLocaleString() || 0}</span>
                     </div>
                     <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2 text-brand-bronze">
-                      <span className="text-[9px] uppercase tracking-widest">Selling Price</span>
-                      <span className="text-[11px] font-bold uppercase tracking-wider">Rs {(product.discountprice || product.price).toLocaleString()}</span>
+                      <span className="text-[12px] md:text-sm uppercase tracking-widest">Selling Price</span>
+                      <span className="text-[12px] md:text-sm font-bold uppercase tracking-wider">Rs {(product.discountprice || product.price).toLocaleString()}</span>
                     </div>
                   </div>
                 </section>
@@ -599,31 +586,62 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
                 <section className="bg-brand-cream/30 p-8 border border-brand-bronze/5">
                   <div className="flex items-center gap-3 mb-4">
                     <FontAwesomeIcon icon={faInfoCircle} className="text-brand-bronze/40 text-xs" />
-                    <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-muted">Technical Specifications</h4>
+                    <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] text-brand-muted">Technical Specifications</h4>
                   </div>
-                  <div className="grid grid-cols-2 gap-y-4">
+                  <div className="grid grid-cols-2 gap-y-4 text-[12px] md:text-sm">
                     <div className="flex flex-col">
-                      <span className="text-[8px] uppercase tracking-widest text-brand-muted opacity-60">Brand</span>
-                      <span className="text-[10px] font-bold text-brand-ink uppercase">{product.brand}</span>
+                      <span className="text-brand-muted opacity-60 uppercase tracking-widest">Brand</span>
+                      <span className="font-bold text-brand-ink uppercase">{product.brand}</span>
                     </div>
                     {product.specs?.dimensions && (
                       <div className="flex flex-col">
-                        <span className="text-[8px] uppercase tracking-widest text-brand-muted opacity-60">Dimensions</span>
-                        <span className="text-[10px] font-bold text-brand-ink uppercase">{product.specs.dimensions}</span>
+                        <span className="text-brand-muted opacity-60 uppercase tracking-widest">Dimensions</span>
+                        <span className="font-bold text-brand-ink uppercase">{product.specs.dimensions}</span>
                       </div>
                     )}
                     {product.specs?.material && (
                       <div className="flex flex-col">
-                        <span className="text-[8px] uppercase tracking-widest text-brand-muted opacity-60">Material</span>
-                        <span className="text-[10px] font-bold text-brand-ink uppercase">{product.specs.material}</span>
+                        <span className="text-brand-muted opacity-60 uppercase tracking-widest">Material</span>
+                        <span className="font-bold text-brand-ink uppercase">{product.specs.material}</span>
                       </div>
                     )}
-                    {product.specs?.sku && (
-                      <div className="flex flex-col">
-                        <span className="text-[8px] uppercase tracking-widest text-brand-muted opacity-60">SKU</span>
-                        <span className="text-[10px] font-bold text-brand-ink uppercase">{product.specs.sku}</span>
+                  </div>
+                </section>
+              )}
+
+              {/* Variants Section */}
+              {product.variants && product.variants.length > 0 && (
+                <section>
+                  <div className="flex items-center gap-4 mb-6">
+                    <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Variations</h4>
+                    <div className="flex-1 h-[1px] bg-brand-bronze/10"></div>
+                  </div>
+                  <div className="space-y-4">
+                    {product.variants.map((v, idx) => (
+                      <div key={idx} className="flex gap-4 p-4 border border-brand-bronze/5 bg-brand-cream/20">
+                        <div className="w-16 h-16 bg-brand-cream border border-brand-bronze/10 flex-shrink-0">
+                          <img
+                            src={v.images?.[0] || v.image || (product.image && product.image[0])}
+                            alt={v.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex justify-between items-start mb-2">
+                            <h5 className="text-[12px] md:text-sm font-bold uppercase text-brand-ink">{v.name}</h5>
+                            <span className="text-[12px] md:text-sm font-serif text-brand-bronze">Rs {v.price?.toLocaleString()}</span>
+                          </div>
+                          <div className="grid grid-cols-3 gap-4 text-[12px] md:text-sm text-brand-muted opacity-60 uppercase tracking-widest font-bold">
+                            <span>Cost: Rs {(v.cost || product.cost)?.toLocaleString()}</span>
+                            <span>Stock: {v.stock}</span>
+                            <span>SKU: {v.sku || 'N/A'}</span>
+                          </div>
+                          {v.description && (
+                            <p className="text-[12px] md:text-sm text-brand-muted italic mt-2 line-clamp-1">{v.description}</p>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    ))}
                   </div>
                 </section>
               )}
@@ -634,7 +652,7 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
         <div className="relative z-10 px-10 py-8 border-t border-brand-bronze/10 flex justify-end gap-6 bg-white">
           <button
             onClick={onClose}
-            className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-muted hover:text-brand-ink transition-all"
+            className="text-[12px] md:text-sm font-bold uppercase tracking-[0.3em] text-brand-muted hover:text-brand-ink transition-all"
           >
             Close Preview
           </button>
@@ -645,7 +663,7 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
             }}
             className="luxury-button !px-10"
           >
-            Edit Product
+            Update Product
           </button>
         </div>
       </div>

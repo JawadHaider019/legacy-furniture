@@ -7,32 +7,22 @@ import jwt from 'jsonwebtoken';
 // Helper function to extract embed URL from iframe HTML or return clean URL
 const extractEmbedUrl = (urlOrIframe) => {
   if (!urlOrIframe) return '';
-  
-  console.log('🔍 Processing map link:', urlOrIframe);
-  
-  // If it's already a clean embed URL, return it
+
   if (urlOrIframe.includes('/embed?') && !urlOrIframe.includes('<iframe')) {
-    console.log('✅ Already clean embed URL');
     return urlOrIframe;
   }
-  
-  // If it's an iframe HTML, extract the src attribute
+
   if (urlOrIframe.includes('<iframe')) {
-    console.log('🔄 Extracting from iframe HTML');
     const srcMatch = urlOrIframe.match(/src="([^"]*)"/);
     if (srcMatch && srcMatch[1]) {
-      console.log('✅ Extracted embed URL:', srcMatch[1]);
       return srcMatch[1];
     }
   }
-  
-  // If it's a regular Google Maps URL, convert to embed
+
   if (urlOrIframe.includes('google.com/maps') || urlOrIframe.includes('maps.app.goo.gl')) {
-    console.log('🔄 Converting regular URL to embed');
     return convertToEmbedUrl(urlOrIframe);
   }
-  
-  console.log('⚠️ Could not process map link, returning as is');
+
   return urlOrIframe;
 };
 
@@ -42,28 +32,28 @@ const convertToEmbedUrl = (url) => {
     const urlObj = new URL(url);
     const placeId = urlObj.searchParams.get('place_id');
     const query = urlObj.searchParams.get('q') || urlObj.searchParams.get('destination');
-    
+
     if (placeId) {
-      return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13398.257699999999!2d72.4054!3d32.9295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDU1JzQ2LjIiTiA3MsKwMjQnNTUuNCJF!5e0!3m2!1sen!2s!4v1742395541712!5m2!1sen!2s&q=place_id:${placeId}&z=17`;
+      return "";
     } else if (query) {
-      return `https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d13398.257699999999!2d72.4054!3d32.9295!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMzLCsDU1JzQ2LjIiTiA3MsKwMjQnNTUuNCJF!5e0!3m2!1sen!2s!4v1742395541712!5m2!1sen!2s&q=${encodeURIComponent(query)}&z=17`;
+      return "";
     }
   } catch (error) {
     console.error('Error converting URL:', error);
   }
-  
+
   return url;
 };
 
 // Function to process map links in business details
 const processMapLinks = (data) => {
   const processedData = { ...data };
-  
+
   // Process main location map link
   if (processedData.location?.googleMapsLink) {
     processedData.location.googleMapsLink = extractEmbedUrl(processedData.location.googleMapsLink);
   }
-  
+
   // Process store map links
   if (processedData.multiStore?.stores) {
     processedData.multiStore.stores = processedData.multiStore.stores.map(store => {
@@ -73,7 +63,7 @@ const processMapLinks = (data) => {
       return store;
     });
   }
-  
+
   return processedData;
 };
 
@@ -99,22 +89,22 @@ async function processLogoUpload({ file, logoType, businessDetails, updateData, 
       await cloudinary.uploader.destroy(businessDetails.logos[logoType].public_id);
       console.log(`🗑️ Deleted old ${logoType} logo`);
     }
-    
+
     // Upload new logo to Cloudinary
     const result = await cloudinary.uploader.upload(file.path, {
       folder: 'natura-bliss/logos'
     });
-    
+
     updateData.logos[logoType] = {
       url: result.secure_url,
       public_id: result.public_id
     };
-    
+
     // Delete local file after successful upload
     await fs.unlink(file.path);
     uploadedFiles.push(file.path);
     console.log(`✅ ${logoType} logo uploaded successfully`);
-    
+
   } catch (error) {
     console.error(`❌ Error processing ${logoType} logo:`, error.message);
     throw error; // Re-throw to be caught by main try-catch
@@ -124,7 +114,7 @@ async function processLogoUpload({ file, logoType, businessDetails, updateData, 
 // Helper function to clean up uploaded files
 async function cleanupUploadedFiles(files, uploadedFiles) {
   if (!files) return;
-  
+
   console.log('🧹 Cleaning up uploaded files due to error');
   for (const fileType in files) {
     for (const file of files[fileType]) {
@@ -151,17 +141,7 @@ async function cleanupUploadedFiles(files, uploadedFiles) {
 
 export const getBusinessDetails = async (req, res) => {
   try {
-    console.log('GET /api/business-details called');
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
-    console.log('Business details found:', {
-      id: businessDetails._id,
-      companyName: businessDetails.company.name,
-      contactStructure: businessDetails.contact,
-      email: businessDetails.contact?.customerSupport?.email,
-      phone: businessDetails.contact?.customerSupport?.phone,
-      mapLink: businessDetails.location?.googleMapsLink
-    });
 
     // FIX: Check if contact data is malformed and auto-fix it
     let needsFix = false;
@@ -173,11 +153,11 @@ export const getBusinessDetails = async (req, res) => {
       fixedContactData = {
         customerSupport: {
           phone: businessDetails.contact.customerSupport, // the phone number string
-          email: "naturabliss@gmail.com", // default email
+          email: "legacyfurniture18@gmail.com", // default email
           hours: "24/7" // default hours
         }
       };
-      
+
       // Auto-fix the database
       businessDetails.contact = fixedContactData;
       await businessDetails.save();
@@ -186,9 +166,9 @@ export const getBusinessDetails = async (req, res) => {
       // Use existing data if structure is correct
       fixedContactData = businessDetails.contact || {
         customerSupport: {
-          email: "naturabliss@gmail.com",
-          phone: "+92-317 5546007",
-          hours: "24/7"
+          email: "",
+          phone: "",
+          hours: ""
         }
       };
     }
@@ -196,18 +176,17 @@ export const getBusinessDetails = async (req, res) => {
     // Process map links to ensure clean embed URLs
     const processedData = processMapLinks(businessDetails.toObject());
 
-    // Ensure all required fields are present with proper fallbacks
     const responseData = {
       company: {
-        name: processedData.company?.name || "Natura Bliss",
-        tagline: processedData.company?.tagline || "Pure Natural Skincare",
-        description: processedData.company?.description || "Pure, handmade natural skincare products crafted with organic ingredients for your wellness.",
+        name: processedData.company?.name || "Legacy Furniture",
+        tagline: processedData.company?.tagline || "Timeless Craftsmanship",
+        description: processedData.company?.description || "",
         foundedYear: processedData.company?.foundedYear || 2023
       },
       contact: fixedContactData,
       location: {
-        displayAddress: processedData.location?.displayAddress || "123 Natural Street, Green Valley, PK",
-        googleMapsLink: processedData.location?.googleMapsLink || "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d53581.37547067252!2d72.36579725668948!3d32.92893183501323!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3920949ad1b6438b%3A0x7807a1c59442d6de!2sTalagang%2C%20Pakistan!5e0!3m2!1sen!2s!4v1742395541712!5m2!1sen!2s"
+        displayAddress: processedData.location?.displayAddress || "London, United Kingdom",
+        googleMapsLink: processedData.location?.googleMapsLink || ""
       },
       socialMedia: processedData.socialMedia || {
         facebook: "",
@@ -232,16 +211,7 @@ export const getBusinessDetails = async (req, res) => {
         terms: ""
       }
     };
-    
-    console.log('✅ Final response data contact:', responseData.contact);
-    console.log('✅ Processed map links:', {
-      mainLocation: responseData.location.googleMapsLink,
-      stores: responseData.multiStore.stores.map(store => ({
-        storeName: store.storeName,
-        mapLink: store.location?.googleMapsLink
-      }))
-    });
-    
+
     res.json({
       success: true,
       data: responseData
@@ -260,7 +230,7 @@ export const getActiveStores = async (req, res) => {
   try {
     const businessDetails = await BusinessDetails.getBusinessDetails();
     const activeStores = businessDetails.multiStore.stores.filter(store => store.isActive);
-    
+
     res.json({
       success: true,
       count: activeStores.length,
@@ -279,18 +249,18 @@ export const getStoreById = async (req, res) => {
   try {
     const { storeId } = req.params;
     const businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const store = businessDetails.multiStore.stores.find(
       s => s.storeId === storeId && s.isActive
     );
-    
+
     if (!store) {
       return res.status(404).json({
         success: false,
         message: 'Store not found'
       });
     }
-    
+
     res.json({
       success: true,
       data: store
@@ -338,9 +308,9 @@ export const updateCompanyDetails = async (req, res) => {
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
     console.log('Found business details:', businessDetails._id);
-    
+
     const { companyName, tagline, description, foundedYear, customerSupport, location, socialMedia, policies } = req.body;
-    
+
     console.log('Received form data:', {
       companyName,
       tagline,
@@ -373,7 +343,7 @@ export const updateCompanyDetails = async (req, res) => {
         foundedYear: foundedYear || businessDetails.company.foundedYear
       }
     };
-    
+
     // FIX: Properly handle customerSupport data structure
     if (customerSupport) {
       try {
@@ -383,13 +353,13 @@ export const updateCompanyDetails = async (req, res) => {
         } else {
           customerSupportData = customerSupport;
         }
-        
+
         // Ensure we have the proper structure
         updateData.contact = {
           customerSupport: {
-            email: customerSupportData.email || businessDetails.contact?.customerSupport?.email || "naturabliss@gmail.com",
-            phone: customerSupportData.phone || businessDetails.contact?.customerSupport?.phone || "+92-317 5546007",
-            hours: customerSupportData.hours || businessDetails.contact?.customerSupport?.hours || "24/7"
+            email: customerSupportData.email || businessDetails.contact?.customerSupport?.email || "",
+            phone: customerSupportData.phone || businessDetails.contact?.customerSupport?.phone || "",
+            hours: customerSupportData.hours || businessDetails.contact?.customerSupport?.hours || ""
           }
         };
         console.log('✅ Processed customer support data:', updateData.contact.customerSupport);
@@ -398,9 +368,9 @@ export const updateCompanyDetails = async (req, res) => {
         // If parsing fails, use existing data
         updateData.contact = businessDetails.contact || {
           customerSupport: {
-            email: "naturabliss@gmail.com",
-            phone: "+92-317 5546007",
-            hours: "24/7"
+            email: "",
+            phone: "",
+            hours: ""
           }
         };
       }
@@ -408,24 +378,24 @@ export const updateCompanyDetails = async (req, res) => {
       // Keep existing contact data if no new data provided
       updateData.contact = businessDetails.contact || {
         customerSupport: {
-          email: "naturabliss@gmail.com",
-          phone: "+92-317 5546007",
-          hours: "24/7"
+          email: "",
+          phone: "",
+          hours: ""
         }
       };
     }
-    
+
     // Handle location data - EXTRACT EMBED URL HERE
     if (location) {
       try {
         const locationData = typeof location === 'string' ? JSON.parse(location) : location;
-        
+
         // Extract clean embed URL from iframe HTML if present
         if (locationData.googleMapsLink) {
           locationData.googleMapsLink = extractEmbedUrl(locationData.googleMapsLink);
           console.log('✅ Extracted clean embed URL for location:', locationData.googleMapsLink);
         }
-        
+
         updateData.location = {
           ...businessDetails.location,
           ...locationData
@@ -434,17 +404,17 @@ export const updateCompanyDetails = async (req, res) => {
       } catch (parseError) {
         console.error('❌ Error parsing location:', parseError);
         updateData.location = businessDetails.location || {
-          displayAddress: "123 Natural Street, Green Valley, PK",
+          displayAddress: "London, United Kingdom",
           googleMapsLink: ""
         };
       }
     } else {
       updateData.location = businessDetails.location || {
-        displayAddress: "123 Natural Street, Green Valley, PK",
+        displayAddress: "London, United Kingdom",
         googleMapsLink: ""
       };
     }
-    
+
     // Handle social media data
     if (socialMedia) {
       try {
@@ -470,7 +440,7 @@ export const updateCompanyDetails = async (req, res) => {
         whatsapp: ""
       };
     }
-    
+
     // Handle policies data
     if (policies) {
       try {
@@ -496,11 +466,11 @@ export const updateCompanyDetails = async (req, res) => {
         terms: ""
       };
     }
-    
+
     // Handle logo uploads
     if (req.files) {
       updateData.logos = { ...businessDetails.logos };
-      
+
       // Process website logo
       if (req.files.websiteLogo && req.files.websiteLogo[0]) {
         await processLogoUpload({
@@ -511,7 +481,7 @@ export const updateCompanyDetails = async (req, res) => {
           uploadedFiles
         });
       }
-      
+
       // Process admin logo
       if (req.files.adminLogo && req.files.adminLogo[0]) {
         await processLogoUpload({
@@ -522,7 +492,7 @@ export const updateCompanyDetails = async (req, res) => {
           uploadedFiles
         });
       }
-      
+
       // Process favicon
       if (req.files.favicon && req.files.favicon[0]) {
         await processLogoUpload({
@@ -540,19 +510,19 @@ export const updateCompanyDetails = async (req, res) => {
         favicon: { url: "", public_id: "" }
       };
     }
-    
+
     console.log('💾 Saving updated business details...');
     console.log('Update data structure:', JSON.stringify(updateData, null, 2));
-    
+
     businessDetails = await BusinessDetails.findByIdAndUpdate(
       businessDetails._id,
       updateData,
       { new: true, runValidators: true }
     );
-    
+
     console.log('✅ Business details updated successfully');
     console.log('Updated contact data:', businessDetails.contact);
-    
+
     res.json({
       success: true,
       message: 'Company details updated successfully',
@@ -560,10 +530,10 @@ export const updateCompanyDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('❌ Update company details error:', error);
-    
+
     // Clean up uploaded files on error
     await cleanupUploadedFiles(req.files, uploadedFiles);
-    
+
     // Handle specific error types
     if (error.name === 'JsonWebTokenError') {
       return res.status(401).json({
@@ -571,14 +541,14 @@ export const updateCompanyDetails = async (req, res) => {
         message: 'Not Authorized: Invalid token'
       });
     }
-    
+
     if (error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Token expired'
       });
     }
-    
+
     if (error.name === 'ValidationError') {
       return res.status(400).json({
         success: false,
@@ -586,7 +556,7 @@ export const updateCompanyDetails = async (req, res) => {
         error: error.message
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating company details',
@@ -598,7 +568,7 @@ export const updateCompanyDetails = async (req, res) => {
 export const updateContactDetails = async (req, res) => {
   try {
     console.log('=== UPDATE CONTACT DETAILS REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -618,9 +588,9 @@ export const updateContactDetails = async (req, res) => {
     }
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const { customerSupport } = req.body;
-    
+
     // Ensure contact structure exists
     if (!businessDetails.contact) {
       businessDetails.contact = {};
@@ -628,14 +598,14 @@ export const updateContactDetails = async (req, res) => {
     if (!businessDetails.contact.customerSupport) {
       businessDetails.contact.customerSupport = {};
     }
-    
+
     businessDetails.contact.customerSupport = {
       ...businessDetails.contact.customerSupport,
       ...customerSupport
     };
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Contact details updated successfully',
@@ -643,14 +613,14 @@ export const updateContactDetails = async (req, res) => {
     });
   } catch (error) {
     console.error('Update contact details error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating contact details',
@@ -662,7 +632,7 @@ export const updateContactDetails = async (req, res) => {
 export const updateSocialMedia = async (req, res) => {
   try {
     console.log('=== UPDATE SOCIAL MEDIA REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -682,14 +652,14 @@ export const updateSocialMedia = async (req, res) => {
     }
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     businessDetails.socialMedia = {
       ...businessDetails.socialMedia,
       ...req.body
     };
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Social media updated successfully',
@@ -697,14 +667,14 @@ export const updateSocialMedia = async (req, res) => {
     });
   } catch (error) {
     console.error('Update social media error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating social media',
@@ -716,7 +686,7 @@ export const updateSocialMedia = async (req, res) => {
 export const updatePolicies = async (req, res) => {
   try {
     console.log('=== UPDATE POLICIES REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -736,14 +706,14 @@ export const updatePolicies = async (req, res) => {
     }
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     businessDetails.policies = {
       ...businessDetails.policies,
       ...req.body
     };
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Policies updated successfully',
@@ -751,14 +721,14 @@ export const updatePolicies = async (req, res) => {
     });
   } catch (error) {
     console.error('Update policies error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating policies',
@@ -770,7 +740,7 @@ export const updatePolicies = async (req, res) => {
 export const addStore = async (req, res) => {
   try {
     console.log('=== ADD STORE REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -790,14 +760,14 @@ export const addStore = async (req, res) => {
     }
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     // Process map link in store data
     const storeData = { ...req.body };
     if (storeData.location?.googleMapsLink) {
       storeData.location.googleMapsLink = extractEmbedUrl(storeData.location.googleMapsLink);
       console.log('✅ Extracted clean embed URL for store:', storeData.location.googleMapsLink);
     }
-    
+
     const newStore = {
       storeId: `STORE${Date.now()}`,
       ...storeData,
@@ -805,23 +775,23 @@ export const addStore = async (req, res) => {
       status: 'active',
       createdAt: new Date()
     };
-    
+
     console.log('✅ Processed store data with clean embed URL:', newStore.location?.googleMapsLink);
-    
+
     // Handle store logo using your upload middleware
     if (req.file) {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: 'natura-bliss/stores'
       });
-      
+
       newStore.storeLogo = {
         url: result.secure_url,
         public_id: result.public_id
       };
-      
+
       await fs.unlink(req.file.path);
     }
-    
+
     // Ensure multiStore structure exists
     if (!businessDetails.multiStore) {
       businessDetails.multiStore = {
@@ -833,16 +803,16 @@ export const addStore = async (req, res) => {
     if (!businessDetails.multiStore.stores) {
       businessDetails.multiStore.stores = [];
     }
-    
+
     businessDetails.multiStore.stores.push(newStore);
-    
+
     if (businessDetails.multiStore.stores.length === 1) {
       businessDetails.multiStore.enabled = true;
       businessDetails.multiStore.defaultStore = newStore.storeId;
     }
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Store added successfully',
@@ -850,18 +820,18 @@ export const addStore = async (req, res) => {
     });
   } catch (error) {
     console.error('Add store error:', error);
-    
+
     if (req.file) {
       await fs.unlink(req.file.path).catch(console.error);
     }
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error adding store',
@@ -873,7 +843,7 @@ export const addStore = async (req, res) => {
 export const updateStore = async (req, res) => {
   try {
     console.log('=== UPDATE STORE REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -894,35 +864,35 @@ export const updateStore = async (req, res) => {
 
     const { storeId } = req.params;
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const storeIndex = businessDetails.multiStore.stores.findIndex(
       store => store.storeId === storeId
     );
-    
+
     if (storeIndex === -1) {
       return res.status(404).json({
         success: false,
         message: 'Store not found'
       });
     }
-    
+
     // Process map link in update data
     const updateData = { ...req.body };
     if (updateData.location?.googleMapsLink) {
       updateData.location.googleMapsLink = extractEmbedUrl(updateData.location.googleMapsLink);
       console.log('✅ Extracted clean embed URL for store update:', updateData.location.googleMapsLink);
     }
-    
+
     businessDetails.multiStore.stores[storeIndex] = {
       ...businessDetails.multiStore.stores[storeIndex],
       ...updateData,
       updatedAt: new Date()
     };
-    
+
     console.log('✅ Updated store with clean embed URL:', businessDetails.multiStore.stores[storeIndex].location?.googleMapsLink);
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Store updated successfully',
@@ -930,14 +900,14 @@ export const updateStore = async (req, res) => {
     });
   } catch (error) {
     console.error('Update store error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating store',
@@ -949,7 +919,7 @@ export const updateStore = async (req, res) => {
 export const updateStoreLogo = async (req, res) => {
   try {
     console.log('=== UPDATE STORE LOGO REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -970,42 +940,42 @@ export const updateStoreLogo = async (req, res) => {
 
     const { storeId } = req.params;
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const storeIndex = businessDetails.multiStore.stores.findIndex(
       store => store.storeId === storeId
     );
-    
+
     if (storeIndex === -1) {
       return res.status(404).json({
         success: false,
         message: 'Store not found'
       });
     }
-    
+
     if (!req.file) {
       return res.status(400).json({
         success: false,
         message: 'No logo file provided'
       });
     }
-    
+
     const oldLogo = businessDetails.multiStore.stores[storeIndex].storeLogo;
     if (oldLogo?.public_id) {
       await cloudinary.uploader.destroy(oldLogo.public_id);
     }
-    
+
     const result = await cloudinary.uploader.upload(req.file.path, {
       folder: 'natura-bliss/stores'
     });
-    
+
     businessDetails.multiStore.stores[storeIndex].storeLogo = {
       url: result.secure_url,
       public_id: result.public_id
     };
-    
+
     await businessDetails.save();
     await fs.unlink(req.file.path);
-    
+
     res.json({
       success: true,
       message: 'Store logo updated successfully',
@@ -1013,18 +983,18 @@ export const updateStoreLogo = async (req, res) => {
     });
   } catch (error) {
     console.error('Update store logo error:', error);
-    
+
     if (req.file) {
       await fs.unlink(req.file.path).catch(console.error);
     }
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating store logo',
@@ -1036,7 +1006,7 @@ export const updateStoreLogo = async (req, res) => {
 export const toggleStoreStatus = async (req, res) => {
   try {
     console.log('=== TOGGLE STORE STATUS REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -1057,26 +1027,26 @@ export const toggleStoreStatus = async (req, res) => {
 
     const { storeId } = req.params;
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const storeIndex = businessDetails.multiStore.stores.findIndex(
       store => store.storeId === storeId
     );
-    
+
     if (storeIndex === -1) {
       return res.status(404).json({
         success: false,
         message: 'Store not found'
       });
     }
-    
-    businessDetails.multiStore.stores[storeIndex].isActive = 
+
+    businessDetails.multiStore.stores[storeIndex].isActive =
       !businessDetails.multiStore.stores[storeIndex].isActive;
-    
-    businessDetails.multiStore.stores[storeIndex].status = 
+
+    businessDetails.multiStore.stores[storeIndex].status =
       businessDetails.multiStore.stores[storeIndex].isActive ? 'active' : 'inactive';
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: `Store ${businessDetails.multiStore.stores[storeIndex].isActive ? 'activated' : 'deactivated'} successfully`,
@@ -1084,14 +1054,14 @@ export const toggleStoreStatus = async (req, res) => {
     });
   } catch (error) {
     console.error('Toggle store status error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error updating store status',
@@ -1103,7 +1073,7 @@ export const toggleStoreStatus = async (req, res) => {
 export const deleteStore = async (req, res) => {
   try {
     console.log('=== DELETE STORE REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -1124,35 +1094,35 @@ export const deleteStore = async (req, res) => {
 
     const { storeId } = req.params;
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const storeIndex = businessDetails.multiStore.stores.findIndex(
       store => store.storeId === storeId
     );
-    
+
     if (storeIndex === -1) {
       return res.status(404).json({
         success: false,
         message: 'Store not found'
       });
     }
-    
+
     // Delete store logo from Cloudinary if exists
     const storeLogo = businessDetails.multiStore.stores[storeIndex].storeLogo;
     if (storeLogo?.public_id) {
       await cloudinary.uploader.destroy(storeLogo.public_id);
     }
-    
+
     // Remove store from array
     businessDetails.multiStore.stores.splice(storeIndex, 1);
-    
+
     // Disable multi-store if no stores left
     if (businessDetails.multiStore.stores.length === 0) {
       businessDetails.multiStore.enabled = false;
       businessDetails.multiStore.defaultStore = null;
     }
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Store deleted successfully',
@@ -1160,14 +1130,14 @@ export const deleteStore = async (req, res) => {
     });
   } catch (error) {
     console.error('Delete store error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error deleting store',
@@ -1179,7 +1149,7 @@ export const deleteStore = async (req, res) => {
 export const setDefaultStore = async (req, res) => {
   try {
     console.log('=== SET DEFAULT STORE REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -1200,21 +1170,21 @@ export const setDefaultStore = async (req, res) => {
 
     const { storeId } = req.params;
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     const storeExists = businessDetails.multiStore.stores.some(
       store => store.storeId === storeId
     );
-    
+
     if (!storeExists) {
       return res.status(404).json({
         success: false,
         message: 'Store not found'
       });
     }
-    
+
     businessDetails.multiStore.defaultStore = storeId;
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: 'Default store updated successfully',
@@ -1222,14 +1192,14 @@ export const setDefaultStore = async (req, res) => {
     });
   } catch (error) {
     console.error('Set default store error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error setting default store',
@@ -1241,7 +1211,7 @@ export const setDefaultStore = async (req, res) => {
 export const toggleMultiStore = async (req, res) => {
   try {
     console.log('=== TOGGLE MULTI-STORE REQUEST ===');
-    
+
     if (!req.headers.token) {
       return res.status(401).json({
         success: false,
@@ -1261,11 +1231,11 @@ export const toggleMultiStore = async (req, res) => {
     }
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
-    
+
     businessDetails.multiStore.enabled = !businessDetails.multiStore.enabled;
-    
+
     await businessDetails.save();
-    
+
     res.json({
       success: true,
       message: `Multi-store ${businessDetails.multiStore.enabled ? 'enabled' : 'disabled'} successfully`,
@@ -1273,14 +1243,14 @@ export const toggleMultiStore = async (req, res) => {
     });
   } catch (error) {
     console.error('Toggle multi-store error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error toggling multi-store',
@@ -1319,7 +1289,7 @@ export const deleteLogo = async (req, res) => {
 
     const { logoType } = req.params;
     const validLogoTypes = ['website', 'admin', 'favicon'];
-    
+
     if (!validLogoTypes.includes(logoType)) {
       return res.status(400).json({
         success: false,
@@ -1329,7 +1299,7 @@ export const deleteLogo = async (req, res) => {
 
     let businessDetails = await BusinessDetails.getBusinessDetails();
     console.log('Found business details:', businessDetails._id);
-    
+
     // Check if logo exists
     const existingLogo = businessDetails.logos[logoType];
     if (!existingLogo || !existingLogo.public_id) {
@@ -1340,7 +1310,7 @@ export const deleteLogo = async (req, res) => {
     }
 
     console.log(`Deleting ${logoType} logo:`, existingLogo.public_id);
-    
+
     // Delete from Cloudinary
     try {
       await cloudinary.uploader.destroy(existingLogo.public_id);
@@ -1349,29 +1319,29 @@ export const deleteLogo = async (req, res) => {
       console.warn(`⚠️ Could not delete from Cloudinary:`, cloudinaryError.message);
       // Continue with database update even if Cloudinary deletion fails
     }
-    
+
     // Update business details to remove the logo
     businessDetails.logos[logoType] = { url: "", public_id: "" };
     await businessDetails.save();
-    
+
     console.log(`✅ ${logoType} logo removed from database`);
-    
+
     res.json({
       success: true,
       message: `${logoType} logo deleted successfully`,
       data: businessDetails
     });
-    
+
   } catch (error) {
     console.error('❌ Delete logo error:', error);
-    
+
     if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
       return res.status(401).json({
         success: false,
         message: 'Not Authorized: Please login again'
       });
     }
-    
+
     res.status(500).json({
       success: false,
       message: 'Error deleting logo',

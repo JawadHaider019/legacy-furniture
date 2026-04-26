@@ -56,16 +56,16 @@ const Sidebar = () => {
 
     const allLinks = [
         { to: "/", icon: faChartLine, label: "Dashboard" },
-        { to: "/add", icon: faPlus, label: "Add Items" },
-        { to: "/list", icon: faList, label: "List Items" },
+        { to: "/add", icon: faPlus, label: "Add Product" },
+        { to: "/list", icon: faList, label: "Product List" },
         { to: "/orders", icon: faShoppingCart, label: "Orders" },
         { to: "/categories", icon: faTags, label: "Categories" },
         { to: "/blogs", icon: faNewspaper, label: "Blogs" },
         { to: "/banners", icon: faImages, label: "Banners" },
-        { to: "/testimonials", icon: faCommentDots, label: "Testimonials" },
+        // { to: "/testimonials", icon: faCommentDots, label: "Testimonials" },
         { to: "/comments", icon: faReply, label: "Comments" },
-        { to: "/teams", icon: faUsers, label: "Teams" },
-        { to: "/other", icon: faEllipsisH, label: "Other" },
+        // { to: "/teams", icon: faUsers, label: "Teams" },
+        { to: "/other", icon: faEllipsisH, label: "Delivery" },
     ];
 
     return (
@@ -98,7 +98,7 @@ const Sidebar = () => {
 
                     <Link to="/" className="flex flex-col items-center group">
                         <h2 className="text-brand-cream font-serif text-xl tracking-[0.1em] text-center">LEGACY</h2>
-                        <p className="text-brand-bronze text-[8px] font-bold tracking-[0.4em] uppercase mt-1">Furniture</p>
+                        <p className="text-brand-bronze text-[11px] font-bold tracking-[0.4em] uppercase mt-1">Furniture</p>
                     </Link>
                 </div>
 
@@ -121,7 +121,7 @@ const Sidebar = () => {
                                 }
                             >
                                 <FontAwesomeIcon icon={link.icon} className={`w-5 text-lg transition-colors ${isActive ? 'text-brand-bronze' : 'text-brand-cream/20 group-hover:text-brand-bronze'}`} />
-                                <span className="text-[10px] font-bold uppercase tracking-[0.2em]">{link.label}</span>
+                                <span className="text-[11px] font-bold uppercase tracking-[0.2em]">{link.label}</span>
                                 {isActive && (
                                     <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[2px] h-1/2 bg-brand-bronze" />
                                 )}
@@ -135,14 +135,14 @@ const Sidebar = () => {
                     <div className="bg-white/5 p-4 rounded-sm border border-white/5">
                         <Link to="/settings" className="flex items-center gap-4 px-2 py-3 text-brand-cream/60 hover:text-brand-bronze transition-colors group">
                             <FontAwesomeIcon icon={faCog} className="w-4 group-hover:rotate-90 transition-transform duration-700" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest">Settings</span>
+                            <span className="text-[11px] font-bold uppercase tracking-widest">Settings</span>
                         </Link>
                         <button
                             onClick={logout}
                             className="w-full flex items-center gap-4 px-2 py-3 text-red-400/60 hover:text-red-400 transition-colors group mt-2"
                         >
                             <FontAwesomeIcon icon={faSignOutAlt} className="w-4 group-hover:-translate-x-1 transition-transform" />
-                            <span className="text-[10px] font-bold uppercase tracking-widest text-left">Logout</span>
+                            <span className="text-[11px] font-bold uppercase tracking-widest text-left">Logout</span>
                         </button>
                     </div>
                 </div>

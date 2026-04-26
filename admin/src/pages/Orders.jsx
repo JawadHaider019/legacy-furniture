@@ -373,7 +373,7 @@ const SearchAndFilterBar = ({
         />
         <input
           type="text"
-          placeholder="Search collections..."
+          placeholder="Search orders..."
           value={searchTerm}
           onChange={(e) => onSearchChange(e.target.value)}
           className="w-full pl-12 pr-4 py-3.5 bg-white border border-brand-bronze/10 rounded-2xl focus:ring-2 focus:ring-brand-bronze focus:border-transparent text-sm font-medium transition-all"
@@ -390,7 +390,7 @@ const SearchAndFilterBar = ({
             <option key={option.value} value={option.value}>{option.label}</option>
           ))}
         </select>
-        <FontAwesomeIcon icon={faChevronDown} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-bronze/40 text-[10px] pointer-events-none" />
+        <FontAwesomeIcon icon={faChevronDown} className="absolute right-4 top-1/2 -translate-y-1/2 text-brand-bronze/40 text-[11px] pointer-events-none" />
       </div>
     </div>
   </div>
@@ -793,12 +793,12 @@ const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
         </button>
 
         <h2 className="text-2xl font-serif text-brand-ink mb-1">Order Details</h2>
-        <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold mb-6">#{order._id?.slice(-12).toUpperCase()}</p>
+        <p className="text-[11px] uppercase tracking-widest text-brand-muted font-bold mb-6">#{order._id?.slice(-12).toUpperCase()}</p>
 
         {/* Customer + Shipping */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-white p-5 rounded-xl border border-brand-bronze/10">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
               <FontAwesomeIcon icon={faUser} className="text-brand-bronze" /> Customer
             </h3>
             <div className="flex items-center gap-3 mb-4">
@@ -807,7 +807,7 @@ const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
               </div>
               <div>
                 <p className="font-bold text-brand-ink text-sm">{customerInfo.name}</p>
-                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-semibold">{order.isGuest ? 'Guest' : 'Registered'}</p>
+                <p className="text-[11px] uppercase tracking-widest text-brand-muted font-semibold">{order.isGuest ? 'Guest' : 'Registered'}</p>
               </div>
             </div>
             <div className="border-t border-brand-bronze/5 pt-3 space-y-2">
@@ -823,7 +823,7 @@ const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
           </div>
 
           <div className="bg-white p-5 rounded-xl border border-brand-bronze/10">
-            <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
+            <h3 className="text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
               <FontAwesomeIcon icon={faShippingFast} className="text-brand-bronze" /> Delivery Address
             </h3>
             <div className="space-y-1 text-sm mb-4">
@@ -833,11 +833,11 @@ const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
             </div>
             <div className="border-t border-brand-bronze/5 pt-3 grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold mb-0.5">Payment</p>
+                <p className="text-[11px] uppercase tracking-widest text-brand-muted font-bold mb-0.5">Payment</p>
                 <p className="font-bold text-brand-ink">{order.paymentMethod || 'COD'}</p>
               </div>
               <div>
-                <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold mb-0.5">Date</p>
+                <p className="text-[11px] uppercase tracking-widest text-brand-muted font-bold mb-0.5">Date</p>
                 <p className="font-bold text-brand-ink">{new Date(order.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}</p>
               </div>
             </div>
@@ -847,25 +847,25 @@ const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
         {/* Summary Bar */}
         <div className="bg-brand-ink rounded-xl p-4 mb-6 flex flex-wrap gap-4 justify-between items-center">
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Status</p>
+            <p className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Status</p>
             <p className="text-white font-bold text-sm">{order.status}</p>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Items</p>
+            <p className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Items</p>
             <p className="text-white font-bold text-sm">{order.items?.length || 0}</p>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Delivery</p>
+            <p className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Delivery</p>
             <p className="text-white font-bold text-sm">{order.deliveryCharges > 0 ? `${currency}${order.deliveryCharges.toFixed(2)}` : 'FREE'}</p>
           </div>
           <div>
-            <p className="text-[9px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Order Total</p>
+            <p className="text-[11px] uppercase tracking-widest text-white/40 font-bold mb-0.5">Order Total</p>
             <p className="text-brand-bronze font-black text-2xl">{currency}{order.amount?.toFixed(2)}</p>
           </div>
         </div>
 
         {/* Products */}
-        <h3 className="text-[10px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
+        <h3 className="text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-4 flex items-center gap-2">
           <FontAwesomeIcon icon={faBox} className="text-brand-bronze" /> Products Ordered
         </h3>
         <div className="space-y-3">
@@ -895,15 +895,15 @@ const OrderDetailsModal = ({ order, customerInfo, isOpen, onClose }) => {
                 <h4 className="font-bold text-brand-ink text-sm uppercase tracking-wider truncate mb-1">{item.name}</h4>
                 <div className="flex flex-wrap gap-1.5">
                   {item.variant && (
-                    <span className="px-2 py-0.5 bg-brand-bronze/10 text-brand-bronze text-[9px] uppercase tracking-widest font-bold rounded">{item.variant}</span>
+                    <span className="px-2 py-0.5 bg-brand-bronze/10 text-brand-bronze text-[11px] uppercase tracking-widest font-bold rounded">{item.variant}</span>
                   )}
-                  <span className="px-2 py-0.5 bg-brand-ink/5 text-brand-ink text-[9px] uppercase tracking-widest font-bold rounded">Qty: {item.quantity}</span>
-                  <span className="px-2 py-0.5 bg-brand-ink/5 text-brand-muted text-[9px] uppercase tracking-widest font-bold rounded">{currency}{item.price?.toFixed(2)} each</span>
+                  <span className="px-2 py-0.5 bg-brand-ink/5 text-brand-ink text-[11px] uppercase tracking-widest font-bold rounded">Qty: {item.quantity}</span>
+                  <span className="px-2 py-0.5 bg-brand-ink/5 text-brand-muted text-[11px] uppercase tracking-widest font-bold rounded">{currency}{item.price?.toFixed(2)} each</span>
                 </div>
               </div>
               <div className="text-right shrink-0">
                 <p className="font-black text-brand-ink text-sm">{currency}{(item.price * item.quantity).toFixed(2)}</p>
-                <p className="text-[9px] text-brand-muted font-bold tracking-widest uppercase mt-0.5">subtotal</p>
+                <p className="text-[11px] text-brand-muted font-bold tracking-widest uppercase mt-0.5">subtotal</p>
               </div>
             </div>
           ))}
@@ -966,7 +966,7 @@ const OrderCard = ({
               <p className="text-xs text-brand-muted font-medium mt-0.5">Order #{order._id.substring(0, 6).toUpperCase()}</p>
             </div>
           </div>
-          <div className={`px-3 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${getStatusStyles(order.status)}`}>
+          <div className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider border ${getStatusStyles(order.status)}`}>
             {order.status}
           </div>
         </div>
@@ -985,7 +985,7 @@ const OrderCard = ({
 
       {/* Items List */}
       <div className="flex-1 p-6 space-y-4">
-        <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-brand-muted/40 pb-2 border-b border-brand-bronze/5">
+        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-brand-muted/40 pb-2 border-b border-brand-bronze/5">
           <span>Items</span>
           <div className="flex gap-8">
             <span>Qty</span>
@@ -1041,7 +1041,7 @@ const OrderCard = ({
                 <option value="Delivered">Finish</option>
               </select>
               <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none">
-                <FontAwesomeIcon icon={faChevronDown} className="text-white/50 text-[10px]" />
+                <FontAwesomeIcon icon={faChevronDown} className="text-white/50 text-[11px]" />
               </div>
             </div>
           ) : needsVerification ? (
@@ -1266,22 +1266,22 @@ const Orders = () => {
         <div className="mb-12 text-left">
           <div className="flex items-center justify-start gap-3 mb-3">
             <div className="h-[1px] w-8 bg-brand-bronze/40"></div>
-            <p className="text-[10px] tracking-[0.4em] text-brand-bronze uppercase font-bold">Transaction Ledger</p>
+            <p className="text-[11px] tracking-[0.4em] text-brand-bronze uppercase font-bold">Transaction Ledger</p>
           </div>
           <div className='flex items-center justify-between'>
             <h1 className="text-4xl sm:text-5xl font-serif text-brand-ink tracking-tight">Order Management</h1>
             <div className="flex flex-wrap items-center gap-6 p-4 bg-brand-cream/50 border border-brand-bronze/10 rounded-sm">
               <div className="flex items-center">
                 <div className="w-2 h-2 rounded-full bg-blue-500 mr-2 shadow-[0_0_8px_rgba(59,130,246,0.5)]"></div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-muted">COD Orders</span>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-muted">COD Orders</span>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 rounded-full bg-green-500 mr-2 shadow-[0_0_8px_rgba(34,197,94,0.5)]"></div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Verified Online</span>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-muted">Verified Online</span>
               </div>
               <div className="flex items-center">
                 <div className="w-2 h-2 rounded-full bg-yellow-500 mr-2 shadow-[0_0_8px_rgba(234,179,8,0.5)]"></div>
-                <span className="text-[10px] font-bold uppercase tracking-widest text-brand-muted">Pending Verification</span>
+                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-muted">Pending Verification</span>
               </div>
             </div>
           </div>

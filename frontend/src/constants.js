@@ -8,7 +8,7 @@ export const CATEGORIES = [
     {
         id: 'dining',
         name: 'Dining',
-        image: 'https://images.unsplash.com/photo-1617806118233-f8e137453f9c?auto=format&fit=crop&q=80&w=800',
+        image: 'https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=800',
         description: 'Shared moments deserve a refined setting.'
     },
     {
@@ -16,6 +16,12 @@ export const CATEGORIES = [
         name: 'Bedroom',
         image: 'https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&q=80&w=800',
         description: 'Your sanctuary, redefined with sculptural elegance.'
+    },
+    {
+        id: 'lighting',
+        name: 'Lighting',
+        image: 'https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&q=80&w=800',
+        description: 'Artisan luminance that projects soft, atmospheric glows.'
     }
 ];
 

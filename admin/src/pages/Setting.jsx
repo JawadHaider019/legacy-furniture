@@ -273,32 +273,17 @@ const Setting = () => {
         if (!error.message?.includes('ETIMEDOUT')) {
           toast.error("⚠️ Failed to load business details");
         }
-        setError("Failed to load business details");
       } finally {
-        console.log('Business details loading complete');
         setLoadingBusiness(false);
       }
     };
 
     fetchBusinessDetails();
   }, []);
-  // Add this temporary useEffect to debug
   useEffect(() => {
     console.log('🔍 Current contact data structure:', {
       contact: businessDetails.contact,
       customerSupport: businessDetails.contact?.customerSupport,
-      type: typeof businessDetails.contact?.customerSupport
-    });
-  }, [businessDetails.contact]);
-  // Add this to debug the contact data changes
-  useEffect(() => {
-    console.log('🔍 DEBUG contact structure:', {
-      fullContact: businessDetails.contact,
-      customerSupport: businessDetails.contact?.customerSupport,
-      type: typeof businessDetails.contact?.customerSupport,
-      hasEmail: !!businessDetails.contact?.customerSupport?.email,
-      hasPhone: !!businessDetails.contact?.customerSupport?.phone,
-      hasHours: !!businessDetails.contact?.customerSupport?.hours
     });
   }, [businessDetails.contact]);
   // ✅ FIXED: Loading timeout protection
@@ -885,23 +870,18 @@ const Setting = () => {
     setShowStoreForm(true);
   };
 
+
+
   // ✅ FIXED: Update store function with proper storeId handling
   const handleUpdateStore = async () => {
-    console.log('=== UPDATE STORE FUNCTION CALLED ===');
-    console.log('1. Editing Store:', editingStore);
-    console.log('2. New Store Data:', newStore);
-    console.log('3. Token present:', !!token);
-
     try {
       if (!newStore.storeName.trim()) {
-        console.log('❌ Validation failed: Store name required');
         toast.error("❌ Store name is required");
         return;
       }
 
       // Validate phone number
       if (!newStore.contact.phone.trim()) {
-        console.log('❌ Validation failed: Phone number required');
         toast.error("❌ Phone number is required");
         return;
       }
@@ -1183,8 +1163,8 @@ const Setting = () => {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fadeIn">
         <div className="w-12 h-12 border-2 border-brand-bronze/20 border-t-brand-bronze rounded-full animate-spin mb-6"></div>
-        <h2 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Initializing Archive</h2>
-        <p className="text-[9px] text-brand-muted uppercase tracking-widest mt-2">Harmonizing Business Credentials...</p>
+        <h2 className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Loading Settings</h2>
+        <p className="text-[11px] text-brand-muted uppercase tracking-widest mt-2">Loading business details...</p>
       </div>
     );
   }
@@ -1192,19 +1172,19 @@ const Setting = () => {
   const tabs = [
     {
       id: "general",
-      label: "Administrative Access",
+      label: "Account Details",
       icon: faGlobe,
-      description: "Manage core credentials"
+      description: "Manage admin account"
     },
     {
       id: "business",
-      label: "Brand Portfolio",
+      label: "Business Info",
       icon: faBuilding,
       description: "Business identity & locations"
     },
     {
       id: "security",
-      label: "Security Protocol",
+      label: "Security",
       icon: faLock,
     }
   ];
@@ -1219,8 +1199,8 @@ const Setting = () => {
           <aside className="w-full lg:w-80 shrink-0">
             <div className="sticky top-8 space-y-12">
               <div className="space-y-2">
-                <h1 className="text-3xl font-serif text-brand-ink">Sanctum</h1>
-                <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-bronze">System Configuration</p>
+                <h1 className="text-3xl font-serif text-brand-ink">Settings</h1>
+                <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Admin Panel</p>
               </div>
 
               <nav className="space-y-4">
@@ -1238,7 +1218,7 @@ const Setting = () => {
                       <FontAwesomeIcon icon={tab.icon} className={`text-lg transition-colors duration-500 ${isActive ? 'text-brand-bronze' : 'text-brand-bronze/40 group-hover:text-brand-bronze'}`} />
                       <div className="flex-1 text-left">
                         <div className="text-[11px] font-bold uppercase tracking-widest leading-none mb-1">{tab.label}</div>
-                        <div className={`text-[9px] uppercase tracking-[0.15em] opacity-40`}>
+                        <div className={`text-[11px] uppercase tracking-[0.15em] opacity-40`}>
                           {tab.description}
                         </div>
                       </div>
@@ -1254,8 +1234,8 @@ const Setting = () => {
                   >
                     <FontAwesomeIcon icon={faSignOutAlt} className="text-lg opacity-40 group-hover:opacity-100" />
                     <div className="flex-1 text-left">
-                      <div className="text-[11px] font-bold uppercase tracking-widest leading-none mb-1">Deauthorize</div>
-                      <div className="text-[9px] uppercase tracking-[0.15em] opacity-40">Terminate Session</div>
+                      <div className="text-[11px] font-bold uppercase tracking-widest leading-none mb-1">Logout</div>
+                      <div className="text-[11px] uppercase tracking-[0.15em] opacity-40">End your session</div>
                     </div>
                   </button>
                 </div>
@@ -1268,7 +1248,7 @@ const Setting = () => {
             {currentTab && (
               <div className="animate-fadeIn">
                 <div className="flex items-center gap-4 mb-12">
-                  <h2 className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-bronze">{currentTab.label}</h2>
+                  <h2 className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-bronze">{currentTab.label}</h2>
                   <div className="flex-1 h-[1px] bg-brand-bronze/10"></div>
                 </div>
 
@@ -1341,9 +1321,9 @@ const Setting = () => {
               <FontAwesomeIcon icon={faExclamationTriangle} className="text-xl text-red-500" />
             </div>
             <div>
-              <h3 className="text-lg font-serif text-brand-ink mb-2">Confirm Asset Declassification</h3>
+              <h3 className="text-lg font-serif text-brand-ink mb-2">Confirm Store Deletion</h3>
               <p className="text-[11px] text-brand-muted uppercase tracking-widest leading-relaxed">
-                Are you certain you wish to purge this location from the brand archive? This action is irreversible.
+                Are you sure you want to delete this store? This action cannot be undone.
               </p>
             </div>
             <div className="flex flex-col gap-3">
@@ -1378,10 +1358,10 @@ const GeneralSettingsContent = ({
   return (
     <div className="space-y-12">
       <div className="luxury-card p-10 space-y-8">
-        <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Identity Verification</h3>
+        <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Update Email</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <div className="space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Primary Access Email</label>
+            <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Admin Email</label>
             <input
               type="email"
               name="email"
@@ -1392,7 +1372,7 @@ const GeneralSettingsContent = ({
             />
           </div>
           <div className="space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Authentication Protocol</label>
+            <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Confirm Password</label>
             <div className="relative">
               <input
                 type={passwordVisibility.emailPassword ? "text" : "password"}
@@ -1416,9 +1396,9 @@ const GeneralSettingsContent = ({
           <button
             onClick={handleChangeEmail}
             disabled={changingEmail}
-            className="text-[10px] font-bold uppercase tracking-[0.2em] px-8 py-4 bg-brand-ink text-white hover:bg-brand-bronze transition-all duration-500 disabled:opacity-50"
+            className="text-[11px] font-bold uppercase tracking-[0.2em] px-8 py-4 bg-brand-ink text-white hover:bg-brand-bronze transition-all duration-500 disabled:opacity-50"
           >
-            {changingEmail ? "Synchronizing..." : "Update Credentials"}
+            {changingEmail ? "Updating..." : "Update Email"}
           </button>
         </div>
       </div>
@@ -1430,7 +1410,7 @@ const GeneralSettingsContent = ({
           className="flex items-center gap-4 bg-brand-ink text-white px-10 py-5 group hover:bg-brand-bronze transition-all duration-500 disabled:opacity-50"
         >
           <FontAwesomeIcon icon={faSave} className="text-brand-bronze group-hover:text-white transition-colors" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.3em]">Commit All Archives</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.3em]">Save All Settings</span>
         </button>
       </div>
     </div>
@@ -1464,13 +1444,13 @@ const BusinessDetailsContent = ({
   confirmDeleteStore,
   cancelDeleteStore
 }) => {
-  const safeBusinessDetails = businessDetails || {
-    company: { name: "", tagline: "", description: "" },
-    contact: { customerSupport: { email: "", phone: "", hours: "" } },
-    location: { displayAddress: "", googleMapsLink: "" },
-    socialMedia: { facebook: "", instagram: "", tiktok: "", whatsapp: "" },
-    logos: { website: { url: "" }, admin: { url: "" }, favicon: { url: "" } },
-    stores: []
+  const safeBusinessDetails = {
+    company: businessDetails?.company || { name: "", tagline: "", description: "" },
+    contact: businessDetails?.contact || { customerSupport: { email: "", phone: "", hours: "" } },
+    location: businessDetails?.location || { displayAddress: "", googleMapsLink: "" },
+    socialMedia: businessDetails?.socialMedia || { facebook: "", instagram: "", tiktok: "", whatsapp: "" },
+    logos: businessDetails?.logos || { website: { url: "" }, admin: { url: "" }, favicon: { url: "" } },
+    stores: businessDetails?.stores || []
   };
 
   const currentStoreCount = safeBusinessDetails.stores?.length || 0;
@@ -1480,15 +1460,15 @@ const BusinessDetailsContent = ({
       {/* Brand Aesthetic Identity */}
       <section className="space-y-12">
         <header className="flex items-center gap-4">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Visual Identity Ledger</h3>
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Visual Identity</h3>
           <div className="flex-1 h-[1px] bg-brand-bronze/10"></div>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           {[
-            { type: 'website', label: 'External Mark', desc: 'Primary brand signature' },
-            { type: 'admin', label: 'Internal Mark', desc: 'Sanctum signature' },
-            { type: 'favicon', label: 'Digital Icon', desc: 'Browser presence' }
+            { type: 'website', label: 'Website Logo', desc: 'Main logo' },
+            { type: 'admin', label: 'Admin Panel Logo', desc: 'Dashboard logo' },
+            { type: 'favicon', label: 'Favicon', desc: 'Browser icon' }
           ].map((logo) => {
             const hasExisting = safeBusinessDetails.logos[logo.type]?.url;
             const hasPreview = logoPreviews[logo.type];
@@ -1507,7 +1487,7 @@ const BusinessDetailsContent = ({
                       <button
                         type="button"
                         onClick={() => removeLogo(logo.type)}
-                        className="absolute -top-1 -right-1 bg-red-400 text-white w-6 h-6 rounded-full flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-xl"
+                        className="absolute -top-1 -right-1 bg-red-400 text-white w-6 h-6 rounded-full flex items-center justify-center text-[11px] opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-xl"
                       >
                         <FontAwesomeIcon icon={faXmark} />
                       </button>
@@ -1522,7 +1502,7 @@ const BusinessDetailsContent = ({
 
                 <div className="space-y-1">
                   <h4 className="text-[11px] font-bold text-brand-ink uppercase tracking-widest">{logo.label}</h4>
-                  <p className="text-[9px] text-brand-muted uppercase tracking-widest opacity-60">{logo.desc}</p>
+                  <p className="text-[11px] text-brand-muted uppercase tracking-widest opacity-60">{logo.desc}</p>
                 </div>
 
                 <div className="relative">
@@ -1535,9 +1515,9 @@ const BusinessDetailsContent = ({
                   />
                   <label
                     htmlFor={`${logo.type}-upload`}
-                    className="cursor-pointer border border-brand-bronze/20 px-6 py-2 text-[9px] font-bold uppercase tracking-widest text-brand-ink hover:bg-brand-ink hover:text-white transition-all duration-500 inline-block"
+                    className="cursor-pointer border border-brand-bronze/20 px-6 py-2 text-[11px] font-bold uppercase tracking-widest text-brand-ink hover:bg-brand-ink hover:text-white transition-all duration-500 inline-block"
                   >
-                    {showLogo ? 'Override Asset' : 'Inject Mark'}
+                    {showLogo ? 'Change Logo' : 'Upload Logo'}
                   </label>
                 </div>
               </div>
@@ -1550,13 +1530,13 @@ const BusinessDetailsContent = ({
       <section className="grid grid-cols-1 lg:grid-cols-2 gap-20">
         <div className="space-y-12">
           <header className="space-y-1">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Corporate Manifesto</h3>
-            <p className="text-[9px] text-brand-muted uppercase tracking-widest">Public-facing brand credentials</p>
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Company Details</h3>
+            <p className="text-[11px] text-brand-muted uppercase tracking-widest">Public brand information</p>
           </header>
 
           <div className="space-y-8">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Legal Entity Name</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Company Name</label>
               <input
                 type="text"
                 name="company.name"
@@ -1568,7 +1548,7 @@ const BusinessDetailsContent = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Strategic Tagline</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Tagline</label>
               <input
                 type="text"
                 name="company.tagline"
@@ -1579,7 +1559,7 @@ const BusinessDetailsContent = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Narrative Archive</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Company Description</label>
               <textarea
                 name="company.description"
                 value={safeBusinessDetails.company.description}
@@ -1594,14 +1574,14 @@ const BusinessDetailsContent = ({
 
         <div className="space-y-12">
           <header className="space-y-1">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Liaison Channels</h3>
-            <p className="text-[9px] text-brand-muted uppercase tracking-widest">Client engagement & support vectors</p>
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Contact Information</h3>
+            <p className="text-[11px] text-brand-muted uppercase tracking-widest">Customer support & contact details</p>
           </header>
 
           <div className="space-y-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Concierge Email</label>
+                <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Support Email</label>
                 <input
                   type="email"
                   name="contact.customerSupport.email"
@@ -1612,7 +1592,7 @@ const BusinessDetailsContent = ({
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Direct Hotline</label>
+                <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Support Phone</label>
                 <input
                   type="text"
                   name="contact.customerSupport.phone"
@@ -1625,7 +1605,7 @@ const BusinessDetailsContent = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Operational Window</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Business Hours</label>
               <input
                 type="text"
                 name="contact.customerSupport.hours"
@@ -1637,7 +1617,7 @@ const BusinessDetailsContent = ({
             </div>
 
             <div className="space-y-2">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Headquarters Address</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Headquarters Address</label>
               <textarea
                 name="location.displayAddress"
                 value={safeBusinessDetails.location.displayAddress}
@@ -1647,6 +1627,19 @@ const BusinessDetailsContent = ({
                 required
               />
             </div>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Google Maps Embed Link</label>
+              <input
+                type="text"
+                name="location.googleMapsLink"
+                value={safeBusinessDetails.location.googleMapsLink || ""}
+                onChange={handleBusinessChange}
+                className="luxury-input"
+                placeholder="Paste Google Maps iframe src or link here"
+              />
+              <p className="text-[10px] text-brand-bronze/60 uppercase tracking-widest mt-2">Leave empty to hide map on contact page</p>
+            </div>
           </div>
         </div>
       </section>
@@ -1654,7 +1647,7 @@ const BusinessDetailsContent = ({
       {/* Social Media */}
       <section className="space-y-12">
         <header className="flex items-center gap-4">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Network Presence</h3>
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Network Presence</h3>
           <div className="flex-1 h-[1px] bg-brand-bronze/10"></div>
         </header>
 
@@ -1666,7 +1659,7 @@ const BusinessDetailsContent = ({
             { label: "WhatsApp", name: "whatsapp" },
           ].map((social) => (
             <div key={social.name} className="space-y-2">
-              <label className="text-[9px] font-bold uppercase tracking-[0.2em] text-brand-muted opacity-60">{social.label}</label>
+              <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-muted opacity-60">{social.label}</label>
               <input
                 type="url"
                 name={social.name}
@@ -1684,8 +1677,8 @@ const BusinessDetailsContent = ({
       <section className="space-y-12">
         <header className="flex items-center justify-between">
           <div className="space-y-1">
-            <h3 className="text-[10px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Asset Management</h3>
-            <p className="text-[9px] text-brand-muted uppercase tracking-widest">Registered physical assets ({currentStoreCount})</p>
+            <h3 className="text-[11px] font-bold uppercase tracking-[0.4em] text-brand-bronze">Store Locations</h3>
+            <p className="text-[11px] text-brand-muted uppercase tracking-widest">Registered physical stores ({currentStoreCount})</p>
           </div>
           <button
             onClick={() => {
@@ -1693,10 +1686,10 @@ const BusinessDetailsContent = ({
               resetStoreForm();
               setShowStoreForm(true);
             }}
-            className="px-8 py-3 bg-brand-ink text-white text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-brand-bronze transition-all duration-500 flex items-center gap-3"
+            className="px-8 py-3 bg-brand-ink text-white text-[11px] font-bold uppercase tracking-[0.2em] hover:bg-brand-bronze transition-all duration-500 flex items-center gap-3"
           >
             <FontAwesomeIcon icon={faPlus} className="text-brand-bronze" />
-            Induct Location
+            Add Store
           </button>
         </header>
 
@@ -1709,10 +1702,10 @@ const BusinessDetailsContent = ({
                     <div className="flex items-center gap-3">
                       <h4 className="text-xl font-serif text-brand-ink">{store.storeName}</h4>
                       {store.isDefault && (
-                        <span className="text-[8px] font-bold uppercase tracking-widest bg-brand-bronze/10 text-brand-bronze px-2 py-1">Primary Asset</span>
+                        <span className="text-[11px] font-bold uppercase tracking-widest bg-brand-bronze/10 text-brand-bronze px-2 py-1">Default Store</span>
                       )}
                     </div>
-                    <p className="text-[9px] font-bold uppercase tracking-widest text-brand-muted opacity-60 italic">{store.storeType}</p>
+                    <p className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60 italic">{store.storeType}</p>
                   </div>
                   <div className="flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button onClick={() => handleEditStore(store)} className="text-brand-ink hover:text-brand-bronze transition-colors"><FontAwesomeIcon icon={faEdit} /></button>
@@ -1722,7 +1715,7 @@ const BusinessDetailsContent = ({
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <FontAwesomeIcon icon={faMapMarkerAlt} className="text-brand-bronze mt-1 opacity-60" />
-                    <div className="text-[10px] uppercase tracking-widest text-brand-muted leading-relaxed">
+                    <div className="text-[11px] uppercase tracking-widest text-brand-muted leading-relaxed">
                       {store.location.displayName || store.location.address.street}
                     </div>
                   </div>
@@ -1731,9 +1724,9 @@ const BusinessDetailsContent = ({
                   {!store.isDefault && (
                     <button
                       onClick={() => handleSetDefaultStore(store._id)}
-                      className="text-[9px] font-bold uppercase tracking-widest text-brand-bronze hover:text-brand-ink transition-colors"
+                      className="text-[11px] font-bold uppercase tracking-widest text-brand-bronze hover:text-brand-ink transition-colors"
                     >
-                      Establish as Primary
+                      Set as Default
                     </button>
                   )}
                 </div>
@@ -1742,7 +1735,7 @@ const BusinessDetailsContent = ({
           ) : (
             <div className="col-span-full py-20 text-center space-y-4 luxury-card bg-brand-cream/10 border-dashed">
               <FontAwesomeIcon icon={faStore} className="text-4xl text-brand-bronze/20" />
-              <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-muted">Archive Clear</p>
+              <p className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-muted">No stores found</p>
             </div>
           )}
         </div>
@@ -1756,7 +1749,7 @@ const BusinessDetailsContent = ({
           className="flex items-center gap-4 bg-brand-ink text-white px-12 py-6 group hover:bg-brand-bronze transition-all duration-500 disabled:opacity-50"
         >
           <FontAwesomeIcon icon={faSave} className="text-brand-bronze group-hover:text-white transition-colors" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.4em]">Synchronize Global Portfolio</span>
+          <span className="text-[11px] font-bold uppercase tracking-[0.4em]">Save Business Details</span>
         </button>
       </div>
 
@@ -1764,7 +1757,7 @@ const BusinessDetailsContent = ({
         <div className="fixed inset-0 z-[150] flex items-center justify-center p-8 backdrop-blur-xl bg-brand-ink/40 animate-fadeIn">
           <div className="luxury-card max-w-2xl w-full bg-white max-h-[90vh] overflow-y-auto p-12 space-y-12">
             <header className="flex justify-between items-center">
-              <h3 className="text-2xl font-serif text-brand-ink">{editingStore ? 'Location Calibration' : 'Location Induction'}</h3>
+              <h3 className="text-2xl font-serif text-brand-ink">{editingStore ? 'Edit Store' : 'Add Store'}</h3>
               <button onClick={() => setShowStoreForm(false)} className="text-brand-ink hover:text-brand-bronze transition-colors">
                 <FontAwesomeIcon icon={faXmark} className="text-xl" />
               </button>
@@ -1772,22 +1765,22 @@ const BusinessDetailsContent = ({
             <div className="space-y-8">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Designation</label>
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Designation</label>
                   <input type="text" name="storeName" value={newStore.storeName} onChange={handleNewStoreChange} className="luxury-input" required />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Facility Class</label>
+                  <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Store Type</label>
                   <select name="storeType" value={newStore.storeType} onChange={handleNewStoreChange} className="luxury-input">
+                    <option value="warehouse">Warehouse</option>
                     <option value="showroom">Showroom</option>
-                    <option value="warehouse">Logistics Hub</option>
-                    <option value="outlet">Outlet</option>
+                    <option value="atelier">Atelier</option>
                   </select>
                 </div>
               </div>
               <div className="pt-12 flex justify-end gap-6 border-t border-brand-bronze/10">
-                <button onClick={() => setShowStoreForm(false)} className="px-8 py-3 text-[10px] font-bold uppercase tracking-widest text-brand-muted">Cancel</button>
-                <button onClick={editingStore ? handleUpdateStore : handleAddStore} className="px-10 py-4 bg-brand-ink text-white text-[10px] font-bold uppercase tracking-widest hover:bg-brand-bronze transition-all duration-500">
-                  {editingStore ? 'Update Archive' : 'Commit Induction'}
+                <button onClick={() => setShowStoreForm(false)} className="px-8 py-3 text-[11px] font-bold uppercase tracking-widest text-brand-muted">Cancel</button>
+                <button onClick={editingStore ? handleUpdateStore : handleAddStore} className="px-10 py-4 bg-brand-ink text-white text-[11px] font-bold uppercase tracking-widest hover:bg-brand-bronze transition-all duration-500">
+                  {editingStore ? 'Update Store' : 'Add Store'}
                 </button>
               </div>
             </div>
@@ -1810,12 +1803,12 @@ const SecurityContent = ({
     <div className="space-y-12">
       <div className="luxury-card p-10 space-y-10">
         <header className="space-y-2">
-          <h3 className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Vault Rotation</h3>
-          <p className="text-[9px] text-brand-muted uppercase tracking-widest">Update your administrative access encryption</p>
+          <h3 className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Update Password</h3>
+          <p className="text-[11px] text-brand-muted uppercase tracking-widest">Update your admin password</p>
         </header>
         <div className="space-y-8">
           <div className="space-y-4">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Current Cipher</label>
+            <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Current Password</label>
             <div className="relative">
               <input type={passwordVisibility.oldPassword ? "text" : "password"} name="oldPassword" value={passwords.oldPassword} onChange={handlePasswordChange} className="luxury-input pr-12" placeholder="••••••••••••" />
               <button type="button" className="absolute inset-y-0 right-0 pr-4 flex items-center text-brand-bronze/40 hover:text-brand-bronze transition-colors" onClick={() => togglePasswordVisibility("oldPassword")}>
@@ -1825,7 +1818,7 @@ const SecurityContent = ({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">New Encryption Key</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">New Password</label>
               <div className="relative">
                 <input type={passwordVisibility.newPassword ? "text" : "password"} name="newPassword" value={passwords.newPassword} onChange={handlePasswordChange} className="luxury-input pr-12" placeholder="••••••••••••" />
                 <button type="button" className="absolute inset-y-0 right-0 pr-4 flex items-center text-brand-bronze/40 hover:text-brand-bronze transition-colors" onClick={() => togglePasswordVisibility("newPassword")}>
@@ -1834,7 +1827,7 @@ const SecurityContent = ({
               </div>
             </div>
             <div className="space-y-4">
-              <label className="text-[10px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Confirm Key</label>
+              <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Confirm New Password</label>
               <div className="relative">
                 <input type={passwordVisibility.confirmPassword ? "text" : "password"} name="confirmPassword" value={passwords.confirmPassword} onChange={handlePasswordChange} className="luxury-input pr-12" placeholder="••••••••••••" />
                 <button type="button" className="absolute inset-y-0 right-0 pr-4 flex items-center text-brand-bronze/40 hover:text-brand-bronze transition-colors" onClick={() => togglePasswordVisibility("confirmPassword")}>
@@ -1847,7 +1840,7 @@ const SecurityContent = ({
         <div className="flex justify-start">
           <button onClick={handleChangePassword} disabled={saving} className="flex items-center gap-4 bg-brand-ink text-white px-10 py-5 group hover:bg-brand-bronze transition-all duration-500 disabled:opacity-50">
             <FontAwesomeIcon icon={faLock} className="text-brand-bronze group-hover:text-white transition-colors" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em]">Authorize Rotation</span>
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em]">Update Password</span>
           </button>
         </div>
       </div>
@@ -1858,8 +1851,8 @@ const SecurityContent = ({
           </div>
           <div>
             <h4 className="text-[11px] font-bold uppercase tracking-widest text-brand-ink mb-1">Security Notice</h4>
-            <p className="text-[10px] text-brand-muted uppercase tracking-[0.1em] leading-relaxed">
-              Rotating your administrative cipher will terminate all active sessions. You will be required to re-authenticate following completion.
+            <p className="text-[11px] text-brand-muted uppercase tracking-[0.1em] leading-relaxed">
+              Changing your password will terminate all active sessions. You will be required to log in again.
             </p>
           </div>
         </div>

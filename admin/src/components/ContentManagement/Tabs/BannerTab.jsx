@@ -149,7 +149,7 @@ const DeleteConfirmationModal = ({ isOpen, onClose, onConfirm, banner }) => {
 };
 
 // Banner Management Component
-export const BannerManager = () => {
+export const BannerManager = ({ section = 1 }) => {
   const [banners, setBanners] = useState([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -178,7 +178,7 @@ export const BannerManager = () => {
         showToast('Connection is slow, please wait...', 'warning');
       }
 
-      const response = await api.get('/api/banners');
+      const response = await api.get(`/api/banners?section=${section}`);
 
       if (response.data.success) {
         const sortedBanners = response.data.data.sort((a, b) => a.order - b.order);
@@ -207,9 +207,11 @@ export const BannerManager = () => {
     try {
       const formData = new FormData();
 
-      const fields = ['headingLine1', 'headingLine2', 'subtext', 'buttonText', 'redirectUrl', 'isActive', 'order'];
+      const fields = ['headingLine1', 'headingLine2', 'subtext', 'buttonText', 'redirectUrl', 'isActive', 'order', 'section'];
       fields.forEach(field => {
-        if (bannerData[field] !== undefined && bannerData[field] !== null) {
+        if (field === 'section') {
+          formData.append('section', bannerData.section || section);
+        } else if (bannerData[field] !== undefined && bannerData[field] !== null) {
           formData.append(field, bannerData[field]);
         }
       });
@@ -266,6 +268,7 @@ export const BannerManager = () => {
       imagePreview: '',
       isActive: true,
       order: newOrder,
+      section: section,
       isEditing: true
     }]);
     showToast('New banner added', 'info');
@@ -880,96 +883,82 @@ const BannerCard = ({
             </div>
           </>
         ) : (
-          /* View Mode - Updated with HeroSection styling */
-          <div className="flex flex-col gap-4">
+          /* View Mode - Matched with Frontend Hero Section logic */
+          <div className="flex flex-col gap-8">
             {/* Banner Preview with HeroSection styling */}
-            <div className="relative">
-              {/* Dark overlay */}
-              <div className=" absolute inset-0 bg-black bg-opacity-40 z-10 rounded-3xl"></div>
+            <div className="relative h-[500px] bg-brand-ink overflow-hidden group">
+              {/* Background Image */}
+              <div className="absolute inset-0 z-0">
+                <img
+                  src={banner.imagePreview || banner.imageUrl}
+                  alt="Banner Preview"
+                  className="w-full h-full object-cover grayscale-[20%] contrast-[105%]"
+                />
+                <div className="absolute inset-0 bg-black/40" />
+              </div>
 
-              {/* Main Image */}
-              <img
-                src={banner.imagePreview || banner.imageUrl}
-                alt="Banner Preview"
-                className=" w-full h-[90vh] object-cover rounded-3xl"
-                loading="eager"
-                decoding="sync"
-                width={1920}
-                height={1080}
-              />
-
-              {/* Content */}
-              <div className="absolute inset-0 z-20 flex flex-col items-center -translate-y-10 justify-center text-center text-white px-4">
-                <div>
-                  {/* Headline */}
-                  <h1 className="lg:text-8xl text-7xl font-bold mb-6 uppercase">
-                    {banner.headingLine1 || "Your Banner Heading"}
-                    {banner.headingLine2 && (
-                      <> <span className="font-bold">{banner.headingLine2}</span></>
-                    )}
+              <div className="relative z-10 p-12 h-full flex flex-col justify-center text-left">
+                <div className="max-w-2xl">
+                  <span className="inline-block text-[11px] uppercase tracking-[0.4em] font-semibold text-white/80 mb-6 italic">
+                    {banner.subtext ? "Featured Collection" : "Collection 2026"}
+                  </span>
+                  <h1 className="text-4xl md:text-6xl text-white font-light leading-tight mb-8">
+                    {banner.headingLine1 || "Heading Line 1"} <br />
+                    <span className="font-serif italic text-white/90 uppercase tracking-tight">
+                      {banner.headingLine2 || "Heading Line 2"}
+                    </span>
                   </h1>
-
-                  {/* Subtext */}
                   {banner.subtext && (
-                    <p className="text-xl md:text-2xl font-light max-w-3xl leading-relaxed">
+                    <p className="text-white/70 text-base md:text-lg font-light mb-10 max-w-md leading-relaxed">
                       {banner.subtext}
                     </p>
                   )}
 
-                  {/* Button */}
-                  {banner.buttonText && banner.redirectUrl && (
-                    <div className="mt-8">
-                      <Link
-                        to={banner.redirectUrl}
-                        className="inline-flex items-center gap-3 px-8 py-4 text-white border border-white/50 rounded-full transition-all duration-300 hover:bg-white/10 hover:border-white/80 group"
-                        aria-label={banner.buttonText}
-                      >
-                        <span className="text-sm font-medium tracking-wider uppercase">
-                          {banner.buttonText}
-                        </span>
-                        <IoIosArrowForward size={14} className="transition-transform group-hover:translate-x-1" />
-                      </Link>
+                  <div className="flex flex-wrap gap-6">
+                    <div className="px-8 py-4 bg-white text-black uppercase text-[12px] md:text-sm tracking-[0.2em] font-semibold flex items-center gap-3">
+                      {banner.buttonText || "CTA Button"}
+                      <IoIosArrowForward size={16} />
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>
 
             {/* Banner Details */}
-            <div className="space-y-3 sm:space-y-4">
+            <div className="space-y-3 sm:space-y-4 px-2">
               <div>
-                <h4 className="text-sm font-medium text-gray-700 mb-2">Banner Details</h4>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm">
+                <h4 className="text-sm font-medium text-gray-700 mb-4 border-b pb-2">Banner Configuration</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
                   <div>
-                    <span className="font-medium">Order:</span>
-                    <p className="text-gray-600">{banner.order}</p>
+                    <span className="font-bold text-gray-400 uppercase tracking-widest text-[11px]">Order Pos:</span>
+                    <p className="text-gray-900 font-medium">{banner.order}</p>
                   </div>
                   <div>
-                    <span className="font-medium">Heading 1:</span>
-                    <p className="text-gray-600">{banner.headingLine1 || "Not set"}</p>
+                    <span className="font-bold text-gray-400 uppercase tracking-widest text-[11px]">Headline Main:</span>
+                    <p className="text-gray-900 font-medium">{banner.headingLine1 || "Not set"}</p>
                   </div>
                   {banner.headingLine2 && (
                     <div>
-                      <span className="font-medium">Heading 2:</span>
-                      <p className="text-gray-600">{banner.headingLine2}</p>
+                      <span className="font-bold text-gray-400 uppercase tracking-widest text-[11px]">Headline Script:</span>
+                      <p className="text-gray-900 font-medium italic">{banner.headingLine2}</p>
                     </div>
                   )}
                   {banner.subtext && (
                     <div className="sm:col-span-2">
-                      <span className="font-medium">Subtext:</span>
-                      <p className="text-gray-600">{banner.subtext}</p>
+                      <span className="font-bold text-gray-400 uppercase tracking-widest text-[11px]">Content Copy:</span>
+                      <p className="text-gray-900 font-medium">{banner.subtext}</p>
                     </div>
                   )}
                   {banner.buttonText && (
                     <div>
-                      <span className="font-medium">Button Text:</span>
-                      <p className="text-gray-600">{banner.buttonText}</p>
+                      <span className="font-bold text-gray-400 uppercase tracking-widest text-[11px]">Action Label:</span>
+                      <p className="text-gray-900 font-medium">{banner.buttonText}</p>
                     </div>
                   )}
                   {banner.redirectUrl && (
                     <div>
-                      <span className="font-medium">Redirect URL:</span>
-                      <p className="text-gray-600">{banner.redirectUrl}</p>
+                      <span className="font-bold text-gray-400 uppercase tracking-widest text-[11px]">Destination:</span>
+                      <p className="text-gray-900 font-medium truncate">{banner.redirectUrl}</p>
                     </div>
                   )}
                 </div>
@@ -977,15 +966,15 @@ const BannerCard = ({
             </div>
           </div>
         )}
+      </div>
 
-        {/* Preview Info */}
-        <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
-          <div className="text-xs text-gray-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
-            <span>{banner.isEditing ? "Edit mode - Make changes and click Save" : "View mode - Click Edit to modify this banner"}</span>
-            <span className={`px-2 py-1 text-xs rounded-full ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
-              {isActive ? 'Active' : 'Inactive'}
-            </span>
-          </div>
+      {/* Preview Info */}
+      <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-gray-200">
+        <div className="text-xs text-gray-500 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+          <span>{banner.isEditing ? "Edit mode - Make changes and click Save" : "View mode - Click Edit to modify this banner"}</span>
+          <span className={`px-2 py-1 text-xs rounded-full ${isActive ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-600'}`}>
+            {isActive ? 'Active' : 'Inactive'}
+          </span>
         </div>
       </div>
     </div>

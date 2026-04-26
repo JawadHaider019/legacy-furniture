@@ -5,7 +5,9 @@ import fs from "fs";
 // 🟩 Get all banners
 export const getAllBanners = async (req, res) => {
   try {
-    const banners = await Banner.find().sort({ order: 1, createdAt: -1 });
+    const { section } = req.query;
+    const query = section ? { section: Number(section) } : {};
+    const banners = await Banner.find(query).sort({ order: 1, createdAt: -1 });
     res.json({
       success: true,
       count: banners.length,
@@ -23,7 +25,11 @@ export const getAllBanners = async (req, res) => {
 // 🟩 Get active banners (for frontend)
 export const getActiveBanners = async (req, res) => {
   try {
-    const banners = await Banner.find({ isActive: true }).sort({
+    const { section } = req.query;
+    const query = { isActive: true };
+    if (section) query.section = Number(section);
+
+    const banners = await Banner.find(query).sort({
       order: 1,
       createdAt: -1,
     });
@@ -74,6 +80,7 @@ export const createBanner = async (req, res) => {
       redirectUrl,
       isActive = true,
       order = 0,
+      section = 1,
     } = req.body;
 
     if (!req.file) {
@@ -91,9 +98,9 @@ export const createBanner = async (req, res) => {
     } else {
       const result = await cloudinary.uploader.upload(req.file.path, {
         folder: "banners",
-           transformation: [
-    { quality: "auto:best" }, // Only optimize quality, don't resize
-  ],  
+        transformation: [
+          { quality: "auto:best" }, // Only optimize quality, don't resize
+        ],
       });
       imageUrl = result.secure_url;
       imagePublicId = result.public_id;
@@ -111,6 +118,7 @@ export const createBanner = async (req, res) => {
       imagePublicId,
       isActive,
       order,
+      section: Number(section),
     });
 
     await banner.save();
@@ -148,6 +156,7 @@ export const updateBanner = async (req, res) => {
       redirectUrl,
       isActive,
       order,
+      section,
     } = req.body;
 
     if (headingLine1 !== undefined) banner.headingLine1 = headingLine1;
@@ -157,6 +166,7 @@ export const updateBanner = async (req, res) => {
     if (redirectUrl !== undefined) banner.redirectUrl = redirectUrl;
     if (isActive !== undefined) banner.isActive = isActive;
     if (order !== undefined) banner.order = order;
+    if (section !== undefined) banner.section = Number(section);
 
     if (req.file) {
       if (banner.imagePublicId && process.env.FILE_STORAGE !== "local") {
@@ -168,9 +178,9 @@ export const updateBanner = async (req, res) => {
       } else {
         const result = await cloudinary.uploader.upload(req.file.path, {
           folder: "banners",
-             transformation: [
-    { quality: "auto:best" }, // Only optimize quality, don't resize
-  ],
+          transformation: [
+            { quality: "auto:best" }, // Only optimize quality, don't resize
+          ],
         });
         banner.imageUrl = result.secure_url;
         banner.imagePublicId = result.public_id;

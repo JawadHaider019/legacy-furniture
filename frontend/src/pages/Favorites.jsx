@@ -2,7 +2,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import ProductCard from './ProductCard';
+import ProductCard from '../components/ProductCard';
 import { Heart, ArrowRight, ShoppingBag } from 'lucide-react';
 import toast from 'react-hot-toast';
 
@@ -46,7 +46,7 @@ export default function Favorites({ favorites, onWishlistToggle }) {
                     <motion.span
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-[10px] uppercase tracking-[0.3em] font-bold text-brand-bronze mb-3 block italic"
+                        className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-bronze mb-3 block italic"
                     >
                         Your Curated Selection
                     </motion.span>
@@ -77,7 +77,7 @@ export default function Favorites({ favorites, onWishlistToggle }) {
                         <h3 className="text-2xl font-serif italic text-brand-ink/40 mb-8">No pieces have been favored yet.</h3>
                         <button
                             onClick={() => navigate('/shop')}
-                            className="group relative overflow-hidden px-12 py-5 border border-brand-ink text-brand-ink uppercase text-[10px] tracking-[0.3em] font-black hover:text-brand-cream transition-colors duration-500"
+                            className="group relative overflow-hidden px-12 py-5 border border-brand-ink text-brand-ink uppercase text-[11px] tracking-[0.3em] font-black hover:text-brand-cream transition-colors duration-500"
                         >
                             <span className="relative z-10">Discover The Collection</span>
                             <div className="absolute inset-0 bg-brand-ink translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
@@ -119,7 +119,7 @@ export default function Favorites({ favorites, onWishlistToggle }) {
                                     <div className="mt-6 flex gap-4 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
                                         <button
                                             onClick={() => handleQuickAdd(product)}
-                                            className="flex-1 py-4 bg-brand-ink text-brand-cream uppercase text-[9px] tracking-[0.2em] font-black flex items-center justify-center gap-3 hover:bg-black transition-colors"
+                                            className="flex-1 py-4 bg-brand-ink text-brand-cream uppercase text-[11px] tracking-[0.2em] font-black flex items-center justify-center gap-3 hover:bg-black transition-colors"
                                         >
                                             Quick Acquire
                                             <ShoppingBag size={14} />

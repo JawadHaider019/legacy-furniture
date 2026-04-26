@@ -1,7 +1,7 @@
 import { useState, useMemo, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
-import ProductCard from './ProductCard';
+import ProductCard from '../components/ProductCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { Filter, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 
@@ -85,11 +85,11 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-6 border-b border-brand-ink/5">
                     <div className="flex items-center gap-12">
                         <div className="flex items-center gap-4">
-                            <span className="text-[10px] uppercase font-bold text-brand-ink/40 tracking-[0.2em]">Sort By</span>
+                            <span className="text-[11px] uppercase font-bold text-brand-ink/40 tracking-[0.2em]">Sort By</span>
                             <select
                                 value={sortBy}
                                 onChange={(e) => setBy(e.target.value)}
-                                className="bg-transparent text-[10px] font-bold uppercase tracking-widest outline-none cursor-pointer text-brand-ink"
+                                className="bg-transparent text-[11px] font-bold uppercase tracking-widest outline-none cursor-pointer text-brand-ink"
                             >
                                 <option value="featured">Featured</option>
                                 <option value="price-asc">Price Ascending</option>
@@ -105,7 +105,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                     {/* SIDEBAR FILTERS (Desktop) */}
                     <aside className="hidden lg:block lg:col-span-3 space-y-10 sticky top-32 h-fit">
                         <div>
-                            <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Price Range</h4>
+                            <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Price Range</h4>
                             <div className="space-y-4">
                                 <input
                                     type="range"
@@ -124,7 +124,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                         </div>
 
                         <div>
-                            <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Brands</h4>
+                            <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Brands</h4>
                             <div className="space-y-3">
                                 {allBrands.map(brand => (
                                     <button
@@ -135,7 +135,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                         <div className={`w-4 h-4 border border-brand-ink/20 flex items-center justify-center transition-all ${selectedBrands.includes(brand) ? 'bg-brand-ink border-brand-ink' : 'group-hover:border-brand-ink/40'}`}>
                                             {selectedBrands.includes(brand) && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
                                         </div>
-                                        <span className={`text-[10px] uppercase tracking-widest font-bold transition-colors ${selectedBrands.includes(brand) ? 'text-brand-ink' : 'text-brand-muted group-hover:text-brand-ink'}`}>
+                                        <span className={`text-[11px] uppercase tracking-widest font-bold transition-colors ${selectedBrands.includes(brand) ? 'text-brand-ink' : 'text-brand-muted group-hover:text-brand-ink'}`}>
                                             {brand}
                                         </span>
                                     </button>
@@ -144,7 +144,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                         </div>
 
                         <div>
-                            <h4 className="text-[10px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Categories</h4>
+                            <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Categories</h4>
                             <div className="space-y-3">
                                 {categories.map(cat => (
                                     <button
@@ -163,7 +163,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                 setSelectedBrands([]);
                                 setPriceRange(10000);
                             }}
-                            className="text-[10px] uppercase tracking-[0.3em] font-black luxury-underline text-brand-ink/40 hover:text-red-500"
+                            className="text-[11px] uppercase tracking-[0.3em] font-black luxury-underline text-brand-ink/40 hover:text-red-500"
                         >
                             Reset Filters
                         </button>
@@ -179,7 +179,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                         setSelectedBrands([]);
                                         setPriceRange(10000);
                                     }}
-                                    className="mt-4 text-[10px] uppercase tracking-[0.2em] font-bold luxury-underline"
+                                    className="mt-4 text-[11px] uppercase tracking-[0.2em] font-bold luxury-underline"
                                 >
                                     Clear Filters
                                 </button>

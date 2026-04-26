@@ -19,7 +19,7 @@ export default function About() {
                     <motion.span
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="text-[10px] uppercase tracking-[0.3em] font-bold text-brand-bronze mb-6 block italic"
+                        className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-bronze mb-6 block italic"
                     >
                         Since 1994
                     </motion.span>
@@ -53,7 +53,7 @@ export default function About() {
                         />
                     </div>
                     <div className="space-y-8">
-                        <span className="text-[10px] uppercase tracking-widest font-bold text-brand-bronze italic">Our Story</span>
+                        <span className="text-[11px] uppercase tracking-widest font-bold text-brand-bronze italic">Our Story</span>
                         <h2 className="text-2xl md:text-5xl font-serif uppercase tracking-tight leading-tight">
                             Quality design <br />
                             <span className="italic font-light">for every home.</span>
@@ -74,7 +74,7 @@ export default function About() {
                                 <div key={idx} className="space-y-2">
                                     <item.icon className="text-brand-bronze" size={24} />
                                     <h4 className="text-[11px] uppercase tracking-widest font-bold">{item.label}</h4>
-                                    <p className="text-[9px] text-brand-cream/60 uppercase tracking-widest">{item.sub}</p>
+                                    <p className="text-[11px] text-brand-cream/60 uppercase tracking-widest">{item.sub}</p>
                                 </div>
                             ))}
                         </div>

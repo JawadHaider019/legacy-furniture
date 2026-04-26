@@ -9,7 +9,7 @@ import {
     X, ChevronLeft, Upload, Camera, CheckCircle2,
     Maximize2, ZoomIn, MessageSquare, ArrowRight
 } from 'lucide-react';
-import ProductCard from './ProductCard';
+import ProductCard from '../components/ProductCard';
 import toast from 'react-hot-toast';
 
 export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLogin }) {
@@ -105,7 +105,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
         <>
 
 
-            <div className="min-h-screen pt-16 md:pt-20 pb-8 md:pb-16 px-4 md:px-6 bg-white">
+            <div className="min-h-screen pt-24 pb-8 md:pb-16 px-4 md:px-6 bg-white">
 
                 <div className="max-w-7xl mx-auto">
 
@@ -162,7 +162,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 ))}
                             </div>
 
-                            <div className="text-[10px] uppercase tracking-widest text-brand-muted text-center mt-2">
+                            <div className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted text-center mt-2">
                                 {selectedImage + 1} / {product.image?.length || 0}
                             </div>
                         </div>
@@ -173,7 +173,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 <h1 className="text-2xl md:text-3xl font-serif text-brand-ink mb-1 uppercase tracking-tight leading-tight">
                                     {product.name} {product.variants && product.variants[selectedVariantIndex] ? `- ${product.variants[selectedVariantIndex].name}` : ''}
                                 </h1>
-                                <p className="text-[12px] text-brand-muted font-bold tracking-widest mb-4">
+                                <p className="text-[12px] md:text-sm text-brand-muted font-bold tracking-widest mb-4">
                                     by <span className="text-brand-ink italic uppercase">{product.brand || 'Auden Atelier'}</span>
                                 </p>
 
@@ -189,7 +189,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             const reviewsSection = document.getElementById('reviews-anchor');
                                             reviewsSection?.scrollIntoView({ behavior: 'smooth' });
                                         }}
-                                        className="text-[11px] font-bold tracking-widest text-brand-ink/60 hover:text-brand-ink transition-colors border-b border-brand-ink/20"
+                                        className="text-[12px] md:text-sm font-bold tracking-widest text-brand-ink/60 hover:text-brand-ink transition-colors border-b border-brand-ink/20"
                                     >
                                         {product.reviewsCount} Ratings & Reviews
                                     </button>
@@ -200,19 +200,19 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 <div className="space-y-4 mb-8">
                                     {currentMSRP > 0 && (
                                         <div className="flex items-center gap-3 text-brand-muted italic">
-                                            <span className="text-lg line-through">{currency}{currentMSRP.toFixed(2)}</span>
+                                            <span className="text-lg line-through font-sans">{currency}{currentMSRP.toFixed(2)}</span>
                                             <span className="text-sm font-bold text-red-600 uppercase tracking-widest">{discountValue}% Off MSRP</span>
                                         </div>
                                     )}
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-bronze">Sale Price</span>
+                                        <span className="text-[12px] md:text-sm uppercase tracking-[0.3em] font-black text-brand-bronze">Sale Price</span>
                                         <p className="text-4xl md:text-5xl font-sans font-black text-brand-ink">
                                             {currency}{currentPrice.toFixed(2)}
                                         </p>
                                     </div>
 
                                     {deliverySettings?.freeDeliveryAbove > 0 && (
-                                        <div className="flex items-center gap-2 text-[11px] font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-sm w-fit border border-green-100">
+                                        <div className="flex items-center gap-2 text-[12px] md:text-sm font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-sm w-fit border border-green-100">
                                             <Truck size={14} />
                                             Free Shipping over {currency}{deliverySettings.freeDeliveryAbove.toLocaleString()}
                                         </div>
@@ -225,7 +225,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 {product.variants && product.variants.length > 0 && (
                                     <div className="space-y-8 mb-10">
                                         <div>
-                                            <h4 className="text-[10px] uppercase tracking-[0.2em] font-black mb-4 flex justify-between">
+                                            <h4 className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-black mb-4 flex justify-between">
                                                 Select Variant
                                                 <span className="text-brand-muted font-normal lowercase italic">Current: {product.variants[selectedVariantIndex]?.name}</span>
                                             </h4>
@@ -234,7 +234,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                     <button
                                                         key={idx}
                                                         onClick={() => setSelectedVariantIndex(idx)}
-                                                        className={`px-5 py-3 text-[10px] font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
+                                                        className={`px-5 py-3 text-[12px] md:text-sm font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
                                                     >
                                                         {variant.name}
                                                     </button>
@@ -247,7 +247,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 {/* QUANTITY & ACTIONS */}
                                 <div className="flex gap-4 mb-10">
                                     <div className="w-24 border border-brand-ink/10 flex items-center justify-between px-3 relative">
-                                        <span className="text-[9px] absolute -top-2 left-2 bg-brand-cream px-1 uppercase font-bold text-brand-muted">Qty</span>
+                                        <span className="text-[12px] md:text-sm absolute -top-2 left-2 bg-brand-cream px-1 uppercase font-bold text-brand-muted">Qty</span>
                                         <select
                                             value={qty}
                                             onChange={(e) => setQty(Number(e.target.value))}
@@ -258,7 +258,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     </div>
                                     <button
                                         onClick={() => product && addToCart(product._id, product.variants?.[selectedVariantIndex]?.name || 'default')}
-                                        className="flex-1 py-6 bg-brand-ink text-brand-cream uppercase text-[12px] tracking-[0.3em] font-black hover:bg-black transition-all flex items-center justify-center gap-4 group shadow-xl"
+                                        className="flex-1 py-6 bg-brand-ink text-brand-cream uppercase text-[12px] md:text-sm tracking-[0.3em] font-black hover:bg-black transition-all flex items-center justify-center gap-4 group shadow-xl"
                                     >
                                         Add to Cart
                                         <ShoppingBag size={18} strokeWidth={1.5} className="group-hover:scale-110 transition-transform" />
@@ -271,25 +271,25 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         className={`py-4 border border-brand-ink/10 flex items-center justify-center gap-3 hover:bg-white transition-all ${product && isWishlisted(product._id) ? 'text-red-600 bg-red-50/30' : ''}`}
                                     >
                                         <Heart size={16} strokeWidth={1.5} fill={product && isWishlisted(product._id) ? "currentColor" : "none"} />
-                                        <span className="text-[10px] uppercase tracking-widest font-black">
+                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-black">
                                             {product && isWishlisted(product._id) ? 'Favorite' : 'Add to Wishlist'}
                                         </span>
                                     </button>
                                     <button className="py-4 border border-brand-ink/10 flex items-center justify-center gap-3 hover:bg-white transition-all">
                                         <Share2 size={16} strokeWidth={1.5} />
-                                        <span className="text-[10px] uppercase tracking-widest font-black">Link</span>
+                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-black">Link</span>
                                     </button>
                                 </div>
 
                                 <div className="space-y-4 pt-8 border-t border-brand-ink/5">
                                     <details className="group border-b border-brand-ink/5 pb-4" open>
                                         <summary className="flex items-center justify-between cursor-pointer list-none py-2">
-                                            <h5 className="text-[11px] uppercase tracking-[0.2em] font-black group-open:text-brand-ink text-brand-muted transition-colors">Product Details</h5>
+                                            <h5 className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-black group-open:text-brand-ink text-brand-muted transition-colors">Product Overview</h5>
                                             <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                                         </summary>
                                         <div className="pt-4 space-y-4">
-                                            <p className="text-[11px] font-bold text-brand-ink/40 uppercase tracking-widest italic">Item#: {product.specs?.sku}</p>
-                                            <p className="text-[12px] font-light leading-relaxed text-brand-ink mb-6">
+                                            <p className="text-[12px] md:text-sm font-bold text-brand-ink/40 uppercase tracking-widest italic">Item#: {product.specs?.sku}</p>
+                                            <p className="text-[12px] md:text-sm font-light leading-relaxed text-brand-ink mb-6">
                                                 {product.variants && product.variants[selectedVariantIndex]?.description ? (
                                                     <span className="block mb-4 p-4 bg-brand-cream/30 border-l-2 border-brand-bronze italic">
                                                         {product.variants[selectedVariantIndex].description}
@@ -298,34 +298,55 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                 {product.description}
                                             </p>
                                             <div className="p-4 bg-brand-ink/5 rounded-sm">
-                                                <p className="text-[10px] font-bold text-red-800 uppercase tracking-widest mb-1 flex items-center gap-2">
+                                                <p className="text-[12px] md:text-sm font-bold text-red-800 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                     <Info size={12} /> Important WARNING
                                                 </p>
-                                                <p className="text-[10px] font-light italic text-brand-ink/60">Proposition 65 warning for California residents regarding wood dust and chemical substances.</p>
+                                                <p className="text-[12px] md:text-sm font-light italic text-brand-ink/60">Proposition 65 warning for California residents regarding wood dust and chemical substances.</p>
                                             </div>
                                         </div>
                                     </details>
 
                                     <details className="group border-b border-brand-ink/5 pb-4">
                                         <summary className="flex items-center justify-between cursor-pointer list-none py-2">
-                                            <h5 className="text-[11px] uppercase tracking-[0.2em] font-black text-brand-muted group-open:text-brand-ink transition-colors">Specifications</h5>
+                                            <h5 className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-black text-brand-muted group-open:text-brand-ink transition-colors">Dimensions & Specifications</h5>
                                             <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                                         </summary>
                                         <div className="pt-6 grid grid-cols-2 gap-x-8 gap-y-4 pb-4">
                                             {[
-                                                { l: 'Top Material', v: product.specs?.material },
+                                                { l: 'Materials & Finish', v: product.specs?.material },
                                                 { l: 'Dimensions', v: product.specs?.dimensions },
                                                 { l: 'Weight', v: product.specs?.weight },
                                                 { l: 'Model Number', v: product.specs?.modelNumber },
-                                                { l: 'Assembly', v: product.specs?.assembly ? 'Required' : 'Assembled' },
+                                                { l: 'Assembly Information', v: product.specs?.assembly ? 'Required' : 'Assembled' },
                                                 { l: 'Country of Origin', v: product.specs?.origin },
-                                                { l: 'Warranty', v: product.specs?.warranty },
+                                                { l: 'Warranty & Returns', v: product.specs?.warranty },
                                             ].map(spec => (
                                                 <div key={spec.l} className="space-y-1">
-                                                    <p className="text-[9px] uppercase font-black text-brand-muted tracking-widest">{spec.l}</p>
-                                                    <p className="text-xs font-bold text-brand-ink">{spec.v}</p>
+                                                    <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">{spec.l}</p>
+                                                    <p className="text-sm font-bold text-brand-ink">{spec.v}</p>
                                                 </div>
                                             ))}
+                                        </div>
+                                    </details>
+
+                                    <details className="group border-b border-brand-ink/5 pb-4">
+                                        <summary className="flex items-center justify-between cursor-pointer list-none py-2">
+                                            <h5 className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-black text-brand-muted group-open:text-brand-ink transition-colors">Policies & Care Instructions</h5>
+                                            <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
+                                        </summary>
+                                        <div className="pt-6 space-y-4 pb-4 px-2">
+                                            <div className="space-y-1">
+                                                <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Care Instructions</p>
+                                                <p className="text-sm font-bold text-brand-ink italic">{product.careInstructions || 'Wipe with a soft, dry cloth. Avoid harsh chemicals.'}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Warranty & Returns</p>
+                                                <p className="text-sm font-bold text-brand-ink italic">{product.warrantyDetails || '10-Year Limited Warranty. 30-Day returns.'}</p>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Delivery Information</p>
+                                                <p className="text-sm font-bold text-brand-ink italic">White-glove delivery available. Typical shipping: 3-7 business days.</p>
+                                            </div>
                                         </div>
                                     </details>
                                 </div>
@@ -355,7 +376,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                     return <Star key={i} size={14} fill={i < Math.floor(avg) ? "currentColor" : "none"} strokeWidth={1} />;
                                                 })}
                                             </div>
-                                            <span className="text-[10px] font-bold tracking-widest text-brand-ink/40 uppercase">
+                                            <span className="text-[12px] md:text-sm font-bold tracking-widest text-brand-ink/40 uppercase">
                                                 {dynamicReviews.length || product.reviewsCount} Ratings
                                             </span>
                                         </div>
@@ -371,7 +392,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         { s: 1, c: 1 }
                                     ].map(row => (row.c > 0 && (
                                         <div key={row.s} className="flex items-center gap-4 group cursor-pointer">
-                                            <span className="text-[10px] font-bold w-4 opacity-40">{row.s}</span>
+                                            <span className="text-[12px] md:text-sm font-bold w-4 opacity-40">{row.s}</span>
                                             <div className="flex-1 h-2 bg-brand-ink/5 relative overflow-hidden rounded-full">
                                                 <motion.div
                                                     initial={{ width: 0 }}
@@ -381,7 +402,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                     className="absolute inset-y-0 left-0 bg-brand-ink"
                                                 />
                                             </div>
-                                            <span className="text-[9px] font-bold text-brand-muted w-4">{row.c}</span>
+                                            <span className="text-[12px] md:text-sm font-bold text-brand-muted w-4">{row.c}</span>
                                         </div>
                                     )))}
                                 </div>
@@ -395,7 +416,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             setIsReviewModalOpen(true);
                                         }
                                     }}
-                                    className="w-full py-4 border-2 border-brand-ink text-[11px] font-black uppercase tracking-widest hover:bg-brand-ink hover:text-white transition-all shadow-md group flex items-center justify-center gap-3"
+                                    className="w-full py-4 border-2 border-brand-ink text-[12px] md:text-sm font-black uppercase tracking-widest hover:bg-brand-ink hover:text-white transition-all shadow-md group flex items-center justify-center gap-3"
                                 >
                                     Write a Review
                                     <MessageSquare size={14} className="group-hover:rotate-12 transition-transform" />
@@ -405,7 +426,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                             {/* Review Gallery & Content */}
                             <div className="lg:col-span-3">
                                 <div className="mb-12">
-                                    <h4 className="text-[10px] uppercase font-black tracking-widest text-brand-ink/40 mb-6">Customer Artifact Gallery</h4>
+                                    <h4 className="text-[12px] md:text-sm uppercase font-black tracking-widest text-brand-ink/40 mb-6">Customer Artifact Gallery</h4>
                                     <div className="flex flex-wrap gap-4">
                                         {(product.image || []).map((img, i) => (
                                             <div
@@ -422,16 +443,16 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                 </div>
                                             </div>
                                         ))}
-                                        <div className="w-24 aspect-square bg-brand-ink/5 border-2 border-dashed border-brand-ink/10 flex items-center justify-center text-[10px] font-black uppercase tracking-widest text-brand-muted hover:bg-brand-cream transition-colors cursor-pointer">
+                                        <div className="w-24 aspect-square bg-brand-ink/5 border-2 border-dashed border-brand-ink/10 flex items-center justify-center text-[12px] md:text-sm font-black uppercase tracking-widest text-brand-muted hover:bg-brand-cream transition-colors cursor-pointer">
                                             +12 More
                                         </div>
                                     </div>
                                 </div>
 
                                 <div className="flex items-center justify-between border-b border-brand-ink/5 pb-4 mb-12">
-                                    <span className="text-[11px] font-black uppercase tracking-widest">Showing {product.reviews?.length || 0} of {product.reviewsCount} Reviews</span>
+                                    <span className="text-[12px] md:text-sm font-black uppercase tracking-widest">Showing {product.reviews?.length || 0} of {product.reviewsCount} Reviews</span>
                                     <div className="flex gap-4">
-                                        <select className="bg-transparent border-none outline-none text-[10px] font-black uppercase tracking-widest cursor-pointer">
+                                        <select className="bg-transparent border-none outline-none text-[12px] md:text-sm font-black uppercase tracking-widest cursor-pointer">
                                             <option>Most Recent</option>
                                             <option>Highest Rating</option>
                                             <option>Lowest Rating</option>
@@ -449,9 +470,9 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                 className="grid grid-cols-1 md:grid-cols-4 gap-8"
                                             >
                                                 <div className="md:col-span-1">
-                                                    <h5 className="text-[11px] font-black uppercase tracking-[0.2em] mb-1">{review.author}</h5>
-                                                    <span className="text-[8px] font-black px-2 py-0.5 bg-green-100 text-green-800 uppercase tracking-widest rounded-sm">Verified Inhabitant</span>
-                                                    <p className="text-[10px] text-brand-muted italic mt-3 uppercase tracking-widest">
+                                                    <h5 className="text-[12px] md:text-sm font-black uppercase tracking-[0.2em] mb-1">{review.author}</h5>
+                                                    <span className="text-[12px] md:text-sm font-black px-2 py-0.5 bg-green-100 text-green-800 uppercase tracking-widest rounded-sm">Verified Inhabitant</span>
+                                                    <p className="text-[12px] md:text-sm text-brand-muted italic mt-3 uppercase tracking-widest">
                                                         {new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </p>
                                                 </div>
@@ -461,7 +482,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                             <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={1} />
                                                         ))}
                                                     </div>
-                                                    <p className="text-[11px] font-black uppercase tracking-widest mb-3">
+                                                    <p className="text-[12px] md:text-sm font-black uppercase tracking-widest mb-3">
                                                         {review.rating >= 4 ? 'EXCELLENT PURCHASE' : 'ARCHIVE PERSPECTIVE'}
                                                     </p>
                                                     <p className="text-sm font-light leading-relaxed text-brand-ink/80 mb-6 italic">
@@ -484,7 +505,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                         </div>
                                                     )}
 
-                                                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.2em] text-brand-muted border-t border-brand-ink/5 pt-4">
+                                                    <div className="flex justify-between items-center text-[12px] md:text-sm font-black uppercase tracking-[0.2em] text-brand-muted border-t border-brand-ink/5 pt-4">
                                                         <div className="flex gap-4">
                                                             <span>Was this helpful?</span>
                                                             <button className="text-brand-ink hover:text-brand-bronze underline decoration-brand-bronze/30 underline-offset-4">Yes ({review.likes || 0})</button>
@@ -497,7 +518,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         ))
                                     ) : (
                                         <div className="py-20 text-center bg-brand-cream/30 border border-dashed border-brand-ink/5">
-                                            <p className="text-[10px] uppercase font-black tracking-[0.4em] text-brand-ink/30 mb-8">No perspectives shared yet.</p>
+                                            <p className="text-[12px] md:text-sm uppercase font-black tracking-[0.4em] text-brand-ink/30 mb-8">No perspectives shared yet.</p>
                                             <button
                                                 onClick={() => {
                                                     if (!user) {
@@ -507,7 +528,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                         setIsReviewModalOpen(true);
                                                     }
                                                 }}
-                                                className="px-8 py-4 border border-brand-ink text-[10px] font-black uppercase tracking-widest hover:bg-brand-ink hover:text-white transition-all"
+                                                className="px-8 py-4 border border-brand-ink text-[12px] md:text-sm font-black uppercase tracking-widest hover:bg-brand-ink hover:text-white transition-all"
                                             >
                                                 Be the first to share
                                             </button>
@@ -528,12 +549,12 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                         >
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                                 <div className="max-w-xl">
-                                    <span className="text-[10px] uppercase tracking-widest font-bold text-brand-bronze mb-3 block italic">More From This Collection</span>
+                                    <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-bronze mb-3 block italic">More From This Collection</span>
                                     <h2 className="text-3xl md:text-4xl font-light italic font-serif">Related Products</h2>
                                 </div>
                                 <button
                                     onClick={() => navigate('/')}
-                                    className="group flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
+                                    className="group flex items-center gap-2 text-[12px] md:text-sm font-bold uppercase tracking-widest"
                                 >
                                     Shop All
                                     <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
@@ -555,14 +576,14 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                 <section className="py-10 md:py-16 px-4 md:px-6 border-t border-brand-ink/5 mt-10 md:mt-16">
                     <div className="flex justify-between items-end mb-10">
                         <div className="max-w-xl">
-                            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-bronze mb-3 block italic">You May Also Like</span>
+                            <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-bronze mb-3 block italic">You May Also Like</span>
                             <h2 className="text-3xl md:text-4xl font-serif text-brand-ink uppercase leading-none tracking-tight">
-                                Complementary <span className="italic font-light text-brand-bronze">Pieces</span>
+                                Related <span className="italic font-light text-brand-bronze">Products</span>
                             </h2>
                         </div>
                         <button
                             onClick={() => navigate('/shop')}
-                            className="text-[10px] uppercase tracking-[0.2em] font-bold luxury-underline pb-1 hidden md:block"
+                            className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold luxury-underline pb-1 hidden md:block"
                         >
                             Browse Catalog
                         </button>
@@ -587,10 +608,10 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                 {/* RECENTLY VIEWED / BOTTOM CTA */}
                 <section className="py-16 bg-brand-ink text-brand-cream text-center">
                     <div className="max-w-2xl mx-auto px-6">
-                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-bronze mb-6 block grayscale opacity-60">Need Help?</span>
+                        <span className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold text-brand-bronze mb-6 block grayscale opacity-60">Need Help?</span>
                         <h3 className="text-2xl md:text-3xl font-serif italic mb-6">Questions about sizing or style?</h3>
                         <p className="text-brand-cream/60 mb-8 font-light tracking-wide text-sm">Our support team is available to assist you with any inquiries regarding our pieces.</p>
-                        <button className="px-10 py-4 border border-brand-bronze text-brand-bronze uppercase text-[10px] tracking-widest font-bold hover:bg-brand-bronze hover:text-white transition-all duration-500">
+                        <button className="px-10 py-4 border border-brand-bronze text-brand-bronze uppercase text-[12px] md:text-sm tracking-widest font-bold hover:bg-brand-bronze hover:text-white transition-all duration-500">
                             Contact Support
                         </button>
                     </div>
@@ -676,13 +697,13 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 </button>
 
                                 <div className="mb-10">
-                                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-bronze mb-3 block italic">Product Review</span>
+                                    <span className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold text-brand-bronze mb-3 block italic">Product Review</span>
                                     <h3 className="text-2xl font-serif text-brand-ink uppercase tracking-tight">Write a <span className="italic">Review.</span></h3>
                                 </div>
 
                                 <div className="space-y-8">
                                     <div className="space-y-3 text-center">
-                                        <label className="text-[9px] uppercase tracking-widest font-bold text-brand-ink/60">Rating</label>
+                                        <label className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-ink/60">Rating</label>
                                         <div className="flex justify-center gap-4">
                                             {[1, 2, 3, 4, 5].map(star => (
                                                 <button
@@ -697,7 +718,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     </div>
 
                                     <div className="space-y-2">
-                                        <label className="text-[9px] uppercase tracking-widest font-bold text-brand-ink/60 ml-1">Review</label>
+                                        <label className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-ink/60 ml-1">Review</label>
                                         <textarea
                                             rows={4}
                                             value={reviewForm.content}
@@ -708,11 +729,11 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="text-[9px] uppercase tracking-widest font-bold text-brand-ink/60 ml-1">Add Photos</label>
+                                        <label className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-ink/60 ml-1">Add Photos</label>
                                         <div className="grid grid-cols-4 gap-3">
                                             <label className="aspect-square bg-brand-cream/50 border-2 border-dashed border-brand-ink/10 flex flex-col items-center justify-center cursor-pointer hover:bg-white hover:border-brand-bronze/40 transition-all group">
                                                 <Camera size={18} className="text-brand-ink/20 group-hover:text-brand-bronze transition-colors mb-1" />
-                                                <span className="text-[8px] font-bold uppercase tracking-widest text-brand-ink/40">Capture</span>
+                                                <span className="text-[12px] md:text-sm font-bold uppercase tracking-widest text-brand-ink/40">Capture</span>
                                                 <input
                                                     type="file"
                                                     multiple
@@ -772,7 +793,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                 setIsSubmittingReview(false);
                                             }
                                         }}
-                                        className="w-full py-5 bg-brand-ink text-brand-cream uppercase text-[11px] tracking-[0.4em] font-black hover:bg-black transition-all flex items-center justify-center gap-4 disabled:opacity-50"
+                                        className="w-full py-5 bg-brand-ink text-brand-cream uppercase text-[12px] md:text-sm tracking-[0.4em] font-black hover:bg-black transition-all flex items-center justify-center gap-4 disabled:opacity-50"
                                     >
                                         {isSubmittingReview ? 'Transmitting...' : 'Exhibit Review'}
                                         {!isSubmittingReview && <ArrowRight size={16} />}

@@ -13,7 +13,7 @@ const generateOTP = () => {
     return Math.floor(100000 + Math.random() * 900000).toString();
 }
 const createToken = (user) => {
-    return jwt.sign({ 
+    return jwt.sign({
         id: user._id,
         name: user.name,
         email: user.email
@@ -22,14 +22,14 @@ const createToken = (user) => {
 
 // Route for user login 
 const loginUser = async (req, res) => {
-   try {
+    try {
         const { email, password } = req.body;
         const user = await userModel.findOne({ email });
-        
+
         if (!user) {
             return res.json({ success: false, message: "User doesn't exists" });
         }
-        
+
         const isMatch = await bcrypt.compare(password, user.password);
         if (isMatch) {
             const token = createToken(user);
@@ -37,10 +37,10 @@ const loginUser = async (req, res) => {
         } else {
             res.json({ success: false, message: "Invalid credentials" });
         }
-   } catch (error) {
+    } catch (error) {
         console.log(error);
         res.json({ success: false, message: error.message });
-   }
+    }
 }
 
 // Route for user register
@@ -53,11 +53,11 @@ const registerUser = async (req, res) => {
         if (exists) {
             return res.json({ success: false, message: "User already exists" });
         }
-        
+
         if (!validator.isEmail(email)) {
             return res.json({ success: false, message: "Please enter a valid email" });
         }
-        
+
         if (password.length < 8) {
             return res.json({ success: false, message: "Please enter a strong password" });
         }
@@ -83,48 +83,48 @@ const registerUser = async (req, res) => {
 }
 // Route for admin login
 const adminLogin = async (req, res) => {
-  try {
-    const { email, password } = req.body;
-    let settings = await Setting.findOne();
+    try {
+        const { email, password } = req.body;
+        let settings = await Setting.findOne();
 
-    // First-time setup
-    if (!settings) {
-      if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
-        return res.json({ success: false, message: "Admin credentials not set" });
-      }
+        // First-time setup
+        if (!settings) {
+            if (!process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
+                return res.json({ success: false, message: "Admin credentials not set" });
+            }
 
-      const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
-      settings = new Setting({
-        email: process.env.ADMIN_EMAIL,
-        password: hashedPassword,
-        notifications: true,
-      });
-      await settings.save();
+            const hashedPassword = await bcrypt.hash(process.env.ADMIN_PASSWORD, 10);
+            settings = new Setting({
+                email: process.env.ADMIN_EMAIL,
+                password: hashedPassword,
+                notifications: true,
+            });
+            await settings.save();
+        }
+
+        // Validate email
+        if (email !== settings.email) {
+            return res.json({ success: false, message: "Invalid email" });
+        }
+
+        // Validate password
+        const isMatch = await bcrypt.compare(password, settings.password || "");
+        if (!isMatch) {
+            return res.json({ success: false, message: "Invalid password" });
+        }
+
+        // ✅ JWT token with admin flag
+        const token = jwt.sign(
+            { email: settings.email, isAdmin: true },
+            process.env.JWT_SECRET,
+            { expiresIn: "1d" }
+        );
+
+        res.json({ success: true, token });
+    } catch (error) {
+        console.log(error);
+        res.json({ success: false, message: error.message });
     }
-
-    // Validate email
-    if (email !== settings.email) {
-      return res.json({ success: false, message: "Invalid email" });
-    }
-
-    // Validate password
-    const isMatch = await bcrypt.compare(password, settings.password || "");
-    if (!isMatch) {
-      return res.json({ success: false, message: "Invalid password" });
-    }
-
-    // ✅ JWT token with admin flag
-    const token = jwt.sign(
-      { email: settings.email, isAdmin: true },
-      process.env.JWT_SECRET,
-      { expiresIn: "1d" }
-    );
-
-    res.json({ success: true, token });
-  } catch (error) {
-    console.log(error);
-    res.json({ success: false, message: error.message });
-  }
 }
 
 // Forgot Password - Send OTP
@@ -145,9 +145,9 @@ const forgotPassword = async (req, res) => {
         const user = await userModel.findOne({ email });
         if (!user) {
             // Don't reveal if user exists for security
-            return res.json({ 
-                success: true, 
-                message: "If an account with that email exists, OTP has been sent" 
+            return res.json({
+                success: true,
+                message: "If an account with that email exists, OTP has been sent"
             });
         }
 
@@ -162,9 +162,9 @@ const forgotPassword = async (req, res) => {
         const emailSent = await sendPasswordResetEmail(email, otp, user.name);
 
         if (!emailSent) {
-            return res.json({ 
-                success: false, 
-                message: "Failed to send OTP email. Please try again." 
+            return res.json({
+                success: false,
+                message: "Failed to send OTP email. Please try again."
             });
         }
 
@@ -175,9 +175,9 @@ const forgotPassword = async (req, res) => {
 
     } catch (error) {
         console.log('Forgot password error:', error);
-        res.json({ 
-            success: false, 
-            message: "Server error while processing forgot password request" 
+        res.json({
+            success: false,
+            message: "Server error while processing forgot password request"
         });
     }
 }
@@ -189,37 +189,37 @@ const resetPassword = async (req, res) => {
 
         // Validate inputs
         if (!email || !otp || !newPassword) {
-            return res.json({ 
-                success: false, 
-                message: "Email, OTP and new password are required" 
+            return res.json({
+                success: false,
+                message: "Email, OTP and new password are required"
             });
         }
 
         if (newPassword.length < 8) {
-            return res.json({ 
-                success: false, 
-                message: "Password must be at least 8 characters long" 
+            return res.json({
+                success: false,
+                message: "Password must be at least 8 characters long"
             });
         }
 
         // Find user by email with valid OTP
-        const user = await userModel.findOne({ 
+        const user = await userModel.findOne({
             email,
             resetPasswordExpires: { $gt: Date.now() } // Check if OTP is not expired
         });
 
         if (!user) {
-            return res.json({ 
-                success: false, 
-                message: "Invalid OTP or OTP has expired. Please request a new one." 
+            return res.json({
+                success: false,
+                message: "Invalid OTP or OTP has expired. Please request a new one."
             });
         }
 
         // Verify OTP
         if (user.resetPasswordOtp !== otp) {
-            return res.json({ 
-                success: false, 
-                message: "Invalid OTP" 
+            return res.json({
+                success: false,
+                message: "Invalid OTP"
             });
         }
 
@@ -244,9 +244,9 @@ const resetPassword = async (req, res) => {
 
     } catch (error) {
         console.log('Reset password error:', error);
-        res.json({ 
-            success: false, 
-            message: "Server error while resetting password" 
+        res.json({
+            success: false,
+            message: "Server error while resetting password"
         });
     }
 }
@@ -266,9 +266,9 @@ const resendOtp = async (req, res) => {
 
         const user = await userModel.findOne({ email });
         if (!user) {
-            return res.json({ 
-                success: true, 
-                message: "If an account with that email exists, OTP has been sent" 
+            return res.json({
+                success: true,
+                message: "If an account with that email exists, OTP has been sent"
             });
         }
 
@@ -283,9 +283,9 @@ const resendOtp = async (req, res) => {
         const emailSent = await sendPasswordResetEmail(email, otp, user.name);
 
         if (!emailSent) {
-            return res.json({ 
-                success: false, 
-                message: "Failed to send OTP email. Please try again." 
+            return res.json({
+                success: false,
+                message: "Failed to send OTP email. Please try again."
             });
         }
 
@@ -296,9 +296,9 @@ const resendOtp = async (req, res) => {
 
     } catch (error) {
         console.log('Resend OTP error:', error);
-        res.json({ 
-            success: false, 
-            message: "Server error while resending OTP" 
+        res.json({
+            success: false,
+            message: "Server error while resending OTP"
         });
     }
 }
@@ -312,7 +312,7 @@ const getUserData = async (req, res) => {
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
         const user = await userModel.findById(decoded.id).select('-password');
-        
+
         if (!user) {
             return res.json({ success: false, message: "User not found" });
         }
@@ -342,7 +342,7 @@ const getUserById = async (req, res) => {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        
+
         // Check if user is admin (you might want to add admin check logic)
         // For now, we'll allow any authenticated user to access this
         // You can add admin verification later
@@ -357,7 +357,7 @@ const getUserById = async (req, res) => {
         }
 
         const user = await userModel.findById(userId).select('-password');
-        
+
         if (!user) {
             return res.json({ success: false, message: "User not found" });
         }
@@ -383,6 +383,71 @@ const getUserById = async (req, res) => {
     }
 }
 
+// Toggle product in favorites
+const toggleFavorite = async (req, res) => {
+    try {
+        const { itemId } = req.body;
+        const userId = req.userId;
+
+        if (!itemId) {
+            return res.json({ success: false, message: "Item ID is required" });
+        }
+
+        const user = await userModel.findById(userId);
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        // Initialize favorites if not exists (for older accounts)
+        if (!user.favorites) {
+            user.favorites = [];
+        }
+
+        const index = user.favorites.indexOf(itemId);
+        let message = "";
+        let isAdded = false;
+
+        if (index > -1) {
+            // Remove from favorites
+            user.favorites.splice(index, 1);
+            message = "Removed from favorites";
+            isAdded = false;
+        } else {
+            // Add to favorites
+            user.favorites.push(itemId);
+            message = "Added to favorites";
+            isAdded = true;
+        }
+
+        await user.save();
+        res.json({ success: true, message, favorites: user.favorites, isAdded });
+
+    } catch (error) {
+        console.error('Toggle favorite error:', error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
+// Get user favorites
+const getFavorites = async (req, res) => {
+    try {
+        const userId = req.userId;
+        const user = await userModel.findById(userId);
+
+        if (!user) {
+            return res.json({ success: false, message: "User not found" });
+        }
+
+        res.json({
+            success: true,
+            favorites: user.favorites || []
+        });
+    } catch (error) {
+        console.error('Get favorites error:', error);
+        res.json({ success: false, message: error.message });
+    }
+}
+
 export {
     loginUser,
     registerUser,
@@ -391,5 +456,7 @@ export {
     resetPassword,
     resendOtp,
     getUserData,
-    getUserById
+    getUserById,
+    toggleFavorite,
+    getFavorites
 }

@@ -9,7 +9,8 @@ const userSchema = new mongoose.Schema({
   resetPasswordExpires: Date,
   cartData: {
     products: { type: Object, default: {} }
-  }
+  },
+  favorites: { type: [mongoose.Schema.Types.ObjectId], ref: 'product', default: [] }
 }, { minimize: false });
 
 const userModel = mongoose.models.user || mongoose.model("user", userSchema);

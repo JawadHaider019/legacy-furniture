@@ -68,7 +68,7 @@ export default function LoginModal({ isOpen, onClose }) {
                         </button>
 
                         <div className="text-center mb-6">
-                            <span className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-bronze mb-4 block italic">Welcome to Auden</span>
+                            <span className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-bronze mb-4 block italic">Welcome to Auden</span>
                             <h2 className="text-4xl font-serif uppercase tracking-tight text-brand-ink">
                                 {currentState === 'Login' ? 'Sign In' : 'Sign Up'}
                             </h2>
@@ -77,7 +77,7 @@ export default function LoginModal({ isOpen, onClose }) {
                         <form onSubmit={onSubmitHandler} className="space-y-4">
                             {currentState === 'Sign Up' && (
                                 <div className="space-y-2">
-                                    <label className="text-[9px] uppercase tracking-widest font-black text-brand-ink/40 ml-1">Full Name</label>
+                                    <label className="text-[11px] uppercase tracking-widest font-black text-brand-ink/40 ml-1">Full Name</label>
                                     <div className="relative">
                                         <User className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-ink/20" size={16} />
                                         <input
@@ -93,7 +93,7 @@ export default function LoginModal({ isOpen, onClose }) {
                             )}
 
                             <div className="space-y-2">
-                                <label className="text-[9px] uppercase tracking-widest font-black text-brand-ink/40 ml-1">Email Address</label>
+                                <label className="text-[11px] uppercase tracking-widest font-black text-brand-ink/40 ml-1">Email Address</label>
                                 <div className="relative">
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-ink/20" size={16} />
                                     <input
@@ -109,9 +109,9 @@ export default function LoginModal({ isOpen, onClose }) {
 
                             <div className="space-y-2">
                                 <div className="flex justify-between items-center px-1">
-                                    <label className="text-[9px] uppercase tracking-widest font-black text-brand-ink/40">Password</label>
+                                    <label className="text-[11px] uppercase tracking-widest font-black text-brand-ink/40">Password</label>
                                     {currentState === 'Login' && (
-                                        <button type="button" className="text-[9px] uppercase tracking-widest font-black text-brand-bronze/60 hover:text-brand-bronze underline">Forgot?</button>
+                                        <button type="button" className="text-[11px] uppercase tracking-widest font-black text-brand-bronze/60 hover:text-brand-bronze underline">Forgot?</button>
                                     )}
                                 </div>
                                 <div className="relative">
@@ -138,7 +138,7 @@ export default function LoginModal({ isOpen, onClose }) {
                         </form>
 
                         <div className="mt-10 text-center">
-                            <p className="text-[10px] uppercase tracking-widest text-brand-muted font-bold">
+                            <p className="text-[11px] uppercase tracking-widest text-brand-muted font-bold">
                                 {currentState === 'Login' ? "Don't have a registry?" : "Already part of the heritage?"}
                                 <button
                                     onClick={() => setCurrentState(currentState === 'Login' ? 'Sign Up' : 'Login')}

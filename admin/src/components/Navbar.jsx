@@ -145,7 +145,7 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               <FontAwesomeIcon icon={faPlus} className="w-5" />
-              <span>Add Items</span>
+              <span>Add Product</span>
             </NavLink>
 
             <NavLink
@@ -159,7 +159,7 @@ const Navbar = () => {
               onClick={() => setIsMenuOpen(false)}
             >
               <FontAwesomeIcon icon={faList} className="w-5" />
-              <span>List Items</span>
+              <span>Product List</span>
             </NavLink>
 
             <NavLink
@@ -218,7 +218,7 @@ const Navbar = () => {
                 {({ isActive }) => (
                   <>
                     <FontAwesomeIcon icon={faPlus} className="text-sm opacity-70" />
-                    <span>Add Items</span>
+                    <span>Add Product</span>
                     <span className={`absolute bottom-5 left-0 h-[1.5px] bg-brand-ink transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                   </>
                 )}
@@ -234,7 +234,7 @@ const Navbar = () => {
                 {({ isActive }) => (
                   <>
                     <FontAwesomeIcon icon={faList} className="text-sm opacity-70" />
-                    <span>List Items</span>
+                    <span>Product List</span>
                     <span className={`absolute bottom-5 left-0 h-[1.5px] bg-brand-ink transition-all duration-300 ${isActive ? 'w-full' : 'w-0 group-hover:w-full'}`}></span>
                   </>
                 )}

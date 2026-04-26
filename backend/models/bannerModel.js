@@ -48,6 +48,10 @@ const bannerSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    section: {
+      type: Number,
+      default: 1, // 1 for Hero, 2 for Banners 2
+    },
   },
   { timestamps: true }
 );

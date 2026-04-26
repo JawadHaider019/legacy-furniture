@@ -25,7 +25,7 @@ export default function Journal() {
                         <motion.span
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-[10px] uppercase tracking-widest font-bold text-brand-bronze mb-4 block italic"
+                            className="text-[11px] uppercase tracking-widest font-bold text-brand-bronze mb-4 block italic"
                         >
                             The Journal
                         </motion.span>
@@ -71,13 +71,13 @@ export default function Journal() {
                                     referrerPolicy="no-referrer"
                                 />
                                 <div className="absolute top-8 left-8">
-                                    <span className="px-5 py-2 bg-brand-cream/90 backdrop-blur-md text-[10px] uppercase tracking-[0.2em] font-black text-brand-ink">
+                                    <span className="px-5 py-2 bg-brand-cream/90 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] font-black text-brand-ink">
                                         {Array.isArray(blog.category) ? blog.category[0] : blog.category}
                                     </span>
                                 </div>
                             </div>
                             <div className="space-y-6">
-                                <div className="flex items-center gap-6 text-[10px] uppercase tracking-widest font-bold text-brand-bronze">
+                                <div className="flex items-center gap-6 text-[11px] uppercase tracking-widest font-bold text-brand-bronze">
                                     <div className="flex items-center gap-2">
                                         <Clock size={12} strokeWidth={2} />
                                         <span>{new Date(blog.publishDate || blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
@@ -94,7 +94,7 @@ export default function Journal() {
                                     {blog.excerpt}
                                 </p>
                                 <div className="pt-4">
-                                    <button className="text-[10px] uppercase tracking-[0.4em] font-black luxury-underline-dark pb-2 inline-flex items-center gap-4">
+                                    <button className="text-[11px] uppercase tracking-[0.4em] font-black luxury-underline-dark pb-2 inline-flex items-center gap-4">
                                         Read Narrative <ArrowUpRight size={16} />
                                     </button>
                                 </div>

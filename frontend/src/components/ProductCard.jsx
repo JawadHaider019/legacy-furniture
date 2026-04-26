@@ -28,12 +28,12 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle })
                 {/* Badges */}
                 <div className="absolute top-2 left-2 md:top-6 md:left-6 flex flex-col gap-1 md:gap-2">
                     {product.isNew && (
-                        <span className="bg-brand-ink px-2 md:px-4 py-1 text-[7px] md:text-[9px] uppercase tracking-[0.2em] font-bold text-white shadow-xl">
+                        <span className="bg-brand-ink px-3 md:px-4 py-1 text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold text-white shadow-xl">
                             New
                         </span>
                     )}
                     {discountValue > 0 && (
-                        <span className="bg-red-600 px-2 md:px-4 py-1 text-[7px] md:text-[9px] uppercase tracking-[0.2em] font-bold text-white shadow-xl">
+                        <span className="bg-red-600 px-3 md:px-4 py-1 text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold text-white shadow-xl">
                             -{discountValue}% Off
                         </span>
                     )}
@@ -51,7 +51,7 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle })
 
                 {/* Hover Action Overlay */}
                 <div className="absolute inset-x-0 bottom-0 p-6 flex flex-col gap-3 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/20 to-transparent">
-                    <button className="w-full py-4 bg-brand-ink text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-black flex items-center justify-center gap-3">
+                    <button className="w-full py-4 bg-brand-ink text-white text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold hover:bg-black flex items-center justify-center gap-3">
                         Quick Shop
                         <Plus size={14} />
                     </button>
@@ -75,11 +75,11 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle })
                     </div>
                 </div>
                 <div className="hidden md:flex items-center gap-3">
-                    <span className="text-brand-bronze text-[10px] uppercase tracking-[0.3em] font-bold italic">
+                    <span className="text-brand-bronze text-sm uppercase tracking-[0.3em] font-bold italic">
                         {product.category}
                     </span>
                     <div className="h-[1px] flex-1 bg-brand-ink/5" />
-                    <span className="text-[10px] font-bold text-brand-ink/30 uppercase tracking-[0.2em]">Ready to ship</span>
+                    <span className="text-sm font-bold text-brand-ink/30 uppercase tracking-[0.2em]">Ready to ship</span>
                 </div>
             </div>
         </motion.div>

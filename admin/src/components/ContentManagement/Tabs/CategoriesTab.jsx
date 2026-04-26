@@ -74,7 +74,7 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, itemType, itemName }) =
 
 const CategoriesTab = () => {
   const [categories, setCategories] = useState([]);
-  const [newCategory, setNewCategory] = useState({ name: '', parentId: '', description: '' });
+  const [newCategory, setNewCategory] = useState({ name: '', parentId: '', description: '', imageFile: null, imagePreview: null });
   const toast = useToast();
   const [editingItem, setEditingItem] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -127,8 +127,21 @@ const CategoriesTab = () => {
 
 
   const resetForm = () => {
-    setNewCategory({ name: '', parentId: '', description: '' });
+    if (newCategory.imagePreview) URL.revokeObjectURL(newCategory.imagePreview);
+    setNewCategory({ name: '', parentId: '', description: '', imageFile: null, imagePreview: null });
     setEditingItem(null);
+  };
+
+  const handleImageChange = (e, isEditing = false) => {
+    const file = e.target.files[0];
+    if (file) {
+      const preview = URL.createObjectURL(file);
+      if (isEditing) {
+        setEditingItem(prev => ({ ...prev, imageFile: file, imagePreview: preview }));
+      } else {
+        setNewCategory(prev => ({ ...prev, imageFile: file, imagePreview: preview }));
+      }
+    }
   };
 
   // Category Functions
@@ -159,10 +172,14 @@ const CategoriesTab = () => {
         }
       } else {
         // Add as main category
+        const formData = new FormData();
+        formData.append('name', newCategory.name);
+        if (newCategory.description) formData.append('description', newCategory.description);
+        if (newCategory.imageFile) formData.append('image', newCategory.imageFile);
+
         const response = await fetch(`${API_BASE_URL}/categories`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: newCategory.name })
+          body: formData
         });
 
         if (response.ok) {
@@ -208,15 +225,19 @@ const CategoriesTab = () => {
           showToast(errorData.error || 'Failed to update subcategory');
         }
       } else {
+        const formData = new FormData();
+        formData.append('name', editingItem.name);
+        if (editingItem.description) formData.append('description', editingItem.description);
+        if (editingItem.imageFile) formData.append('image', editingItem.imageFile);
+
         const response = await fetch(`${API_BASE_URL}/categories/${editingItem._id}`, {
           method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name: editingItem.name })
+          body: formData
         });
 
         if (response.ok) {
           await fetchCategories();
-          setEditingItem(null);
+          resetForm();
           showToast('Category updated successfully!', 'success');
         } else {
           const errorData = await response.json();
@@ -304,23 +325,61 @@ const CategoriesTab = () => {
       {/* Add New Item Section */}
       <div className="mb-4 sm:mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
         <h3 className="font-medium text-gray-900 mb-3 text-base sm:text-lg">
-          {editingItem ? `Edit Category` : 'Add New Item'}
+          {editingItem ? `Edit Category` : 'Add Category'}
         </h3>
 
 
 
-        <div className="grid grid-cols-1 gap-3 mb-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
           <input
             type="text"
             placeholder={editingItem ? 'Category Name' : 'Category Name'}
-            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black text-sm sm:text-base"
+            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black text-sm sm:text-base font-medium"
             value={editingItem ? editingItem.name : newCategory.name}
             onChange={(e) => editingItem
               ? setEditingItem({ ...editingItem, name: e.target.value })
               : setNewCategory({ ...newCategory, name: e.target.value })
             }
           />
+          <input
+            type="text"
+            placeholder="Short Description (optional)"
+            className="w-full px-3 sm:px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black text-sm sm:text-base font-medium"
+            value={editingItem ? (editingItem.description || '') : newCategory.description}
+            onChange={(e) => editingItem
+              ? setEditingItem({ ...editingItem, description: e.target.value })
+              : setNewCategory({ ...newCategory, description: e.target.value })
+            }
+          />
         </div>
+
+        {/* Image Upload Area */}
+        {(!editingItem || editingItem.type === 'category') && (
+          <div className="mb-4">
+            <div className="flex items-center gap-4">
+              <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center bg-white overflow-hidden shrink-0">
+                {editingItem?.imagePreview || newCategory.imagePreview || editingItem?.image ? (
+                  <img
+                    src={editingItem?.imagePreview || newCategory.imagePreview || editingItem?.image}
+                    alt="Preview"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <i className="fas fa-image text-gray-300 text-xl" />
+                )}
+              </div>
+              <div className="flex-1">
+                <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-1">Category Image</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-[11px] file:font-semibold file:bg-black file:text-white hover:file:bg-gray-800"
+                  onChange={(e) => handleImageChange(e, !!editingItem)}
+                />
+              </div>
+            </div>
+          </div>
+        )}
 
         {!editingItem && (
           <div className="mb-3">
@@ -391,11 +450,29 @@ const CategoriesTab = () => {
                     {/* Main Category Card */}
                     <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
                       <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <FontAwesomeIcon icon={faFolder} className="mr-2 text-black text-sm" />
+                        <div className="flex items-center gap-3">
+                          <div className="h-10 w-10 rounded shadow-sm overflow-hidden bg-gray-200 shrink-0">
+                            {category.image ? (
+                              <img src={category.image} alt={category.name} className="w-full h-full object-cover grayscale" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                <FontAwesomeIcon icon={faFolder} />
+                              </div>
+                            )}
+                          </div>
                           <span className="font-medium text-gray-900 text-sm">{category.name}</span>
                         </div>
                         <div className="flex items-center space-x-2">
+                          <button
+                            className="text-black hover:text-blue-900 disabled:opacity-50 p-1"
+                            onClick={() => {
+                              setNewCategory({ ...newCategory, parentId: category._id });
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            title="Add Subcategory"
+                          >
+                            <FontAwesomeIcon icon={faPlus} className="text-xs" />
+                          </button>
                           <button
                             className="text-black hover:text-blue-900 disabled:opacity-50 p-1"
                             onClick={() => startEditing(category, 'category')}
@@ -456,6 +533,9 @@ const CategoriesTab = () => {
                 <thead className="bg-gray-50">
                   <tr>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Preview
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Name
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -471,12 +551,32 @@ const CategoriesTab = () => {
                     <React.Fragment key={category._id}>
                       {/* Main Category Row */}
                       <tr className="bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <div className="h-12 w-12 rounded-sm overflow-hidden bg-gray-100 border border-gray-200">
+                            {category.image ? (
+                              <img src={category.image} alt={category.name} className="h-full w-full object-cover grayscale group-hover:grayscale-0 transition-all" />
+                            ) : (
+                              <div className="h-full w-full flex items-center justify-center text-gray-300">
+                                <FontAwesomeIcon icon={faFolder} />
+                              </div>
+                            )}
+                          </div>
+                        </td>
                         <td className="px-4 py-4 text-sm font-medium text-gray-900">
-                          <FontAwesomeIcon icon={faFolder} className="mr-2 text-black" />
                           {category.name}
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500">Main Category</td>
                         <td className="px-4 py-4 text-sm font-medium">
+                          <button
+                            className="text-green-600 hover:text-green-900 mr-3 disabled:opacity-50"
+                            onClick={() => {
+                              setNewCategory({ ...newCategory, parentId: category._id });
+                              window.scrollTo({ top: 0, behavior: 'smooth' });
+                            }}
+                            title="Add Subcategory"
+                          >
+                            <FontAwesomeIcon icon={faPlus} />
+                          </button>
                           <button
                             className="text-black hover:text-blue-900 mr-3 disabled:opacity-50"
                             onClick={() => startEditing(category, 'category')}
@@ -497,6 +597,7 @@ const CategoriesTab = () => {
                       {/* Subcategories */}
                       {category.subcategories?.map(subcategory => (
                         <tr key={subcategory._id}>
+                          <td className="px-4 py-4 whitespace-nowrap"></td>
                           <td className="px-4 py-4 text-sm font-medium text-gray-900 pl-8">
                             <FontAwesomeIcon icon={faFolderTree} className="mr-2 text-green-500" />
                             {subcategory.name}
@@ -528,8 +629,6 @@ const CategoriesTab = () => {
           </div>
         )}
       </div>
-
-
     </div>
   );
 };

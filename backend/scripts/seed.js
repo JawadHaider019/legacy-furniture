@@ -3,6 +3,7 @@ import dotenv from 'dotenv';
 import productModel from '../models/productModel.js';
 import { Blog } from '../models/blogModel.js';
 import Category from '../models/categoryModel.js';
+import { Banner } from '../models/bannerModel.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
@@ -15,81 +16,128 @@ const categories = [
     {
         name: "Living Room",
         image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800",
-        description: "Elevate your gathering space with timeless comfort and architectural presence."
+        description: "Elevate your gathering space with timeless comfort and architectural presence.",
+        subcategories: [
+            { name: "Sofas" },
+            { name: "Coffee Tables" },
+            { name: "Armchairs" },
+            { name: "TV Units" }
+        ]
     },
     {
         name: "Dining",
-        image: "https://images.unsplash.com/photo-1617806118233-f8e137453f9c?auto=format&fit=crop&q=80&w=800",
-        description: "Shared moments deserve a refined setting of marble and solid walnut."
+        image: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=1200",
+        description: "Shared moments deserve a refined setting of marble and solid walnut.",
+        subcategories: [
+            { name: "Dining Tables" },
+            { name: "Dining Chairs" },
+            { name: "Sideboards" }
+        ]
     },
     {
         name: "Bedroom",
         image: "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&q=80&w=800",
-        description: "Your sanctuary, redefined with sculptural elegance and floating forms."
+        description: "Your sanctuary, redefined with sculptural elegance and floating forms.",
+        subcategories: [
+            { name: "Beds" },
+            { name: "Bedside Tables" },
+            { name: "Wardrobes" },
+            { name: "Dressers" }
+        ]
     },
     {
         name: "Lighting",
-        image: "https://images.unsplash.com/photo-1513506191703-327bd47272bf?auto=format&fit=crop&q=80&w=800",
-        description: "Artisan luminance that projects soft, atmospheric glows reminiscent of moonlight."
+        image: "https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&q=80&w=1200",
+        description: "Artisan luminance that projects soft, atmospheric glows reminiscent of moonlight.",
+        subcategories: [
+            { name: "Pendants" },
+            { name: "Floor Lamps" },
+            { name: "Table Lamps" }
+        ]
     }
 ];
 
 const products = [
     {
         name: "Minimalist Oak Sofa",
-        description: "A solid oak sofa with premium wool upholstery. Designed for timeless comfort and architectural presence.",
+        description: "A solid oak sofa with premium wool upholstery. Designed for timeless comfort and architectural presence. Each piece is handcrafted over 120 hours using traditional joinery techniques.",
         shortDescription: "Solid oak, premium wool upholstery.",
-        category: "living",
-        subcategory: "Living Room / Seating / Sofas",
+        category: "Living Room",
+        subcategory: "Sofas",
         image: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200"],
         quantity: 10,
         price: 2400,
         discountprice: 1950,
         cost: 1200,
-        status: "published",
-        date: Date.now()
+        status: "public",
+        date: Date.now(),
+        variants: [
+            { name: "Grey Wool", price: 2400, cost: 1200, stock: 5, sku: "SOFA-OAK-GRY", description: "Standard grey wool upholstery.", images: ["https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=1200"] },
+            { name: "Forest Green", price: 2600, cost: 1350, stock: 3, sku: "SOFA-OAK-GRN", description: "Premium forest green velvet finish.", images: ["https://images.unsplash.com/photo-1540518614846-7eded433c457?auto=format&fit=crop&q=80&w=1200"] },
+            { name: "Charcoal Canvas", price: 2200, stock: 2, sku: "SOFA-OAK-CHR", description: "Durable charcoal canvas for high-traffic areas.", images: ["https://images.unsplash.com/photo-1550254478-ead40cc54513?auto=format&fit=crop&q=80&w=1200"] }
+        ],
+        dynamicAttributes: [
+            { key: "Frame", value: "Solid Oak" },
+            { key: "Origin", value: "Handcrafted in UK" }
+        ]
     },
     {
         name: "Sculptural Marble Dining Table",
-        description: "Pietra Grey marble top supported by a solid walnut pedestal. A study in balance and luxury materials.",
+        description: "Pietra Grey marble top supported by a solid walnut pedestal. A study in balance and luxury materials. The marble is sealed with a breathable satin finish to prevent staining while maintaining natural texture.",
         shortDescription: "Grey marble, walnut pedestal.",
-        category: "dining",
-        subcategory: "Dining Room / Tables",
+        category: "Dining",
+        subcategory: "Dining Tables",
         image: ["https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=1200"],
         quantity: 5,
         price: 3800,
         discountprice: 3200,
         cost: 2000,
-        status: "published",
-        date: Date.now()
+        status: "public",
+        date: Date.now(),
+        variants: [
+            { name: "Pietra Grey", price: 3800, cost: 2000, stock: 2, sku: "TBL-MARB-GRY", images: ["https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&q=80&w=1200"] },
+            { name: "Carrara White", price: 4200, cost: 2200, stock: 3, sku: "TBL-MARB-WHT", images: ["https://images.unsplash.com/photo-1581428982868-e410dd047a90?auto=format&fit=crop&q=80&w=1200"] }
+        ],
+        dynamicAttributes: [
+            { key: "Top Material", value: "Natural Marble" },
+            { key: "Base", value: "Solid Walnut" }
+        ]
     },
     {
         name: "Floating Platform Bed",
-        description: "Handcrafted from salvaged maple. The floating design creates an ethereal feel in any bedroom sanctuary.",
+        description: "Handcrafted from salvaged maple. The floating design creates an ethereal feel in any bedroom sanctuary. Includes integrated slats and hidden storage options.",
         shortDescription: "Salvaged maple, floating design.",
-        category: "bedroom",
-        subcategory: "Bedroom Furniture / Beds",
+        category: "Bedroom",
+        subcategory: "Beds",
         image: ["https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&q=80&w=1200"],
         quantity: 8,
         price: 2900,
         discountprice: 2500,
         cost: 1500,
-        status: "published",
-        date: Date.now()
+        status: "public",
+        date: Date.now(),
+        variants: [
+            { name: "Queen", price: 2900, cost: 1500, stock: 4, sku: "BED-MAPL-Q", images: ["https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&q=80&w=1200"] },
+            { name: "King", price: 3400, cost: 1800, stock: 4, sku: "BED-MAPL-K", images: ["https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?auto=format&fit=crop&q=80&w=1200"] }
+        ]
     },
     {
         name: "Orbital Brass Pendant",
-        description: "Spun brass with a hand-blown glass diffuser. Projects a soft, atmospheric glow reminiscent of moonlight.",
+        description: "Spun brass with a hand-blown glass diffuser. Projects a soft, atmospheric glow reminiscent of moonlight. Includes a adjustable 2m woven cable.",
         shortDescription: "Spun brass, hand-blown glass.",
-        category: "lighting",
-        subcategory: "Lighting / Pendants",
+        category: "Lighting",
+        subcategory: "Pendants",
         image: ["https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&q=80&w=1200"],
         quantity: 15,
         price: 850,
         discountprice: 650,
         cost: 300,
-        status: "published",
-        date: Date.now()
+        status: "public",
+        date: Date.now(),
+        variants: [
+            { name: "Aged Brass", price: 850, cost: 300, stock: 10, sku: "LGT-ORB-BRS", images: ["https://images.unsplash.com/photo-1540932239986-30128078f3c5?auto=format&fit=crop&q=80&w=1200"] },
+            { name: "Matte Black", price: 750, cost: 250, stock: 5, sku: "LGT-ORB-BLK", images: ["https://images.unsplash.com/photo-1534073828943-f801091bb18c?auto=format&fit=crop&q=80&w=1200"] }
+        ]
     }
 ];
 
@@ -132,6 +180,42 @@ const blogs = [
     }
 ];
 
+const banners = [
+    {
+        headingLine1: "Database Loaded",
+        headingLine2: "Primary Banner",
+        subtext: "If you see this, the banners are successfully loading from the MongoDB database for the hero section.",
+        buttonText: "Explore Collection",
+        redirectUrl: "/shop",
+        imageUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000",
+        section: 1,
+        order: 0,
+        isActive: true
+    },
+    {
+        headingLine1: "Sequential Slide",
+        headingLine2: "Database Entry 2",
+        subtext: "This is the second slide coming from your admin panel settings. Verify movement here.",
+        buttonText: "View New Arrivals",
+        redirectUrl: "/shop",
+        imageUrl: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&q=80&w=2000",
+        section: 1,
+        order: 1,
+        isActive: true
+    },
+    {
+        headingLine1: "Minimalist",
+        headingLine2: "Sanctuaries",
+        subtext: "Elevate your sanctuary with sculptural elegance and floating forms handcrafted from salvaged maple.",
+        buttonText: "Bedroom Collection",
+        redirectUrl: "/shop",
+        imageUrl: "https://images.unsplash.com/photo-1505691723518-36a5ac3be353?auto=format&fit=crop&q=80&w=2000",
+        section: 2,
+        order: 0,
+        isActive: true
+    }
+];
+
 const seed = async () => {
     try {
         console.log("🔗 Connecting to database...");
@@ -142,6 +226,7 @@ const seed = async () => {
         await Category.deleteMany({});
         await productModel.deleteMany({});
         await Blog.deleteMany({});
+        await Banner.deleteMany({});
 
         console.log("📁 Seeding 4 categories...");
         await Category.insertMany(categories);
@@ -155,10 +240,19 @@ const seed = async () => {
         await Blog.insertMany(blogs);
         console.log("✅ Blogs seeded.");
 
+        console.log("🖼️ Seeding 3 banners...");
+        await Banner.insertMany(banners);
+        console.log("✅ Banners seeded.");
+
         console.log("✨ Seeding complete.");
         process.exit(0);
     } catch (error) {
         console.error("❌ Seeding failed:", error);
+        if (error.errors) {
+            Object.keys(error.errors).forEach(key => {
+                console.error(`- Field '${key}': ${error.errors[key].message}`);
+            });
+        }
         process.exit(1);
     }
 };

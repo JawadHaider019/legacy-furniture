@@ -52,7 +52,7 @@ const App = () => {
                 <div className="flex min-h-screen">
                     <Sidebar />
                     <div className="flex-1 flex flex-col min-h-screen overflow-x-hidden">
-                        <main className='flex-1 w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 py-8'>
+                        <main className='flex-1 w-full max-w-[1700px] mx-auto px-4 sm:px-8 lg:px-12 pt-4 pb-12'>
                             <Routes>
                                 <Route path='/' element={<Dashboard />} />
                                 <Route path='/categories' element={<Categories />} />

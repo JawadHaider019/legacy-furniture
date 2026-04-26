@@ -10,7 +10,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const { categories, deliverySettings, currency } = useContext(ShopContext);
+    const { categories, deliverySettings, currency, businessDetails } = useContext(ShopContext);
 
     const forceDarkText = location.pathname.startsWith('/product');
     const isDarkText = scrolled || forceDarkText;
@@ -31,7 +31,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
     return (
         <>
             {/* ANNOUNCEMENT BAR */}
-            {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-1.5 px-6 text-center text-[10px] uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
+            {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-2 px-6 text-center text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
                 {deliverySettings?.freeDeliveryAbove ? `Free Shipping Over   ${deliverySettings.freeDeliveryAbove.toLocaleString()}*` : ''}
             </div>}
 
@@ -44,9 +44,9 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
 
                     {/* NAVIGATION (Left) */}
                     <div className="hidden lg:flex items-center gap-10 w-1/3">
-                        <button onClick={() => navigate('/')} className={`text-[10px] uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Home</button>
-                        <button onClick={() => navigate('/shop')} className={`text-[10px] uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Collection</button>
-                        <button onClick={() => navigate('/orders')} className={`text-[10px] uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Orders</button>
+                        <button onClick={() => navigate('/')} className={`text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Home</button>
+                        <button onClick={() => navigate('/shop')} className={`text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Collection</button>
+                        <button onClick={() => navigate('/orders')} className={`text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Orders</button>
                     </div>
 
                     {/* LOGO (Center) */}
@@ -58,7 +58,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                             <h1 className={`text-[12px] sm:text-sm md:text-base lg:text-xl font-serif tracking-[1px] transition-all font-medium uppercase whitespace-nowrap leading-tight ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>
                                 LEGACY FURNITURE & CARPETS
                             </h1>
-                            <span className={`text-[8px] uppercase tracking-[0.2em] font-bold opacity-80 mt-0.5 ${isDarkText ? 'text-brand-bronze' : 'text-white/60'}`}>
+                            <span className={`text-[10px] uppercase tracking-[0.2em] font-bold opacity-80 mt-0.5 ${isDarkText ? 'text-brand-bronze' : 'text-white/60'}`}>
                                 Fine Furnishings
                             </span>
                         </button>
@@ -121,7 +121,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                             className="w-full max-w-sm bg-brand-cream h-full p-8 flex flex-col shadow-2xl overflow-y-auto no-scrollbar"
                         >
                             <div className="flex justify-between items-center mb-10">
-                                <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-bronze">Navigation</span>
+                                <span className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold text-brand-bronze">Navigation</span>
                                 <button
                                     onClick={() => setIsOpen(false)}
                                     className="p-2 text-brand-ink hover:rotate-90 transition-transform duration-300"
@@ -155,7 +155,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                                         <span className="text-2xl md:text-3xl font-serif text-brand-ink italic group-hover:text-brand-bronze transition-colors flex items-center gap-4 uppercase leading-none">
                                             {item.label}
                                         </span>
-                                        <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-brand-ink/40 mt-1">
+                                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold text-brand-ink/40 mt-1">
                                             {item.sub}
                                         </span>
                                     </motion.button>
@@ -169,14 +169,14 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                                     className="flex-1 flex items-center justify-center gap-2 py-3 border border-brand-ink/10 hover:bg-brand-ink hover:text-brand-cream transition-all group"
                                 >
                                     <User size={16} strokeWidth={1.5} />
-                                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Login</span>
+                                    <span className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold">Login</span>
                                 </button>
                                 <button
                                     onClick={() => { setIsOpen(false); navigate('/favorites'); }}
                                     className="flex-1 flex items-center justify-center gap-2 py-3 border border-brand-ink/10 hover:bg-brand-ink hover:text-brand-cream transition-all group relative"
                                 >
                                     <Heart size={16} strokeWidth={1.5} />
-                                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Favorites</span>
+                                    <span className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold">Favorites</span>
                                     {wishlistCount > 0 && (
                                         <span className="absolute top-2 right-2 w-4 h-4 bg-brand-bronze text-white text-[8px] rounded-full flex items-center justify-center font-black">{wishlistCount}</span>
                                     )}
@@ -186,17 +186,22 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                             <div className="mt-auto pt-8 border-t border-brand-ink/5">
                                 <div className="grid grid-cols-2 gap-4">
                                     <div>
-                                        <h5 className="text-[9px] uppercase tracking-widest font-black text-brand-ink/40 mb-2">Contact</h5>
-                                        <p className="text-xs font-light">legacyfurniture18@gmail.com</p>
-                                        <p className="text-xs font-light">+44 7424 757756</p>
-
+                                        <h5 className="text-[10px] uppercase tracking-widest font-black text-brand-ink/40 mb-2">Contact</h5>
+                                        <p className="text-xs font-light">{businessDetails?.contact?.customerSupport?.email || "legacyfurniture18@gmail.com"}</p>
+                                        <p className="text-xs font-light">{businessDetails?.contact?.customerSupport?.phone || "+44 7424 757756"}</p>
                                     </div>
                                     <div>
-                                        <h5 className="text-[9px] uppercase tracking-widest font-black text-brand-ink/40 mb-3">Social Presence</h5>
+                                        <h5 className="text-[10px] uppercase tracking-widest font-black text-brand-ink/40 mb-3">Social Presence</h5>
                                         <div className="flex gap-4">
-                                            <span className="text-[10px] uppercase tracking-widest font-bold luxury-underline cursor-pointer">IG</span>
-                                            <span className="text-[10px] uppercase tracking-widest font-bold luxury-underline cursor-pointer">TW</span>
-                                            <span className="text-[10px] uppercase tracking-widest font-bold luxury-underline cursor-pointer">FB</span>
+                                            {businessDetails?.socialMedia?.instagram && (
+                                                <a href={businessDetails.socialMedia.instagram} target="_blank" rel="noopener noreferrer" className="text-[12px] md:text-sm uppercase tracking-widest font-bold luxury-underline cursor-pointer">IG</a>
+                                            )}
+                                            {businessDetails?.socialMedia?.twitter && (
+                                                <a href={businessDetails.socialMedia.twitter} target="_blank" rel="noopener noreferrer" className="text-[12px] md:text-sm uppercase tracking-widest font-bold luxury-underline cursor-pointer">TW</a>
+                                            )}
+                                            {businessDetails?.socialMedia?.facebook && (
+                                                <a href={businessDetails.socialMedia.facebook} target="_blank" rel="noopener noreferrer" className="text-[12px] md:text-sm uppercase tracking-widest font-bold luxury-underline cursor-pointer">FB</a>
+                                            )}
                                         </div>
                                     </div>
                                 </div>

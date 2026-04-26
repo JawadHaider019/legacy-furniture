@@ -12,11 +12,14 @@ const ShopContextProvider = (props) => {
     const [products, setProducts] = useState([]);
     const [categories, setCategories] = useState([]);
     const [blogs, setBlogs] = useState([]);
+    const [banners, setBanners] = useState([]);
+    const [banners2, setBanners2] = useState([]);
     const [cartItems, setCartItems] = useState({});
     const [loading, setLoading] = useState(true);
     const [token, setToken] = useState(localStorage.getItem('token') || "");
     const [user, setUser] = useState(null);
     const [deliverySettings, setDeliverySettings] = useState(null);
+    const [businessDetails, setBusinessDetails] = useState(null);
 
     const getProductsData = async () => {
         try {
@@ -70,6 +73,41 @@ const ShopContextProvider = (props) => {
             }
         } catch (error) {
             console.log("Error fetching delivery settings:", error);
+        }
+    };
+
+    const getBannersData = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/banners/active?section=1');
+            if (response.data.success) {
+                console.log("Fetched Banners:", response.data.data);
+                setBanners(response.data.data || []);
+            }
+        } catch (error) {
+            console.log("Error fetching banners:", error);
+        }
+    };
+
+    const getBanners2Data = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/banners/active?section=2');
+            if (response.data.success) {
+                console.log("Fetched Banners 2:", response.data.data);
+                setBanners2(response.data.data || []);
+            }
+        } catch (error) {
+            console.log("Error fetching banners 2:", error);
+        }
+    };
+
+    const getBusinessDetailsData = async () => {
+        try {
+            const response = await axios.get(backendUrl + '/api/business-details');
+            if (response.data.success) {
+                setBusinessDetails(response.data.data);
+            }
+        } catch (error) {
+            console.log("Error fetching business details:", error);
         }
     };
 
@@ -216,12 +254,66 @@ const ShopContextProvider = (props) => {
         }
     };
 
+    const [wishlistItems, setWishlistItems] = useState([]);
+
+    const getWishlistData = async (tk) => {
+        try {
+            const response = await axios.get(`${backendUrl}/api/user/favorites`, {
+                headers: { token: tk }
+            });
+            if (response.data.success) {
+                setWishlistItems(response.data.favorites);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    };
+
+    const toggleFavorite = async (itemId) => {
+        if (!token) {
+            toast.error("Please login to add favorites", {
+                style: {
+                    background: '#1A1A1A',
+                    color: '#C5A059',
+                    fontSize: '10px',
+                    textTransform: 'uppercase',
+                    borderRadius: '0px'
+                }
+            });
+            return;
+        }
+        try {
+            const response = await axios.post(`${backendUrl}/api/user/favorites-toggle`, { itemId }, {
+                headers: { token }
+            });
+            if (response.data.success) {
+                setWishlistItems(response.data.favorites);
+                toast.success(response.data.message, {
+                    icon: '🏺',
+                    style: {
+                        background: '#1A1A1A',
+                        color: '#F4F1ED',
+                        fontSize: '10px',
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.2em',
+                        borderRadius: '0px',
+                    }
+                });
+            }
+        } catch (error) {
+            console.log(error);
+            toast.error(error.message);
+        }
+    };
+
     useEffect(() => {
         const initData = async () => {
             setLoading(true);
-            await Promise.all([getProductsData(), getCategoriesData(), getBlogsData(), getDeliverySettingsData()]);
+            await Promise.all([getProductsData(), getCategoriesData(), getBlogsData(), getDeliverySettingsData(), getBannersData(), getBanners2Data(), getBusinessDetailsData()]);
             if (token) {
-                await getUserProfile(token);
+                await Promise.all([getUserProfile(token), getWishlistData(token)]);
+            } else {
+                setWishlistItems([]);
             }
             setLoading(false);
         };
@@ -258,12 +350,14 @@ const ShopContextProvider = (props) => {
     };
 
     const value = {
-        products, categories, blogs, currency, delivery_fee, deliverySettings,
+        products, categories, blogs, banners, banners2, currency, delivery_fee, deliverySettings,
         cartItems, addToCart, getCartCount, updateQuantity,
         getCartAmount, backendUrl, loading,
         getProductReviews, addProductReview,
         token, setToken, user, setUser, logout,
-        login, register, placeOrder
+        login, register, placeOrder,
+        wishlistItems, toggleFavorite,
+        businessDetails
     };
 
     return (

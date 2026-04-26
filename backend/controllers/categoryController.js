@@ -1,4 +1,4 @@
-// controllers/categoryController.js
+import { v2 as cloudinary } from 'cloudinary';
 import Category from '../models/categoryModel.js';
 
 // Get all categories with subcategories
@@ -14,14 +14,23 @@ const getAllCategories = async (req, res) => {
 // Create new category
 const createCategory = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, description } = req.body;
+    const imageFile = req.file;
 
     if (!name || name.trim() === '') {
       return res.status(400).json({ error: 'Category name is required' });
     }
 
+    let imageUrl = "";
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+      imageUrl = imageUpload.secure_url;
+    }
+
     const category = new Category({
       name: name.trim(),
+      description: description || "",
+      image: imageUrl,
       subcategories: []
     });
 
@@ -65,15 +74,21 @@ const addSubcategory = async (req, res) => {
 const updateCategory = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name } = req.body;
+    const { name, description } = req.body;
+    const imageFile = req.file;
 
-    if (!name || name.trim() === '') {
-      return res.status(400).json({ error: 'Category name is required' });
+    const updateData = {};
+    if (name) updateData.name = name.trim();
+    if (description !== undefined) updateData.description = description;
+
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+      updateData.image = imageUpload.secure_url;
     }
 
     const category = await Category.findByIdAndUpdate(
       id,
-      { name: name.trim() },
+      updateData,
       { new: true }
     );
 
@@ -151,7 +166,7 @@ const deleteSubcategory = async (req, res) => {
     category.subcategories.pull({ _id: subcategoryId });
     await category.save();
 
-    res.json({ 
+    res.json({
       message: 'Subcategory deleted successfully',
       success: true
     });
@@ -172,9 +187,9 @@ const getCategoriesDebug = async (req, res) => {
       })));
       console.log('---');
     });
-    
-    res.json({ 
-      success: true, 
+
+    res.json({
+      success: true,
       categories: categories.map(cat => ({
         _id: cat._id,
         name: cat.name,

@@ -13,12 +13,12 @@ export default function CategoryScroll() {
             <div className="max-w-[1600px] mx-auto px-6">
                 <div className="mb-4 flex justify-between items-end">
                     <div>
-                        <span className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-bronze mb-4 block italic">Archetypal Spaces</span>
-                        <h2 className="text-2xl md:text-4xl font-serif uppercase tracking-tight text-brand-ink">Our <span className="italic">Curations</span></h2>
+                        <span className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-bronze mb-4 block italic">Discover Your Space</span>
+                        <h2 className="text-2xl md:text-4xl font-serif uppercase tracking-tight text-brand-ink">Shop by <span className="italic">Category</span></h2>
                     </div>
                     <button
                         onClick={() => navigate('/shop')}
-                        className="text-[10px] uppercase tracking-[0.3em] font-black luxury-underline pb-1"
+                        className="text-[11px] uppercase tracking-[0.3em] font-black luxury-underline pb-1"
                     >
                         View All Spaces
                     </button>
@@ -49,7 +49,7 @@ export default function CategoryScroll() {
                                     {category.name}
                                     <ArrowUpRight size={14} className="opacity-0 group-hover:opacity-100 transition-opacity" />
                                 </h3>
-                                <p className="text-[10px] text-brand-muted font-bold uppercase tracking-widest opacity-60 leading-relaxed line-clamp-2">
+                                <p className="text-[11px] text-brand-muted font-bold uppercase tracking-widest opacity-60 leading-relaxed line-clamp-2">
                                     {category.description}
                                 </p>
                             </div>

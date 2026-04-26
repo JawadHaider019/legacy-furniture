@@ -18,7 +18,7 @@ export default function BlogDetail() {
     if (loading) {
         return (
             <div className="min-h-screen bg-brand-cream flex items-center justify-center">
-                <p className="text-[10px] uppercase tracking-[0.5em] font-black animate-pulse">Loading Story...</p>
+                <p className="text-[11px] uppercase tracking-[0.5em] font-black animate-pulse">Loading Story...</p>
             </div>
         );
     }
@@ -26,8 +26,8 @@ export default function BlogDetail() {
     if (!blog) {
         return (
             <div className="min-h-screen bg-brand-cream flex flex-col items-center justify-center gap-8">
-                <p className="text-[10px] uppercase tracking-[0.5em] font-black">Story not found.</p>
-                <button onClick={() => navigate('/')} className="px-10 py-4 bg-brand-ink text-white text-[10px] uppercase tracking-widest font-black">Back Home</button>
+                <p className="text-[11px] uppercase tracking-[0.5em] font-black">Story not found.</p>
+                <button onClick={() => navigate('/')} className="px-10 py-4 bg-brand-ink text-white text-[11px] uppercase tracking-widest font-black">Back Home</button>
             </div>
         );
     }
@@ -53,11 +53,11 @@ export default function BlogDetail() {
                         className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-8 group"
                     >
                         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-[10px] uppercase tracking-widest font-bold italic">Return to Journal</span>
+                        <span className="text-[11px] uppercase tracking-widest font-bold italic">Return to Journal</span>
                     </button>
 
                     <div className="max-w-4xl">
-                        <span className="px-5 py-2 bg-brand-bronze text-white text-[10px] uppercase tracking-widest font-bold mb-6 inline-block">
+                        <span className="px-5 py-2 bg-brand-bronze text-white text-[11px] uppercase tracking-widest font-bold mb-6 inline-block">
                             {Array.isArray(blog.category) ? blog.category[0] : blog.category}
                         </span>
                         <h1 className="text-4xl md:text-6xl font-serif text-white uppercase leading-tight tracking-tight mb-8">
@@ -70,7 +70,7 @@ export default function BlogDetail() {
                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${blog.author || 'Author'}`} alt={blog.author} className="w-full h-full object-cover" />
                                 </div>
                                 <div>
-                                    <span className="text-[9px] uppercase tracking-widest text-white/40 block mb-1">Written by</span>
+                                    <span className="text-[11px] uppercase tracking-widest text-white/40 block mb-1">Written by</span>
                                     <span className="text-[11px] uppercase tracking-widest text-white font-black">{blog.author || 'Legacy Furniture Team'}</span>
                                 </div>
                             </div>
@@ -121,7 +121,7 @@ export default function BlogDetail() {
                     </div>
                     <button
                         onClick={() => navigate('/shop')}
-                        className="px-12 py-5 bg-brand-ink text-white uppercase text-[10px] tracking-[0.3em] font-black hover:bg-black transition-all"
+                        className="px-12 py-5 bg-brand-ink text-white uppercase text-[11px] tracking-[0.3em] font-black hover:bg-black transition-all"
                     >
                         Explore Collection
                     </button>

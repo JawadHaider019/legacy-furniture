@@ -15,7 +15,7 @@ const productSchema = new mongoose.Schema({
     },
     subcategory: {
         type: String,
-        required: true
+        required: false
     },
 
     // 3. PRODUCT SPECIFICATIONS (DYNAMIC)
@@ -29,6 +29,7 @@ const productSchema = new mongoose.Schema({
     variants: [{
         name: { type: String },
         price: { type: Number },
+        cost: { type: Number, required: false }, // Optional: If not provided, should fall back to product cost
         stock: { type: Number },
         sku: { type: String },
         images: { type: Array }, // Support multiple images per variant
@@ -44,7 +45,7 @@ const productSchema = new mongoose.Schema({
 
     // 6. PRICING
     price: { type: Number, required: true },
-    discountprice: { type: Number, required: true },
+    discountprice: { type: Number, required: false },
     cost: { type: Number, required: true },
     discountStartDate: { type: Date },
     discountEndDate: { type: Date },

@@ -43,23 +43,23 @@ const StatCard = React.memo(({ title, value, icon, color, change, subtitle, tren
   <div className="luxury-card p-4 sm:p-6 hover:border-brand-bronze/30 transition-all duration-500 group">
     <div className="flex items-center justify-between">
       <div className="flex-1">
-        <p className="text-brand-muted text-[10px] uppercase tracking-[0.2em] font-medium mb-3">{title}</p>
-        <p className="text-2xl sm:text-3xl font-serif text-brand-ink">
+        <p className="text-brand-muted text-[12px] md:text-sm uppercase tracking-[0.2em] font-medium mb-3">{title}</p>
+        <p className="text-2xl sm:text-3xl font-sans text-brand-ink">
           {typeof value === 'number' && value >= 1000 ? `Rs ${value.toLocaleString()}` : value || 0}
         </p>
-        {subtitle && <p className="text-[10px] text-brand-muted/70 mt-2 font-medium italic">{subtitle}</p>}
+        {subtitle && <p className="text-[12px] md:text-sm text-brand-muted/70 mt-2 font-medium italic">{subtitle}</p>}
         {change && (
           <div className="flex items-center mt-3">
             <FontAwesomeIcon
               icon={change > 0 ? faArrowTrendUp : faArrowTrendDown}
-              className={`text-[10px] mr-2 ${change > 0 ? 'text-green-600' : 'text-red-600'}`}
+              className={`text-[12px] md:text-sm mr-2 ${change > 0 ? 'text-green-600' : 'text-red-600'}`}
             />
-            <p className={`text-xs font-medium ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
+            <p className={`text-sm font-medium ${change > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {change > 0 ? '+' : ''}{change}%
             </p>
           </div>
         )}
-        {trend && <div className="flex items-center mt-2 border-t border-brand-bronze/5 pt-2"><span className="text-[10px] text-brand-muted/60 tracking-wider uppercase">{trend}</span></div>}
+        {trend && <div className="flex items-center mt-2 border-t border-brand-bronze/5 pt-2"><span className="text-[12px] md:text-sm text-brand-muted/60 tracking-wider uppercase">{trend}</span></div>}
       </div>
       <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-sm flex items-center justify-center bg-brand-cream/50 border border-brand-bronze/10 text-brand-bronze group-hover:bg-brand-ink group-hover:text-brand-cream transition-all duration-500`}>
         <FontAwesomeIcon icon={icon} className="text-lg" />
@@ -77,14 +77,14 @@ const StatusBadge = React.memo(({ status }) => {
     Packing: 'bg-orange-50 text-orange-800 border-orange-100'
   };
   return (
-    <span className={`px-3 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest border ${colors[status] || 'bg-brand-cream text-brand-muted border-brand-bronze/10'}`}>
+    <span className={`px-3 py-1 rounded-sm text-[12px] md:text-sm font-bold uppercase tracking-widest border ${colors[status] || 'bg-brand-cream text-brand-muted border-brand-bronze/10'}`}>
       {status}
     </span>
   );
 });
 
 const StockBadge = React.memo(({ stock }) => (
-  <span className={`px-2 py-1 rounded-sm text-[10px] font-bold uppercase tracking-widest ${stock <= 2 ? 'bg-red-50 text-red-800' :
+  <span className={`px-2 py-1 rounded-sm text-[12px] md:text-sm font-bold uppercase tracking-widest ${stock <= 2 ? 'bg-red-50 text-red-800' :
     stock <= 5 ? 'bg-yellow-50 text-yellow-800' :
       'bg-green-50 text-green-800'
     }`}>
@@ -98,7 +98,7 @@ const ChartToggle = React.memo(({ chartKey, currentView, onToggle, options = CHA
       <button
         key={type}
         onClick={() => onToggle(type)}
-        className={`px-4 py-1.5 rounded-sm text-[10px] font-bold uppercase tracking-[0.2em] transition-all ${currentView === type ? 'bg-brand-ink text-brand-cream shadow-sm' : 'text-brand-muted hover:text-brand-ink'
+        className={`px-4 py-1.5 rounded-sm text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] transition-all ${currentView === type ? 'bg-brand-ink text-brand-cream shadow-sm' : 'text-brand-muted hover:text-brand-ink'
           }`}
       >
         {type}
@@ -114,7 +114,7 @@ const LoadingSpinner = () => (
         <div className="absolute inset-0 border-2 border-brand-bronze/20 rounded-full"></div>
         <div className="absolute inset-0 border-t-2 border-brand-ink rounded-full animate-spin"></div>
       </div>
-      <p className="mt-8 font-serif text-2xl tracking-[0.2em] text-brand-ink animate-pulse">REFINING DATA</p>
+      <p className="mt-8 font-serif text-2xl tracking-[0.2em] text-brand-ink animate-pulse">LOADING DATA</p>
     </div>
   </div>
 );
@@ -599,9 +599,9 @@ const Dashboard = () => {
 
   const quickActions = [
     { to: "/add", icon: faPlus, text: "Add Product" },
-    { to: "/list", icon: faBoxes, text: "Portfolio Registry" },
-    { to: "/orders", icon: faShoppingCart, text: "Acquisition Ledger" },
-    { to: "/dashboard", icon: faRocket, text: "System Integrity" },
+    { to: "/list", icon: faBoxes, text: "Product List" },
+    { to: "/orders", icon: faShoppingCart, text: "Orders" },
+    { to: "/dashboard", icon: faRocket, text: "Settings" },
   ];
 
   // Alerts Modal Component
@@ -611,8 +611,8 @@ const Dashboard = () => {
         <div className="flex items-center justify-between p-6 border-b border-brand-bronze/10 bg-white sticky top-0">
           <div className="flex items-center gap-3">
             <FontAwesomeIcon icon={faBell} className="text-brand-bronze text-xl" />
-            <h3 className="text-lg font-serif text-brand-ink">Intelligence Feed</h3>
-            <span className="bg-brand-ink text-brand-cream text-[10px] px-2 py-0.5 rounded-full font-bold">
+            <h3 className="text-lg font-serif text-brand-ink">Notifications</h3>
+            <span className="bg-brand-ink text-brand-cream text-[11px] px-2 py-0.5 rounded-full font-bold">
               {totalNotificationsCount} Active
             </span>
           </div>
@@ -624,9 +624,9 @@ const Dashboard = () => {
           {commentNotifications.length > 0 && (
             <div className="border-b border-brand-bronze/10">
               <div className="p-4 bg-brand-cream/30">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-brand-ink flex items-center gap-2">
+                <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-ink flex items-center gap-2">
                   <FontAwesomeIcon icon={faComments} className="text-brand-bronze" />
-                  Market Feedback ({commentNotifications.length})
+                  Product Reviews ({commentNotifications.length})
                 </h4>
               </div>
               <div className="divide-y divide-brand-bronze/5">
@@ -642,20 +642,20 @@ const Dashboard = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-brand-ink">
-                            {comment.rating ? 'New Acquisition Review' : 'Market Query'}
+                          <h4 className="text-sm font-bold uppercase tracking-widest text-brand-ink">
+                            {comment.rating ? 'New Product Review' : 'Customer Question'}
                           </h4>
                           {comment.rating && (
                             <div className="flex items-center gap-1 bg-brand-cream px-2 py-0.5 rounded-sm border border-brand-bronze/10">
-                              <FontAwesomeIcon icon={faStar} className="text-brand-bronze text-[8px]" />
-                              <span className="text-[9px] font-bold text-brand-ink">{comment.rating}</span>
+                              <FontAwesomeIcon icon={faStar} className="text-brand-bronze text-[11px]" />
+                              <span className="text-[11px] font-bold text-brand-ink">{comment.rating}</span>
                             </div>
                           )}
                         </div>
-                        <p className="text-xs text-brand-muted mb-2 leading-relaxed italic">
+                        <p className="text-sm text-brand-muted mb-2 leading-relaxed italic">
                           "{comment.content}"
                         </p>
-                        <div className="flex items-center justify-between text-[8px] font-bold uppercase tracking-widest text-brand-muted/60">
+                        <div className="flex items-center justify-between text-[11px] font-bold uppercase tracking-widest text-brand-muted/60">
                           <span>{comment.author} • {comment.productId?.name}</span>
                           <span>{new Date(comment.date).toLocaleDateString()}</span>
                         </div>
@@ -670,9 +670,9 @@ const Dashboard = () => {
           {dashboardData.alerts.length > 0 && (
             <div>
               <div className="p-4 bg-red-50/30">
-                <h4 className="text-[10px] font-bold uppercase tracking-[0.2em] text-red-900 flex items-center gap-2">
+                <h4 className="text-[11px] font-bold uppercase tracking-[0.2em] text-red-900 flex items-center gap-2">
                   <FontAwesomeIcon icon={faExclamationTriangle} className="text-red-500" />
-                  Operational Integrity ({dashboardData.alerts.length})
+                  System Alerts ({dashboardData.alerts.length})
                 </h4>
               </div>
               <div className="divide-y divide-red-100/50">
@@ -684,10 +684,10 @@ const Dashboard = () => {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-center justify-between mb-2">
-                          <h4 className="text-xs font-bold uppercase tracking-widest text-brand-ink">{alert.title}</h4>
-                          <span className="text-[8px] font-bold uppercase text-brand-muted/60">{new Date(alert.timestamp).toLocaleDateString()}</span>
+                          <h4 className="text-sm font-bold uppercase tracking-widest text-brand-ink">{alert.title}</h4>
+                          <span className="text-[11px] font-bold uppercase text-brand-muted/60">{new Date(alert.timestamp).toLocaleDateString()}</span>
                         </div>
-                        <p className="text-xs text-brand-muted italic leading-relaxed">{alert.message}</p>
+                        <p className="text-sm text-brand-muted italic leading-relaxed">{alert.message}</p>
                       </div>
                     </div>
                   </div>
@@ -699,7 +699,7 @@ const Dashboard = () => {
         <div className="p-6 border-t border-brand-bronze/10 bg-brand-cream/10">
           <button
             onClick={() => setShowAlertsModal(false)}
-            className="w-full bg-brand-ink text-brand-cream py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-brand-muted transition-colors rounded-sm"
+            className="w-full bg-brand-ink text-brand-cream py-4 text-[11px] font-bold uppercase tracking-[0.3em] hover:bg-brand-muted transition-colors rounded-sm"
           >
             Clear Dashboard
           </button>
@@ -720,9 +720,9 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center gap-3 mb-3">
               <div className="h-[1px] w-8 bg-brand-bronze/40"></div>
-              <p className="text-[10px] tracking-[0.4em] text-brand-bronze uppercase font-bold">System Intelligence</p>
+              <p className="text-[11px] tracking-[0.4em] text-brand-bronze uppercase font-bold">Administration</p>
             </div>
-            <h1 className="text-4xl sm:text-5xl font-serif text-brand-ink tracking-tight">Executive Dashboard</h1>
+            <h1 className="text-4xl sm:text-5xl font-serif text-brand-ink tracking-tight">Admin Dashboard</h1>
           </div>
           <div className="flex items-center gap-4">
             <button
@@ -731,7 +731,7 @@ const Dashboard = () => {
             >
               <FontAwesomeIcon icon={faBell} />
               {totalNotificationsCount > 0 && (
-                <span className="absolute -top-1 -right-1 w-5 h-5 bg-brand-bronze text-white text-[8px] font-bold flex items-center justify-center rounded-full animate-bounce">
+                <span className="absolute -top-1 -right-1 w-5 h-5 bg-brand-bronze text-white text-[11px] font-bold flex items-center justify-center rounded-full animate-bounce">
                   {totalNotificationsCount}
                 </span>
               )}
@@ -739,10 +739,10 @@ const Dashboard = () => {
             <button
               onClick={handleRefresh}
               disabled={refreshing}
-              className="group flex items-center gap-3 px-8 py-4 bg-brand-ink text-brand-cream rounded-sm text-[10px] font-bold uppercase tracking-[0.2em] transition-all hover:tracking-[0.3em] disabled:opacity-50"
+              className="group flex items-center gap-3 px-8 py-4 bg-brand-ink text-brand-cream rounded-sm text-[11px] font-bold uppercase tracking-[0.2em] transition-all hover:tracking-[0.3em] disabled:opacity-50"
             >
               <FontAwesomeIcon icon={faSync} className={refreshing ? 'animate-spin' : 'group-hover:rotate-180 transition-transform duration-700'} />
-              <span>{refreshing ? 'Synchronizing...' : 'Refresh Archive'}</span>
+              <span>{refreshing ? 'Loading...' : 'Refresh Data'}</span>
             </button>
           </div>
         </div>
@@ -750,23 +750,23 @@ const Dashboard = () => {
         {/* Primary Health Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <StatCard
-            title="Portfolio Valuation"
+            title="Total Revenue"
             value={combinedMetrics.totalRevenue}
-            subtitle="Gross Revenue Signature"
+            subtitle="Gross Income"
             icon={faDollarSign}
             color="bg-green-500"
           />
           <StatCard
-            title="Operational Cost"
+            title="Total Cost"
             value={combinedMetrics.totalCost}
-            subtitle="Acquisition Architecture"
+            subtitle="Acquisition Cost"
             icon={faChartLine}
             color="bg-red-500"
           />
           <StatCard
-            title="Net Yield"
+            title="Net Profit"
             value={combinedMetrics.totalProfit}
-            subtitle="Portfolio Profitability"
+            subtitle="Net Income"
             icon={faChartPie}
             color="bg-blue-500"
           />
@@ -775,26 +775,26 @@ const Dashboard = () => {
         {/* Inventory Flow Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           <StatCard
-            title="Registry Size"
+            title="Total Products"
             value={stats.totalProducts}
             icon={faBoxes}
             color="bg-brand-bronze"
           />
           <StatCard
-            title="Circulation"
+            title="Units Sold"
             value={stats.totalItemsSold}
             icon={faShoppingCart}
             color="bg-brand-ink"
           />
           <StatCard
-            title="Warehousing"
+            title="Inventory Value"
             value={combinedMetrics.totalInventoryValue}
-            subtitle="Locked Valuation"
+            subtitle="Stock Valuation"
             icon={faWarehouse}
             color="bg-brand-cream"
           />
           <StatCard
-            title="Order Velocity"
+            title="Total Orders"
             value={stats.totalOrders}
             subtitle={`${stats.pendingOrders} Pending`}
             icon={faClipboardList}
@@ -809,7 +809,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-10 border-b border-brand-bronze/5 pb-6">
               <div>
                 <h3 className="text-xl font-serif text-brand-ink">Financial Landscape</h3>
-                <p className="text-[10px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Revenue vs Yield</p>
+                <p className="text-[11px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Revenue vs Yield</p>
               </div>
               <ChartToggle
                 chartKey="revenue"
@@ -831,7 +831,7 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-10 border-b border-brand-bronze/5 pb-6">
               <div>
                 <h3 className="text-xl font-serif text-brand-ink">Masterpiece Velocity</h3>
-                <p className="text-[10px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Top Performance Metrics</p>
+                <p className="text-[11px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Top Performance Metrics</p>
               </div>
               <ChartToggle
                 chartKey="products"
@@ -860,9 +860,9 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-8 border-b border-brand-bronze/5 pb-6">
               <div>
                 <h3 className="text-xl font-serif text-brand-ink">Live Acquisitions</h3>
-                <p className="text-[10px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Recent Transactional History</p>
+                <p className="text-[11px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Recent Transactional History</p>
               </div>
-              <NavLink to="/orders" className="text-[10px] font-bold uppercase tracking-widest text-brand-bronze hover:text-brand-ink transition-colors luxury-underline">
+              <NavLink to="/orders" className="text-[11px] font-bold uppercase tracking-widest text-brand-bronze hover:text-brand-ink transition-colors luxury-underline">
                 View Ledger
               </NavLink>
             </div>
@@ -875,8 +875,8 @@ const Dashboard = () => {
                         <FontAwesomeIcon icon={faUsers} className="text-sm" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-brand-ink">Asset ID: {order._id?.toString().slice(-8).toUpperCase()}</p>
-                        <p className="text-[9px] text-brand-muted font-medium uppercase mt-1 italic">{order.paymentMethod || 'Wire Transfer'}</p>
+                        <p className="text-sm font-bold uppercase tracking-widest text-brand-ink">Asset ID: {order._id?.toString().slice(-8).toUpperCase()}</p>
+                        <p className="text-[11px] text-brand-muted font-medium uppercase mt-1 italic">{order.paymentMethod || 'Wire Transfer'}</p>
                       </div>
                     </div>
                     <div className="text-right">
@@ -896,9 +896,9 @@ const Dashboard = () => {
             <div className="flex items-center justify-between mb-8 border-b border-brand-bronze/5 pb-6">
               <div>
                 <h3 className="text-xl font-serif text-brand-ink">Inventory Integrity</h3>
-                <p className="text-[10px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Critical Scarcity Alerts</p>
+                <p className="text-[11px] text-brand-muted uppercase tracking-widest mt-1 font-bold italic">Critical Scarcity Alerts</p>
               </div>
-              <NavLink to="/list" className="text-[10px] font-bold uppercase tracking-widest text-brand-bronze hover:text-brand-ink transition-colors luxury-underline">
+              <NavLink to="/list" className="text-[11px] font-bold uppercase tracking-widest text-brand-bronze hover:text-brand-ink transition-colors luxury-underline">
                 Restock Portfolio
               </NavLink>
             </div>
@@ -911,13 +911,13 @@ const Dashboard = () => {
                         <FontAwesomeIcon icon={faExclamationCircle} className="text-sm" />
                       </div>
                       <div>
-                        <p className="text-xs font-bold uppercase tracking-widest text-brand-ink truncate max-w-[150px]">{product.name}</p>
-                        <p className="text-[9px] text-red-400 font-bold uppercase mt-1 italic">Critical Alert</p>
+                        <p className="text-sm font-bold uppercase tracking-widest text-brand-ink truncate max-w-[150px]">{product.name}</p>
+                        <p className="text-[11px] text-red-400 font-bold uppercase mt-1 italic">Critical Alert</p>
                       </div>
                     </div>
                     <div className="text-right">
                       <StockBadge stock={product.quantity} />
-                      <p className="text-[9px] font-bold text-brand-muted/60 mt-2 uppercase tracking-widest">Market Exposure: High</p>
+                      <p className="text-[11px] font-bold text-brand-muted/60 mt-2 uppercase tracking-widest">Market Exposure: High</p>
                     </div>
                   </div>
                 ))
@@ -939,7 +939,7 @@ const Dashboard = () => {
               <div className="w-14 h-14 bg-brand-cream border border-brand-bronze/10 rounded-sm flex items-center justify-center text-brand-bronze mb-6 group-hover:bg-brand-bronze group-hover:text-white transition-all duration-500">
                 <FontAwesomeIcon icon={action.icon} className="text-xl" />
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-brand-ink group-hover:text-brand-cream transition-colors">{action.text}</span>
+              <span className="text-[11px] font-bold uppercase tracking-[0.3em] text-brand-ink group-hover:text-brand-cream transition-colors">{action.text}</span>
             </NavLink>
           ))}
         </div>

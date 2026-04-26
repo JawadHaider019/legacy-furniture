@@ -3,12 +3,10 @@ import mongoose from "mongoose";
 const businessDetailsSchema = new mongoose.Schema(
   {
     company: {
-      name: { type: String, default: "Natura Bliss" },
-      tagline: { type: String, default: "Pure Natural Skincare" },
+      name: { type: String, default: "Legacy Furniture" },
+      tagline: { type: String, default: "Timeless Craftsmanship" },
       description: {
         type: String,
-        default:
-          "Pure, handmade natural skincare products crafted with organic ingredients for your wellness.",
       },
       foundedYear: { type: Number, default: 2025 },
     },
@@ -16,15 +14,15 @@ const businessDetailsSchema = new mongoose.Schema(
     contact: {
       customerSupport: {
         email: String,
-        phone: { type: String, default: "+92-333-3333" },
-        hours: { type: String, default: "With in 24/48 hours" },
+        phone: { type: String },
+        hours: { type: String },
       },
     },
 
     location: {
       displayAddress: {
         type: String,
-        default: "123 Natural Street, Green Valley, PK",
+        default: "London, United Kingdom",
       },
       googleMapsLink: String,
     },
@@ -45,7 +43,7 @@ const businessDetailsSchema = new mongoose.Schema(
           storeName: String,
           storeType: {
             type: String,
-            enum: ["warehouse", "retail", "cart"],
+            enum: ["warehouse", "showroom", "atelier"],
             default: "warehouse",
           },
           location: {

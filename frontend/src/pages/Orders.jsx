@@ -1,12 +1,18 @@
 import { motion } from 'motion/react';
 import { useNavigate } from 'react-router-dom';
-import { useContext } from 'react';
+import { useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
-import { Package, ChevronRight, Clock, MapPin, ArrowUpRight, Ship, CheckCircle2 } from 'lucide-react';
+import { Package, ChevronRight, Clock, MapPin, ArrowUpRight, Ship, CheckCircle2, RotateCcw } from 'lucide-react';
 
-export default function Orders({ orders }) {
+export default function Orders({ orders, syncOrders, isSyncing }) {
     const navigate = useNavigate();
     const { currency } = useContext(ShopContext);
+
+    useEffect(() => {
+        if (syncOrders) {
+            syncOrders();
+        }
+    }, []);
 
     return (
         <div className="min-h-screen bg-brand-cream pb-24">
@@ -38,6 +44,12 @@ export default function Orders({ orders }) {
                     >
                         A complete history of your past orders.
                     </motion.p>
+                    {isSyncing && (
+                        <div className="absolute top-4 right-6 flex items-center gap-2 bg-brand-ink text-white px-3 py-1 rounded-full">
+                            <RotateCcw size={12} className="animate-spin" />
+                            <span className="text-[11px] font-bold tracking-widest uppercase">Syncing...</span>
+                        </div>
+                    )}
                 </div>
             </section>
 
@@ -49,7 +61,7 @@ export default function Orders({ orders }) {
                         <h3 className="text-xl font-serif italic text-brand-ink/40 mb-6">No orders found.</h3>
                         <button
                             onClick={() => navigate('/shop')}
-                            className="text-[10px] uppercase tracking-[0.2em] font-bold luxury-underline"
+                            className="text-[11px] uppercase tracking-[0.2em] font-bold luxury-underline"
                         >
                             Start Shopping
                         </button>
@@ -68,19 +80,19 @@ export default function Orders({ orders }) {
                                 <div className="p-6 md:p-8 border-b border-brand-ink/5 flex flex-col md:flex-row justify-between gap-6 bg-brand-cream/10">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-3">
-                                            <span className="text-[10px] uppercase tracking-widest font-bold text-brand-ink">Order #{order._id || order.id}</span>
-                                            <div className="px-3 py-1 bg-brand-ink text-white text-[8px] uppercase tracking-widest font-bold">
+                                            <span className="text-[11px] uppercase tracking-widest font-bold text-brand-ink">Order #{order._id || order.id}</span>
+                                            <div className="px-3 py-1 bg-brand-ink text-white text-[11px] uppercase tracking-widest font-bold">
                                                 {order.status || 'Order Placed'}
                                             </div>
                                         </div>
-                                        <p className="text-[10px] text-brand-muted uppercase tracking-[0.2em] font-bold">
+                                        <p className="text-[11px] text-brand-muted uppercase tracking-[0.2em] font-bold">
                                             {new Date(order.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}
                                         </p>
                                     </div>
                                     <div className="flex flex-col md:items-end gap-1">
                                         <div className="flex items-center gap-6 md:text-right">
                                             <div className="space-y-1">
-                                                <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted opacity-40 block">Total</span>
+                                                <span className="text-[11px] uppercase tracking-widest font-bold text-brand-muted opacity-40 block">Total</span>
                                                 <span className="text-xl font-sans font-black">{currency}{(order.amount || order.total).toLocaleString()}</span>
                                             </div>
                                             <button
@@ -89,7 +101,7 @@ export default function Orders({ orders }) {
                                                 <ArrowUpRight size={16} className="group-hover/btn:rotate-45 transition-transform" />
                                             </button>
                                         </div>
-                                        <span className="text-[8px] uppercase tracking-widest font-bold text-brand-muted opacity-60">
+                                        <span className="text-[11px] uppercase tracking-widest font-bold text-brand-muted opacity-60">
                                             Incl. {currency}{order.deliveryCharges?.toLocaleString() || 0} Shipping
                                         </span>
                                     </div>
@@ -128,7 +140,7 @@ export default function Orders({ orders }) {
                                                     <div className={`w-8 h-8 border flex items-center justify-center transition-colors duration-500 bg-brand-cream ${isPast ? 'border-brand-bronze text-brand-bronze' : 'border-brand-ink/10 text-brand-ink/20'}`}>
                                                         <step.icon size={16} className={isCurrent ? 'animate-pulse' : ''} />
                                                     </div>
-                                                    <span className={`text-[8px] uppercase tracking-widest font-bold ${isPast ? 'text-brand-ink' : 'text-brand-ink/20'}`}>
+                                                    <span className={`text-[11px] uppercase tracking-widest font-bold ${isPast ? 'text-brand-ink' : 'text-brand-ink/20'}`}>
                                                         {step.label}
                                                     </span>
                                                 </div>
@@ -147,17 +159,17 @@ export default function Orders({ orders }) {
                                             <div className="flex-1 space-y-2">
                                                 <h4 className="text-[12px] font-black uppercase tracking-widest text-brand-ink">{item.name}</h4>
                                                 <div className="flex flex-wrap gap-x-4 gap-y-1">
-                                                    <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">Qty: {item.quantity}</span>
+                                                    <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-muted">Qty: {item.quantity}</span>
                                                     {item.variant && (
-                                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">Variant: {item.variant}</span>
+                                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-muted">Variant: {item.variant}</span>
                                                     )}
                                                     {item.variants && Object.entries(item.variants).map(([k, v]) => (
-                                                        <span key={k} className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">{k}: {v}</span>
+                                                        <span key={k} className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-muted">{k}: {v}</span>
                                                     ))}
                                                 </div>
                                             </div>
                                             <div className="text-right">
-                                                <span className="text-[11px] font-black uppercase tracking-widest">{currency}{(item.price * item.quantity).toLocaleString()}</span>
+                                                <span className="text-[12px] md:text-sm font-black uppercase tracking-widest font-sans">{currency}{(item.price * item.quantity).toLocaleString()}</span>
                                             </div>
                                         </div>
                                     ))}
@@ -167,14 +179,14 @@ export default function Orders({ orders }) {
                                 <div className="px-6 md:px-8 py-4 bg-brand-ink/5 flex items-center gap-6 overflow-x-auto no-scrollbar">
                                     <div className="flex items-center gap-2 shrink-0">
                                         <Clock size={14} className="text-brand-bronze" />
-                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-ink">
+                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-ink">
                                             {order.status === 'Delivered' ? 'Order Delivered' : 'Delivery in progress'}
                                         </span>
                                     </div>
                                     <div className="w-[1px] h-4 bg-brand-ink/10" />
                                     <div className="flex items-center gap-2 shrink-0">
                                         <MapPin size={14} className="text-brand-muted" />
-                                        <span className="text-[9px] uppercase tracking-widest font-bold text-brand-muted">
+                                        <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-muted">
                                             {(order.address?.city || order.shippingDetails?.city)} Shipping Address
                                         </span>
                                     </div>

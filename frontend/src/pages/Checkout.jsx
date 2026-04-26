@@ -126,7 +126,7 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                         className="flex items-center gap-2 text-brand-muted hover:text-brand-ink transition-colors mb-12 group"
                     >
                         <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-[10px] uppercase tracking-[0.2em] font-bold">Back to Shopping</span>
+                        <span className="text-[11px] uppercase tracking-[0.2em] font-bold">Back to Shopping</span>
                     </button>
 
                     <div className="flex gap-4 mb-12 border-b border-brand-ink/5 pb-8 overflow-x-auto no-scrollbar">
@@ -141,7 +141,7 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                                 <div className={`w-10 h-10 border border-brand-ink/20 flex items-center justify-center rounded-sm ${step >= s.id ? 'bg-brand-ink text-white' : ''}`}>
                                     <s.icon size={16} />
                                 </div>
-                                <span className="text-[10px] uppercase tracking-[0.3em] font-black">{s.label}</span>
+                                <span className="text-[11px] uppercase tracking-[0.3em] font-black">{s.label}</span>
                                 {s.id < 2 && <div className="w-8 h-[1px] bg-brand-ink/10" />}
                             </div>
                         ))}
@@ -192,7 +192,7 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                                                             <button
                                                                 key={i}
                                                                 onClick={() => selectPostcode(s)}
-                                                                className="w-full text-left px-6 py-3 text-[10px] uppercase font-bold tracking-widest hover:bg-brand-ink hover:text-white transition-colors border-b border-brand-ink/5 last:border-0"
+                                                                className="w-full text-left px-6 py-3 text-[11px] uppercase font-bold tracking-widest hover:bg-brand-ink hover:text-white transition-colors border-b border-brand-ink/5 last:border-0"
                                                             >
                                                                 {s}
                                                             </button>
@@ -233,11 +233,11 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
 
                                     <div className="flex items-center gap-3 px-6 py-4 bg-brand-bronze text-white rounded-sm">
                                         <ShieldCheck size={20} />
-                                        <span className="text-[10px] uppercase tracking-widest font-black">Safe & Secure: Pay when you receive your order</span>
+                                        <span className="text-[11px] uppercase tracking-widest font-black">Safe & Secure: Pay when you receive your order</span>
                                     </div>
 
                                     <div className="flex gap-4">
-                                        <button onClick={handlePrev} className="px-10 py-6 border border-brand-ink/10 uppercase text-[10px] font-black tracking-widest hover:bg-white transition-colors">Previous</button>
+                                        <button onClick={handlePrev} className="px-10 py-6 border border-brand-ink/10 uppercase text-[11px] font-black tracking-widest hover:bg-white transition-colors">Previous</button>
                                         <button
                                             onClick={() => onPlaceOrder(formData)}
                                             disabled={isOrdering}
@@ -256,7 +256,7 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                 {/* RIGHT: Order Summary */}
                 <div className="lg:col-span-5">
                     <div className="bg-white p-12 shadow-sm border border-brand-ink/5 h-fit sticky top-40">
-                        <h4 className="text-[10px] uppercase tracking-[0.5em] font-black text-brand-ink/40 mb-10">Your Items</h4>
+                        <h4 className="text-[11px] uppercase tracking-[0.5em] font-black text-brand-ink/40 mb-10">Your Items</h4>
                         <div className="space-y-8 mb-12 max-h-[400px] overflow-y-auto no-scrollbar pr-2">
                             {Object.keys(cartItems).map((itemId) => {
                                 const productData = products.find((p) => p._id === itemId);
@@ -272,8 +272,8 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                                             </div>
                                             <div className="flex-1">
                                                 <h5 className="text-[11px] font-black uppercase tracking-widest">{productData.name}</h5>
-                                                <p className="text-[9px] text-brand-muted uppercase tracking-widest mt-1">Qty: {cartItems[itemId][variantKey]}</p>
-                                                <p className="text-[8px] uppercase tracking-widest font-bold opacity-40">{variantKey}</p>
+                                                <p className="text-[11px] text-brand-muted uppercase tracking-widest mt-1">Qty: {cartItems[itemId][variantKey]}</p>
+                                                <p className="text-[11px] uppercase tracking-widest font-bold opacity-40">{variantKey}</p>
                                             </div>
                                             <span className="text-[11px] font-black uppercase tracking-widest">{currency}{(productData.price * cartItems[itemId][variantKey]).toLocaleString()}</span>
                                         </div>
@@ -293,14 +293,14 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
                             </div>
                             <div className="h-[1px] bg-brand-ink/10 my-6" />
                             <div className="flex justify-between items-center">
-                                <span className="text-[10px] uppercase tracking-[0.4em] font-black text-brand-ink">Total to Pay</span>
+                                <span className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-ink">Total to Pay</span>
                                 <span className="text-4xl font-sans font-black">{currency}{(total + deliveryFee).toLocaleString()}</span>
                             </div>
                         </div>
 
                         <div className="mt-12 p-6 bg-brand-bronze/5 rounded-sm flex items-start gap-4">
                             <Ship size={18} className="text-brand-bronze shrink-0 mt-1" />
-                            <p className="text-[10px] leading-relaxed italic text-brand-bronze font-bold uppercase tracking-widest">
+                            <p className="text-[11px] leading-relaxed italic text-brand-bronze font-bold uppercase tracking-widest">
                                 Your order includes expert delivery and set-up in your home.
                             </p>
                         </div>
@@ -315,7 +315,7 @@ export default function Checkout({ onPlaceOrder, isOrdering }) {
 function InputField({ label, ...props }) {
     return (
         <div className="space-y-2">
-            <label className="text-[10px] uppercase tracking-[0.3em] font-black text-brand-ink/60">{label}</label>
+            <label className="text-[11px] uppercase tracking-[0.3em] font-black text-brand-ink/60">{label}</label>
             <input
                 className="w-full bg-white border border-brand-ink/10 px-6 py-4 text-xs font-bold tracking-widest outline-none focus:border-brand-ink transition-all placeholder:text-brand-ink/20"
                 {...props}
@@ -327,7 +327,7 @@ function InputField({ label, ...props }) {
 function SummaryRow({ label, value }) {
     return (
         <div className="flex flex-col gap-1 border-b border-brand-ink/5 pb-4 last:border-0">
-            <span className="text-[9px] uppercase tracking-widest font-black text-brand-muted opacity-40">{label}</span>
+            <span className="text-[11px] uppercase tracking-widest font-black text-brand-muted opacity-40">{label}</span>
             <span className="text-[11px] font-black uppercase tracking-widest text-brand-ink leading-tight">{value}</span>
         </div>
     );

@@ -41,13 +41,13 @@ export default function BlogSection() {
                                 referrerPolicy="no-referrer"
                             />
                             <div className="absolute top-6 left-6">
-                                <span className="px-4 py-2 bg-brand-cream/90 backdrop-blur-sm text-[8px] uppercase tracking-[0.2em] font-black text-brand-ink">
+                                <span className="px-4 py-2 bg-brand-cream/90 backdrop-blur-sm text-[11px] uppercase tracking-[0.2em] font-black text-brand-ink">
                                     {Array.isArray(blog.category) ? blog.category[0] : blog.category}
                                 </span>
                             </div>
                         </div>
                         <div className="space-y-4">
-                            <span className="text-[9px] uppercase tracking-widest font-bold text-brand-bronze">{new Date(blog.publishDate || blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                            <span className="text-[11px] uppercase tracking-widest font-bold text-brand-bronze">{new Date(blog.publishDate || blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                             <h3 className="text-base md:text-2xl font-serif text-brand-ink group-hover:text-brand-bronze transition-colors duration-500 flex justify-between items-start gap-2">
                                 {blog.title}
                                 <ArrowUpRight size={20} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -63,7 +63,7 @@ export default function BlogSection() {
             <div className="mt-20 flex justify-center">
                 <button
                     onClick={() => navigate('/journal')}
-                    className="group flex items-center gap-6 text-[10px] uppercase tracking-[0.4em] font-black luxury-underline-dark pb-2"
+                    className="group flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black luxury-underline-dark pb-2"
                 >
                     View All Journal Stories
                     <ArrowUpRight size={18} className="group-hover:rotate-45 transition-transform" />
@@ -71,7 +71,7 @@ export default function BlogSection() {
             </div>
             {blogs.length === 0 && (
                 <div className="text-center py-20">
-                    <p className="text-brand-muted uppercase tracking-widest text-[10px] font-black">No stories found in the journal yet.</p>
+                    <p className="text-brand-muted uppercase tracking-widest text-[11px] font-black">No stories found in the journal yet.</p>
                 </div>
             )}
         </section>

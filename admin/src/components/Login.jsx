@@ -53,7 +53,7 @@ const Login = () => {
                     <h1 className="text-4xl font-serif text-brand-ink mb-2">Legacy</h1>
                     <div className="flex items-center justify-center gap-2 mb-6">
                         <div className="h-[1px] w-8 bg-brand-bronze/30"></div>
-                        <p className="text-[10px] tracking-[0.4em] text-brand-bronze uppercase">Admin Portal</p>
+                        <p className="text-[11px] tracking-[0.4em] text-brand-bronze uppercase">Admin Portal</p>
                         <div className="h-[1px] w-8 bg-brand-bronze/30"></div>
                     </div>
                 </div>
@@ -142,7 +142,7 @@ const Login = () => {
                             ) : (
                                 <div className="flex items-center gap-2">
                                     <span>Access Portal</span>
-                                    <FontAwesomeIcon icon={faSignInAlt} className="text-[10px] group-hover:translate-x-1 transition-transform" />
+                                    <FontAwesomeIcon icon={faSignInAlt} className="text-[11px] group-hover:translate-x-1 transition-transform" />
                                 </div>
                             )}
                         </button>
@@ -150,7 +150,7 @@ const Login = () => {
                 </form>
 
                 <div className="pt-8 text-center">
-                    <p className="text-[10px] text-brand-muted/40 uppercase tracking-widest">&copy; 2026 Legacy Furniture Architecture</p>
+                    <p className="text-[11px] text-brand-muted/40 uppercase tracking-widest">&copy; 2026 Legacy Furniture Architecture</p>
                 </div>
             </div>
         </div>
