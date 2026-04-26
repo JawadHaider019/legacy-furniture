@@ -12,7 +12,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
     const location = useLocation();
     const { categories, deliverySettings, currency, businessDetails } = useContext(ShopContext);
 
-    const forceDarkText = location.pathname.startsWith('/product');
+    const forceDarkText = location.pathname.startsWith('/product') || location.pathname === '/checkout';
     const isDarkText = scrolled || forceDarkText;
 
     useEffect(() => {
@@ -31,7 +31,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
     return (
         <>
             {/* ANNOUNCEMENT BAR */}
-            {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-2 px-6 text-center text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
+            {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-2 px-6 text-center text-[10px] uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
                 {deliverySettings?.freeDeliveryAbove ? `Free Shipping Over   ${deliverySettings.freeDeliveryAbove.toLocaleString()}*` : ''}
             </div>}
 
@@ -44,23 +44,26 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
 
                     {/* NAVIGATION (Left) */}
                     <div className="hidden lg:flex items-center gap-10 w-1/3">
-                        <button onClick={() => navigate('/')} className={`text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Home</button>
-                        <button onClick={() => navigate('/shop')} className={`text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Collection</button>
-                        <button onClick={() => navigate('/orders')} className={`text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Orders</button>
+                        <button onClick={() => navigate('/')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Home</button>
+                        <button onClick={() => navigate('/shop')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Collection</button>
+                        <button onClick={() => navigate('/orders')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Orders</button>
                     </div>
 
                     {/* LOGO (Center) */}
-                    <div className="flex-1 flex justify-center lg:w-1/3">
+                    <div className="flex-1 flex justify-start lg:justify-center lg:w-1/3">
                         <button
                             onClick={() => navigate('/')}
                             className="group flex flex-col items-center"
                         >
-                            <h1 className={`text-[12px] sm:text-sm md:text-base lg:text-xl font-serif tracking-[1px] transition-all font-medium uppercase whitespace-nowrap leading-tight ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>
+                            <img
+                                src="/logo.png"
+                                alt="Legacy Furniture Logo"
+                                className="h-10 md:h-14 w-auto mb-1 object-contain transition-all duration-500"
+                            />
+                            <h1 className={`text-lg sm:block hidden   font-serif tracking-[2px] transition-all font-medium uppercase whitespace-nowrap leading-tight ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>
                                 LEGACY FURNITURE & CARPETS
                             </h1>
-                            <span className={`text-[10px] uppercase tracking-[0.2em] font-bold opacity-80 mt-0.5 ${isDarkText ? 'text-brand-bronze' : 'text-white/60'}`}>
-                                Fine Furnishings
-                            </span>
+
                         </button>
                     </div>
 

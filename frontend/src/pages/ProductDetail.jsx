@@ -162,7 +162,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 ))}
                             </div>
 
-                            <div className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted text-center mt-2">
+                            <div className="text-premium-xs text-brand-muted text-center mt-2">
                                 {selectedImage + 1} / {product.image?.length || 0}
                             </div>
                         </div>
@@ -170,11 +170,11 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                         {/* RIGHT: Product Information */}
                         <div className="lg:col-span-5 flex flex-col">
                             <div className="mb-8">
-                                <h1 className="text-2xl md:text-3xl font-serif text-brand-ink mb-1 uppercase tracking-tight leading-tight">
+                                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-brand-ink mb-1 uppercase tracking-tight leading-tight">
                                     {product.name} {product.variants && product.variants[selectedVariantIndex] ? `- ${product.variants[selectedVariantIndex].name}` : ''}
                                 </h1>
-                                <p className="text-[12px] md:text-sm text-brand-muted font-bold tracking-widest mb-4">
-                                    by <span className="text-brand-ink italic uppercase">{product.brand || 'Auden Atelier'}</span>
+                                <p className="text-premium-xs text-brand-muted mb-4 lowercase">
+                                    by <span className="text-brand-ink italic">{product.brand || 'Auden Atelier'}</span>
                                 </p>
 
                                 <div className="flex items-center gap-4 mb-6">
@@ -189,7 +189,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             const reviewsSection = document.getElementById('reviews-anchor');
                                             reviewsSection?.scrollIntoView({ behavior: 'smooth' });
                                         }}
-                                        className="text-[12px] md:text-sm font-bold tracking-widest text-brand-ink/60 hover:text-brand-ink transition-colors border-b border-brand-ink/20"
+                                        className="text-premium-xs text-brand-ink/60 hover:text-brand-ink transition-colors border-b border-brand-ink/20"
                                     >
                                         {product.reviewsCount} Ratings & Reviews
                                     </button>
@@ -205,8 +205,8 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         </div>
                                     )}
                                     <div className="flex flex-col gap-1">
-                                        <span className="text-[12px] md:text-sm uppercase tracking-[0.3em] font-black text-brand-bronze">Sale Price</span>
-                                        <p className="text-4xl md:text-5xl font-sans font-black text-brand-ink">
+                                        <span className="text-premium-xs text-brand-bronze">Sale Price</span>
+                                        <p className="text-3xl md:text-4xl lg:text-5xl font-sans font-black text-brand-ink">
                                             {currency}{currentPrice.toFixed(2)}
                                         </p>
                                     </div>
@@ -225,7 +225,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 {product.variants && product.variants.length > 0 && (
                                     <div className="space-y-8 mb-10">
                                         <div>
-                                            <h4 className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-black mb-4 flex justify-between">
+                                            <h4 className="text-[10px] md:text-sm uppercase tracking-[0.2em] font-black mb-4 flex justify-between">
                                                 Select Variant
                                                 <span className="text-brand-muted font-normal lowercase italic">Current: {product.variants[selectedVariantIndex]?.name}</span>
                                             </h4>
@@ -234,7 +234,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                     <button
                                                         key={idx}
                                                         onClick={() => setSelectedVariantIndex(idx)}
-                                                        className={`px-5 py-3 text-[12px] md:text-sm font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
+                                                        className={`px-5 py-3 text-[10px] font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
                                                     >
                                                         {variant.name}
                                                     </button>
@@ -258,7 +258,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     </div>
                                     <button
                                         onClick={() => product && addToCart(product._id, product.variants?.[selectedVariantIndex]?.name || 'default')}
-                                        className="flex-1 py-6 bg-brand-ink text-brand-cream uppercase text-[12px] md:text-sm tracking-[0.3em] font-black hover:bg-black transition-all flex items-center justify-center gap-4 group shadow-xl"
+                                        className="flex-1 py-6 bg-brand-ink text-brand-cream text-premium-sm hover:bg-black transition-all flex items-center justify-center gap-4 group shadow-xl"
                                     >
                                         Add to Cart
                                         <ShoppingBag size={18} strokeWidth={1.5} className="group-hover:scale-110 transition-transform" />
@@ -540,7 +540,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                     </section>
 
                     {/* RELATED PRODUCTS */}
-                    {relatedProducts.length > 0 && (
+                    {relatedProducts.length > 1 && (
                         <motion.section
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
@@ -573,45 +573,14 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                         </motion.section>
                     )}
                 </div>
-                <section className="py-10 md:py-16 px-4 md:px-6 border-t border-brand-ink/5 mt-10 md:mt-16">
-                    <div className="flex justify-between items-end mb-10">
-                        <div className="max-w-xl">
-                            <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-bronze mb-3 block italic">You May Also Like</span>
-                            <h2 className="text-3xl md:text-4xl font-serif text-brand-ink uppercase leading-none tracking-tight">
-                                Related <span className="italic font-light text-brand-bronze">Products</span>
-                            </h2>
-                        </div>
-                        <button
-                            onClick={() => navigate('/shop')}
-                            className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold luxury-underline pb-1 hidden md:block"
-                        >
-                            Browse Catalog
-                        </button>
-                    </div>
-
-                    <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-8 md:gap-y-16">
-                        {products
-                            .filter(p => p.category === product.category && p._id !== product._id)
-                            .slice(0, 4)
-                            .map((p) => (
-                                <ProductCard
-                                    key={p._id}
-                                    product={p}
-                                    isWishlisted={isWishlisted(p._id)}
-                                    onWishlistToggle={() => onWishlistToggle(p._id)}
-                                />
-                            ))
-                        }
-                    </div>
-                </section>
-
                 {/* RECENTLY VIEWED / BOTTOM CTA */}
                 <section className="py-16 bg-brand-ink text-brand-cream text-center">
                     <div className="max-w-2xl mx-auto px-6">
                         <span className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-bold text-brand-bronze mb-6 block grayscale opacity-60">Need Help?</span>
                         <h3 className="text-2xl md:text-3xl font-serif italic mb-6">Questions about sizing or style?</h3>
+
                         <p className="text-brand-cream/60 mb-8 font-light tracking-wide text-sm">Our support team is available to assist you with any inquiries regarding our pieces.</p>
-                        <button className="px-10 py-4 border border-brand-bronze text-brand-bronze uppercase text-[12px] md:text-sm tracking-widest font-bold hover:bg-brand-bronze hover:text-white transition-all duration-500">
+                        <button onClick={() => navigate('/contact')} className="px-10 py-4 border border-brand-bronze text-brand-bronze uppercase text-[12px] md:text-sm tracking-widest font-bold hover:bg-brand-bronze hover:text-white transition-all duration-500">
                             Contact Support
                         </button>
                     </div>

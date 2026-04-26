@@ -17,14 +17,14 @@ export default function Orders({ orders, syncOrders, isSyncing }) {
     return (
         <div className="min-h-screen bg-brand-cream pb-24">
             {/* SMALL HERO */}
-            <section className="relative h-[30vh] flex items-center overflow-hidden mb-12">
+            <section className="relative h-[40vh] md:h-[50vh]  text-center md:text-left flex items-center overflow-hidden mb-12">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1507413245164-6160d8298b31?auto=format&fit=crop&q=80&w=2000"
+                        src="/orders-hero.jpg"
                         alt="Orders"
                         className="w-full h-full object-cover grayscale opacity-30 contrast-125"
                     />
-                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="absolute inset-0 bg-black/50" />
                 </div>
                 <div className="relative z-10 mx-auto px-6 w-full mt-10">
 
@@ -32,17 +32,17 @@ export default function Orders({ orders, syncOrders, isSyncing }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-3xl md:text-5xl font-serif text-brand-ink uppercase tracking-tight leading-none mb-3"
+                        className="text-3xl sm:text-5xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight "
                     >
-                        Your <span className="italic">Orders</span>
+                        Your <span className="italic text-white/80">Orders</span>
                     </motion.h1>
                     <motion.p
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-brand-ink/80 font-light max-w-xl italic font-serif text-lg md:text-xl"
+                        className="text-base md:text-2xl text-brand-cream/90 font-light leading-relaxed font-serif italic"
                     >
-                        A complete history of your past orders.
+                        "A complete history of your past orders."
                     </motion.p>
                     {isSyncing && (
                         <div className="absolute top-4 right-6 flex items-center gap-2 bg-brand-ink text-white px-3 py-1 rounded-full">

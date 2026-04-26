@@ -29,6 +29,20 @@
   }
 }
 
+@layer components {
+  .text-premium-xs {
+    @apply text-[9px] md:text-[10px] uppercase font-bold tracking-[0.3em] leading-none;
+  }
+
+  .text-premium-sm {
+    @apply text-[11px] md:text-[12px] uppercase font-bold tracking-[0.2em] leading-none;
+  }
+
+  .font-serif-italic {
+    @apply font-serif italic font-light;
+  }
+}
+
 .luxury-underline {
   @apply relative after:absolute after:bottom-[-4px] after:left-0 after:h-[1px] after:w-0 after:bg-brand-ink after:transition-all hover:after:w-full;
 }

@@ -9,7 +9,7 @@ export default function BlogDetail() {
     const navigate = useNavigate();
     const { blogs, backendUrl, loading } = useContext(ShopContext);
 
-    const blog = blogs.find(b => b._id === id);
+    const blog = blogs.find(b => b.slug === id || b._id === id);
 
     useEffect(() => {
         window.scrollTo(0, 0);
@@ -37,7 +37,7 @@ export default function BlogDetail() {
     return (
         <div className="min-h-screen bg-brand-cream">
             {/* HERO SECTION */}
-            <section className="relative h-[60vh] min-h-[400px] flex items-end pb-16 px-6 overflow-hidden">
+            <section className="relative h-[50vh] min-h-[400px] flex items-end pb-16 px-6 overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img
                         src={blogImage}
@@ -48,23 +48,15 @@ export default function BlogDetail() {
                 </div>
 
                 <div className="max-w-[1600px] mx-auto w-full relative z-10">
-                    <button
-                        onClick={() => navigate(-1)}
-                        className="flex items-center gap-2 text-white/60 hover:text-white transition-colors mb-8 group"
-                    >
-                        <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-                        <span className="text-[11px] uppercase tracking-widest font-bold italic">Return to Journal</span>
-                    </button>
 
-                    <div className="max-w-4xl">
-                        <span className="px-5 py-2 bg-brand-bronze text-white text-[11px] uppercase tracking-widest font-bold mb-6 inline-block">
-                            {Array.isArray(blog.category) ? blog.category[0] : blog.category}
-                        </span>
-                        <h1 className="text-4xl md:text-6xl font-serif text-white uppercase leading-tight tracking-tight mb-8">
+
+                    <div>
+
+                        <h1 className="text-3xl sm:text-4xl  font-serif text-white uppercase leading-tight tracking-tight">
                             {blog.title}
                         </h1>
 
-                        <div className="flex flex-wrap items-center gap-12 border-t border-white/10 pt-10">
+                        <div className="flex flex-wrap items-center gap-4 border-t border-white/10 pt-5">
                             <div className="flex items-center gap-4">
                                 <div className="w-12 h-12 rounded-full overflow-hidden border border-white/20">
                                     <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${blog.author || 'Author'}`} alt={blog.author} className="w-full h-full object-cover" />
@@ -94,9 +86,7 @@ export default function BlogDetail() {
             {/* CONTENT */}
             <article className="py-16 px-6 max-w-4xl mx-auto">
                 <div className="prose prose-stone lg:prose-lg max-w-none">
-                    <p className="text-xl font-serif italic text-brand-ink leading-relaxed mb-8 first-letter:text-5xl first-letter:font-serif first-letter:mr-3 first-letter:float-left first-letter:mt-1">
-                        {blog.excerpt}
-                    </p>
+
                     <div className="text-brand-muted font-light leading-loose space-y-8 text-base">
                         <div dangerouslySetInnerHTML={{ __html: blog.content }} />
                         <p>

@@ -16,7 +16,7 @@ export default function Hero() {
             subtext: "Discover our curated collection of heritage furniture and artisanal carpets, designed for modern legacies.",
             buttonText: "Shop The Look",
             redirectUrl: "/shop",
-            imageUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000"
+            imageUrl: "/hero-fallback.jpg"
         }
     ];
 
@@ -56,7 +56,7 @@ export default function Hero() {
                         src={currentBanner.imageUrl}
                         alt={currentBanner.headingLine1}
                         className="w-full h-full object-cover grayscale-[20%] contrast-[105%]"
-                        onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&q=80&w=2000" }}
+                        onError={(e) => { e.target.src = "/hero-fallback.jpg" }}
                     />
                     <div className="absolute inset-0 bg-black/40 " />
                 </motion.div>
@@ -72,12 +72,12 @@ export default function Hero() {
                         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
                         className="max-w-2xl"
                     >
-                        <span className="inline-block text-[12px] md:text-sm uppercase tracking-[0.4em] font-semibold text-brand-cream/80 mb-6 italic">
+                        <span className="inline-block text-premium-sm text-brand-cream/80 mb-6 italic lowercase font-serif">
                             {currentBanner.subtext ? "Featured Collection" : "Collection 2026"}
                         </span>
-                        <h1 className="text-4xl md:text-6xl text-white font-light leading-tight mb-8">
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl text-white font-light leading-[0.9] mb-8 uppercase tracking-tighter font-serif">
                             {currentBanner.headingLine1} <br />
-                            <span className="font-serif italic text-brand-cream uppercase tracking-tight">
+                            <span className="font-serif italic text-brand-bronze lowercase">
                                 {currentBanner.headingLine2}
                             </span>
                         </h1>
@@ -90,7 +90,7 @@ export default function Hero() {
                         <div className="flex flex-wrap gap-6">
                             <button
                                 onClick={() => navigate(currentBanner.redirectUrl || '/shop')}
-                                className="px-8 py-4 bg-white text-brand-ink uppercase text-[12px] md:text-sm tracking-[0.2em] font-semibold hover:bg-brand-cream transition-all flex items-center gap-3 group"
+                                className="px-8 py-4 bg-white text-brand-ink text-premium-xs font-semibold hover:bg-brand-cream transition-all flex items-center gap-3 group font-serif"
                             >
                                 {currentBanner.buttonText || "Explore Collection"}
                                 <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />

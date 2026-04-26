@@ -5,29 +5,23 @@ export default function About() {
     return (
         <div className="min-h-screen bg-brand-cream overflow-hidden">
             {/* HERO */}
-            <section className="relative h-[50vh] flex items-center justify-center overflow-hidden">
+            <section className="relative h-[40vh] md:h-[50vh] text-center md:text-left flex items-center justify-center overflow-hidden">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&q=80&w=2000"
+                        src="/about-hero.jpg"
                         alt="Artisan Studio"
                         className="w-full h-full object-cover grayscale brightness-50"
                     />
                     <div className="absolute inset-0 bg-brand-ink/30" />
                 </div>
 
-                <div className="relative z-10 max-w-[1600px] mx-auto text-center px-6">
-                    <motion.span
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-bronze mb-6 block italic"
-                    >
-                        Since 1994
-                    </motion.span>
+                <div className="relative z-10 max-w-[1600px] mx-auto px-6 w-full mt-10 text-center md:text-left">
+
                     <motion.h1
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-3xl sm:text-5xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight mb-6 md:mb-8"
+                        className="text-3xl sm:text-5xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight "
                     >
                         Legacy <span className="italic text-brand-bronze">Furniture</span>
                     </motion.h1>
@@ -35,7 +29,7 @@ export default function About() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-base md:text-2xl text-brand-cream/90 max-w-2xl mx-auto font-light leading-relaxed font-serif italic"
+                        className="text-base md:text-2xl text-brand-cream/90 font-light leading-relaxed font-serif italic"
                     >
                         "Crafting quality furniture for the modern home."
                     </motion.p>

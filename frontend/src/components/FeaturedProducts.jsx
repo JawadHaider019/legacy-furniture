@@ -8,15 +8,15 @@ export default function FeaturedProducts({ products, wishlistItems, toggleWishli
         <section className="py-12 px-6 max-w-[1600px] mx-auto ">
             <div className="flex flex-col md:flex-row justify-between items-end gap-6 mb-10">
                 <div className="max-w-xl">
-                    <span className="text-[11px] uppercase tracking-[0.2em] font-bold text-brand-bronze mb-3 block italic">Featured Selection</span>
-                    <h2 className="text-2xl md:text-3xl font-serif text-brand-ink uppercase leading-none tracking-tight">
-                        Latest <span className="italic">Collection</span>
+                    <span className="text-premium-sm text-brand-bronze mb-3 block italic">Featured Selection</span>
+                    <h2 className="text-3xl md:text-5xl font-serif text-brand-ink uppercase leading-none tracking-tight">
+                        Latest <span className="font-serif-italic">Collection</span>
                     </h2>
                     <p className="mt-4 text-brand-muted text-sm max-w-md font-light">Explore our latest acquisitions in minimalist furniture design. Each piece is selected for quality and craftsmanship.</p>
                 </div>
                 <button
                     onClick={() => navigate('/shop')}
-                    className="text-[11px] uppercase tracking-[0.2em] font-bold luxury-underline pb-1 mt-4 md:mt-0"
+                    className="text-premium-xs luxury-underline pb-1 mt-4 md:mt-0"
                 >
                     Explore Collection
                 </button>

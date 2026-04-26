@@ -61,10 +61,10 @@ export default function Contact() {
     return (
         <div className="min-h-screen bg-brand-cream pb-24">
             {/* HERO */}
-            <section className="relative h-[40vh] flex items-center overflow-hidden mb-16 text-white">
+            <section className="relative h-[40vh] md:h-[50vh] text-center md:text-left flex items-center overflow-hidden mb-16 text-white">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&q=80&w=2000"
+                        src="/contact-hero.jpg"
                         alt="Atelier Entrance"
                         className="w-full h-full object-cover grayscale brightness-50"
                     />
@@ -76,7 +76,7 @@ export default function Contact() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-2xl md:text-6xl font-serif uppercase tracking-tight leading-[0.85] mb-6"
+                        className="text-3xl sm:text-5xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight "
                     >
                         Contact  <span className="italic font-light text-brand-bronze">Us.</span>
                     </motion.h1>
@@ -84,9 +84,9 @@ export default function Contact() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-base md:text-xl text-brand-cream/80 font-light italic font-serif"
+                        className="text-base md:text-2xl text-brand-cream/90 font-light leading-relaxed font-serif italic"
                     >
-                        Get in touch with our team for any inquiries or support.
+                        "Get in touch with our team for any inquiries or support."
                     </motion.p>
                 </div>
             </section>

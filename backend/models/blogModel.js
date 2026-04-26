@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 // Blog Schema
 const blogSchema = new mongoose.Schema({
   title: { type: String, required: true, trim: true },
+  slug: { type: String, unique: true, lowercase: true, trim: true },
   content: { type: String, required: true },
   excerpt: { type: String, default: '' },
   category: [{ type: String, trim: true, default: 'General' }],
@@ -22,7 +23,7 @@ const blogSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // Blog pre-save middleware
-blogSchema.pre('save', function(next) {
+blogSchema.pre('save', function (next) {
   // Calculate read time
   if (this.isModified('content')) {
     const words = this.content.split(/\s+/).length;
@@ -42,6 +43,16 @@ blogSchema.pre('save', function(next) {
   // Generate meta description
   if (!this.metaDescription && this.content) {
     this.metaDescription = this.content.length > 160 ? this.content.substring(0, 160) + '...' : this.content;
+  }
+
+  // Generate slug from title
+  if (this.isModified('title') || !this.slug) {
+    this.slug = this.title
+      .toLowerCase()
+      .replace(/[^\w\s-]/g, '') // Remove special characters
+      .replace(/\s+/g, '-')     // Replace spaces with -
+      .replace(/-+/g, '-')      // Replace multiple - with single -
+      .trim();
   }
 
   next();

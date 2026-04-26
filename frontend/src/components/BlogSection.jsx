@@ -12,9 +12,9 @@ export default function BlogSection() {
         <section className="py-12 md:py-20 px-4 md:px-6 max-w-[1600px] mx-auto border-t border-brand-ink/5">
             <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6 mb-10 md:mb-16">
                 <div className="max-w-xl">
-                    <span className="text-[11px] uppercase tracking-[0.4em] font-black text-brand-bronze mb-6 block italic">The Auden Journal</span>
+                    <span className="text-premium-sm text-brand-bronze mb-6 block italic">The Auden Journal</span>
                     <h2 className="text-3xl md:text-5xl font-serif text-brand-ink uppercase leading-none tracking-tight">
-                        Design <span className="italic">Diaries</span>
+                        Design <span className="font-serif-italic">Diaries</span>
                     </h2>
                 </div>
                 <p className="text-brand-muted max-w-sm font-light leading-relaxed">
@@ -31,7 +31,7 @@ export default function BlogSection() {
                         viewport={{ once: true }}
                         transition={{ delay: idx * 0.2 }}
                         className="group cursor-pointer"
-                        onClick={() => navigate(`/blog/${blog._id}`)}
+                        onClick={() => navigate(`/blog/${blog.slug || blog._id}`)}
                     >
                         <div className="aspect-[16/10] overflow-hidden mb-8 relative">
                             <img
@@ -47,12 +47,12 @@ export default function BlogSection() {
                             </div>
                         </div>
                         <div className="space-y-4">
-                            <span className="text-[11px] uppercase tracking-widest font-bold text-brand-bronze">{new Date(blog.publishDate || blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
-                            <h3 className="text-base md:text-2xl font-serif text-brand-ink group-hover:text-brand-bronze transition-colors duration-500 flex justify-between items-start gap-2">
+                            <span className="text-premium-xs text-brand-bronze lowercase">{new Date(blog.publishDate || blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+                            <h3 className="text-base md:text-xl font-serif text-brand-ink group-hover:text-brand-bronze transition-colors duration-500 flex justify-between items-start gap-2 uppercase tracking-tight">
                                 {blog.title}
                                 <ArrowUpRight size={20} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </h3>
-                            <p className="text-brand-muted text-sm font-light leading-relaxed line-clamp-2">
+                            <p className="text-brand-muted text-xs md:text-sm font-light leading-relaxed line-clamp-2">
                                 {blog.excerpt}
                             </p>
                         </div>
@@ -63,7 +63,7 @@ export default function BlogSection() {
             <div className="mt-20 flex justify-center">
                 <button
                     onClick={() => navigate('/journal')}
-                    className="group flex items-center gap-6 text-[11px] uppercase tracking-[0.4em] font-black luxury-underline-dark pb-2"
+                    className="group flex items-center gap-6 text-premium-sm luxury-underline pb-2"
                 >
                     View All Journal Stories
                     <ArrowUpRight size={18} className="group-hover:rotate-45 transition-transform" />

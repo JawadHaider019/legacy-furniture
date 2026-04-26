@@ -50,10 +50,10 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
     return (
         <div className="min-h-screen bg-brand-cream pb-24">
             {/* HERO */}
-            <section className="relative h-[40vh] flex items-center overflow-hidden mb-12 text-white">
+            <section className="relative h-[40vh] md:h-[50vh] text-center md:text-left flex items-center overflow-hidden mb-12 text-white">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&q=80&w=2000"
+                        src="/collection-hero.jpg"
                         alt="Collection Atmosphere"
                         className="w-full h-full object-cover grayscale brightness-50"
                     />
@@ -65,7 +65,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="text-3xl md:text-5xl font-serif uppercase tracking-tight leading-[0.85] mb-4"
+                        className="text-3xl sm:text-5xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight "
                     >
                         {category ? category : 'The Full'} <span className="italic font-light text-brand-bronze">Collection.</span>
                     </motion.h1>
@@ -73,9 +73,9 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4 }}
-                        className="text-brand-cream/80 font-light italic font-serif text-lg md:text-xl"
+                        className="text-base md:text-2xl text-brand-cream/90 font-light leading-relaxed font-serif italic"
                     >
-                        Curated designs for the modern home. Each piece is selected for quality and durability.
+                        "Curated designs for the modern home. Each piece is selected for quality and durability."
                     </motion.p>
                 </div>
             </section>

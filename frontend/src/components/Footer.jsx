@@ -70,10 +70,10 @@ export default function Footer() {
                 </div>
 
                 <div className="pt-12 border-t border-white/10 flex flex-col md:flex-row justify-between items-center gap-6">
-                    <p className="text-[12px] md:text-sm uppercase tracking-widest text-white/30">
+                    <p className="text-premium-xs text-white/30">
                         &copy;{new Date().getFullYear()} LEGACY FURNITURE &amp; CARPETS. All rights reserved.
                     </p>
-                    <p className="text-[12px] md:text-sm uppercase tracking-widest text-white/20">
+                    <p className="text-premium-xs text-white/20">
                         London, United Kingdom
                     </p>
                 </div>

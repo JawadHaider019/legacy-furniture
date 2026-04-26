@@ -11,40 +11,34 @@ export default function Journal() {
     return (
         <div className="min-h-screen bg-brand-cream pb-16">
             {/* HERO */}
-            <section className="relative h-[40vh] flex items-center overflow-hidden mb-16">
+            <section className="relative h-[40vh] md:h-[50vh] text-center md:text-left flex items-center overflow-hidden mb-16">
                 <div className="absolute inset-0 z-0">
                     <img
-                        src="https://images.unsplash.com/photo-1494438639946-1ebd1d20bf85?auto=format&fit=crop&q=80&w=2000"
+                        src="/journal-hero.jpg"
                         alt="Reading Atmosphere"
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-brand-ink/40" />
                 </div>
-                <div className="relative z-10 max-w-[1600px] mx-auto px-6 w-full">
+                <div className="relative z-10 px-6 w-full">
                     <div className="max-w-4xl">
-                        <motion.span
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            className="text-[11px] uppercase tracking-widest font-bold text-brand-bronze mb-4 block italic"
-                        >
-                            The Journal
-                        </motion.span>
+
                         <motion.h1
                             initial={{ opacity: 0, y: 20 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            className="text-3xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight mb-6 md:mb-8"
+                            className="text-3xl sm:text-5xl md:text-7xl font-serif text-white uppercase leading-tight tracking-tight"
                         >
-                            Design <br />
-                            <span className="italic font-light text-brand-cream">Articles.</span>
+                            Design
+                            <span className="italic text-white/80"> Articles.</span>
                         </motion.h1>
                         <motion.p
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ delay: 0.4 }}
-                            className="text-base md:text-xl text-brand-cream/80 font-light leading-relaxed font-serif italic max-w-2xl"
+                            className="text-base md:text-2xl text-brand-cream/90 font-light leading-relaxed font-serif italic"
                         >
-                            Exploring design concepts, architectural details, and modern interiors.
+                            "Exploring design concepts, architectural details, and modern interiors."
                         </motion.p>
                     </div>
                 </div>
@@ -61,7 +55,7 @@ export default function Journal() {
                             viewport={{ once: true }}
                             transition={{ delay: idx * 0.1 }}
                             className="group cursor-pointer"
-                            onClick={() => navigate(`/blog/${blog._id}`)}
+                            onClick={() => navigate(`/blog/${blog.slug || blog._id}`)}
                         >
                             <div className="aspect-[16/10] overflow-hidden mb-10 relative">
                                 <img
@@ -71,13 +65,13 @@ export default function Journal() {
                                     referrerPolicy="no-referrer"
                                 />
                                 <div className="absolute top-8 left-8">
-                                    <span className="px-5 py-2 bg-brand-cream/90 backdrop-blur-md text-[11px] uppercase tracking-[0.2em] font-black text-brand-ink">
+                                    <span className="px-5 py-2 bg-brand-cream/90 backdrop-blur-md text-premium-xs text-brand-ink">
                                         {Array.isArray(blog.category) ? blog.category[0] : blog.category}
                                     </span>
                                 </div>
                             </div>
                             <div className="space-y-6">
-                                <div className="flex items-center gap-6 text-[11px] uppercase tracking-widest font-bold text-brand-bronze">
+                                <div className="flex items-center gap-6 text-premium-xs text-brand-bronze lowercase">
                                     <div className="flex items-center gap-2">
                                         <Clock size={12} strokeWidth={2} />
                                         <span>{new Date(blog.publishDate || blog.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
@@ -87,15 +81,15 @@ export default function Journal() {
                                         <span>{blog.author}</span>
                                     </div>
                                 </div>
-                                <h3 className="text-3xl font-serif text-brand-ink group-hover:text-brand-bronze transition-colors duration-500">
+                                <h3 className="text-xl md:text-2xl font-serif text-brand-ink group-hover:text-brand-bronze transition-colors duration-500 uppercase tracking-tight">
                                     {blog.title}
                                 </h3>
-                                <p className="text-brand-muted text-lg font-light leading-relaxed line-clamp-3">
+                                <p className="text-brand-muted text-xs md:text-base font-light leading-relaxed line-clamp-3">
                                     {blog.excerpt}
                                 </p>
                                 <div className="pt-4">
-                                    <button className="text-[11px] uppercase tracking-[0.4em] font-black luxury-underline-dark pb-2 inline-flex items-center gap-4">
-                                        Read Narrative <ArrowUpRight size={16} />
+                                    <button className="text-premium-xs luxury-underline pb-1 inline-flex items-center gap-4">
+                                        Read Narrative <ArrowUpRight size={14} />
                                     </button>
                                 </div>
                             </div>
