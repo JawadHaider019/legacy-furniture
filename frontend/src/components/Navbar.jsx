@@ -32,10 +32,12 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
     return (
         <>
             {/* ANNOUNCEMENT BAR */}
-            {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-2 px-6 text-center text-[10px] uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
+            {/* {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-2 px-6 text-center text-[10px] uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
                 {deliverySettings?.freeDeliveryAbove ? `Free Shipping Over   ${currency}${deliverySettings.freeDeliveryAbove.toLocaleString()}*` : ''}
-            </div>}
-
+            </div>} */}
+            <div className='bg-brand-ink text-brand-cream py-2 px-6 text-center text-[10px] uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden h-auto opacity-100'>
+                Free Delivery in Luton.
+            </div>
             <nav
                 className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-3 sm:px-6 md:px-12 ${scrolled ? 'py-3 bg-brand-cream/80 backdrop-blur-md border-b border-brand-ink/5' : 'py-3 bg-transparent'
                     }`}

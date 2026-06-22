@@ -265,12 +265,28 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     {deliverySettings?.freeDeliveryAbove > 0 && (
                                         <div className="flex items-center gap-2 text-[12px] md:text-sm font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-sm w-fit border border-green-100">
                                             <Truck size={14} />
-                                            Free Shipping over {currency}{deliverySettings.freeDeliveryAbove.toLocaleString()}
+                                            Free Delivery in Luton.
                                         </div>
                                     )}
                                 </div>
 
-
+                                {/* SERVICE PROMISE BADGES */}
+                                <div className="grid grid-cols-2 gap-2 mb-8">
+                                    {[
+                                        { icon: <Truck size={14} strokeWidth={1.5} />, label: 'Free Local Delivery' },
+                                        { icon: <Info size={14} strokeWidth={1.5} />, label: 'Free Estimate' },
+                                        { icon: <Package size={14} strokeWidth={1.5} />, label: 'Free Fitting & Installation' },
+                                        { icon: <Ruler size={14} strokeWidth={1.5} />, label: 'Free Measurements' },
+                                    ].map(({ icon, label }) => (
+                                        <div
+                                            key={label}
+                                            className="flex items-center gap-2 px-3 py-2.5 bg-brand-cream/60 border border-brand-ink/8 text-brand-ink"
+                                        >
+                                            <span className="text-brand-bronze flex-shrink-0">{icon}</span>
+                                            <span className="text-[10px] md:text-[11px] font-black uppercase tracking-widest leading-tight">{label}</span>
+                                        </div>
+                                    ))}
+                                </div>
 
                                 {/* VARIANTS */}
                                 {product.variants && product.variants.length > 0 &&
