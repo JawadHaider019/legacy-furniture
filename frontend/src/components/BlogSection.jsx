@@ -40,7 +40,7 @@ export default function BlogSection() {
                                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
                                 referrerPolicy="no-referrer"
                             />
-                            <div className="absolute top-6 left-6">
+                            <div className="absolute top-6 left-6 sm:block hidden">
                                 <span className="px-4 py-2 bg-brand-cream/90 backdrop-blur-sm text-[11px] uppercase tracking-[0.2em] font-black text-brand-ink">
                                     {Array.isArray(blog.category) ? blog.category[0] : blog.category}
                                 </span>
