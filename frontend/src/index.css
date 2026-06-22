@@ -86,20 +86,55 @@
 }
 
 /* Rich Text Formatting for Descriptions */
+.rich-text {
+  overflow-wrap: break-word !important;
+  word-wrap: break-word !important;
+  word-break: normal !important;
+  hyphens: none !important;
+  font-family: var(--font-sans) !important;
+  line-height: 1.7 !important;
+  text-align: left;
+}
+
+.rich-text p,
+.rich-text ul,
+.rich-text ol,
+.rich-text h1,
+.rich-text h2,
+.rich-text h3,
+.rich-text h4,
+.rich-text h5,
+.rich-text h6 {
+  margin-left: 0 !important;
+  padding-left: 0 !important;
+}
+
+.rich-text h1,
+.rich-text h2,
+.rich-text h3,
+.rich-text h4,
+.rich-text h5,
+.rich-text h6 {
+  font-family: var(--font-sans) !important;
+  margin-top: 2rem !important;
+  margin-bottom: 1rem !important;
+  font-weight: 700 !important;
+}
+
 .rich-text ul {
   list-style-type: disc !important;
   margin-left: 1.5rem !important;
-  margin-bottom: 1rem !important;
+  margin-bottom: 1.5rem !important;
 }
 
 .rich-text ol {
   list-style-type: decimal !important;
   margin-left: 1.5rem !important;
-  margin-bottom: 1rem !important;
+  margin-bottom: 1.5rem !important;
 }
 
 .rich-text li {
-  margin-bottom: 0.25rem !important;
+  margin-bottom: 0.5rem !important;
 }
 
 .rich-text strong,
@@ -108,12 +143,5 @@
 }
 
 .rich-text p {
-  margin-bottom: 0.75rem !important;
-}
-
-.rich-text h1,
-.rich-text h2,
-.rich-text h3 {
-  margin-top: 1.5rem !important;
-  margin-bottom: 0.5rem !important;
+  margin-bottom: 1.25rem !important;
 }

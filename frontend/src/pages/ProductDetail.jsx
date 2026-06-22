@@ -222,7 +222,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                         <div className="lg:col-span-5 flex flex-col">
                             <div className="mb-8">
                                 <h1
-                                    className="text-xl sm:text-2xl md:text-3xl text-brand-ink mb-1 uppercase tracking-tight leading-tight !font-serif"
+                                    className="text-xl sm:text-2xl md:text-3xl text-brand-ink mb-1 uppercase tracking-tight leading-tight !font-serif break-normal"
                                     style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, textTransform: 'uppercase' }}
                                 >
                                     {cleanTitle} {product.variants && product.variants[selectedVariantIndex] ? `- ${product.variants[selectedVariantIndex].name}` : ''}
@@ -359,22 +359,16 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                                         </summary>
                                         <div className="pt-4 space-y-4">
-                                            <p className="text-[12px] md:text-sm font-bold text-brand-ink/40 uppercase tracking-widest italic">Item#: {product.specs?.sku}</p>
-                                            <div className="text-[12px] md:text-sm font-light leading-relaxed text-brand-ink mb-6 rich-text">
+                                            <div className="text-[12px] md:text-sm leading-relaxed text-brand-ink mb-6 rich-text">
                                                 {product.variants && product.variants[selectedVariantIndex]?.description ? (
                                                     <div
-                                                        className="block mb-4 p-4 bg-brand-cream/30 border-l-2 border-brand-bronze italic"
+                                                        className="block mb-4 p-4 bg-brand-cream/30 border-l-2 border-brand-bronze italic break-normal"
                                                         dangerouslySetInnerHTML={{ __html: product.variants[selectedVariantIndex].description }}
                                                     />
                                                 ) : null}
-                                                <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                                                <div dangerouslySetInnerHTML={{ __html: (product.description || '').replace(/&nbsp;/g, ' ') }} />
                                             </div>
-                                            <div className="p-4 bg-brand-ink/5 rounded-sm">
-                                                <p className="text-[12px] md:text-sm font-bold text-red-800 uppercase tracking-widest mb-1 flex items-center gap-2">
-                                                    <Info size={12} /> Important WARNING
-                                                </p>
-                                                <p className="text-[12px] md:text-sm font-light italic text-brand-ink/60">Proposition 65 warning for California residents regarding wood dust and chemical substances.</p>
-                                            </div>
+
                                         </div>
                                     </details>
 
@@ -384,20 +378,15 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                                         </summary>
                                         <div className="pt-6 grid grid-cols-2 gap-x-8 gap-y-4 pb-4">
-                                            {[
-                                                { l: 'Materials & Finish', v: product.specs?.material },
-                                                { l: 'Dimensions', v: product.specs?.dimensions },
-                                                { l: 'Weight', v: product.specs?.weight },
-                                                { l: 'Model Number', v: product.specs?.modelNumber },
-                                                { l: 'Assembly Information', v: product.specs?.assembly ? 'Required' : 'Assembled' },
-                                                { l: 'Country of Origin', v: product.specs?.origin },
-                                                { l: 'Warranty & Returns', v: product.specs?.warranty },
-                                            ].map(spec => (
-                                                <div key={spec.l} className="space-y-1">
-                                                    <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">{spec.l}</p>
-                                                    <p className="text-sm font-bold text-brand-ink">{spec.v}</p>
+                                            {(product.dynamicAttributes || []).map((attr, index) => (
+                                                <div key={index} className="space-y-1">
+                                                    <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">{attr.key}</p>
+                                                    <p className="text-sm font-bold text-brand-ink">{attr.value}</p>
                                                 </div>
                                             ))}
+                                            {(!product.dynamicAttributes || product.dynamicAttributes.length === 0) && (
+                                                <p className="col-span-2 text-sm text-brand-muted italic opacity-60">Technical specifications available upon request.</p>
+                                            )}
                                         </div>
                                     </details>
 
@@ -406,18 +395,22 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                             <h5 className="text-[12px] md:text-sm uppercase tracking-[0.2em] font-black text-brand-muted group-open:text-brand-ink transition-colors">Policies & Care Instructions</h5>
                                             <ChevronRight size={14} className="group-open:rotate-90 transition-transform" />
                                         </summary>
-                                        <div className="pt-6 space-y-4 pb-4 px-2">
-                                            <div className="space-y-1">
-                                                <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Care Instructions</p>
-                                                <p className="text-sm font-bold text-brand-ink italic">{product.careInstructions || 'Wipe with a soft, dry cloth. Avoid harsh chemicals.'}</p>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Warranty & Returns</p>
-                                                <p className="text-sm font-bold text-brand-ink italic">{product.warrantyDetails || '10-Year Limited Warranty. 30-Day returns.'}</p>
-                                            </div>
+                                        <div className="pt-6 space-y-4 pb-4">
+                                            {product.careInstructions && (
+                                                <div className="space-y-1">
+                                                    <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Care Instructions</p>
+                                                    <p className="text-sm font-bold text-brand-ink italic">{product.careInstructions}</p>
+                                                </div>
+                                            )}
+                                            {product.warrantyDetails && (
+                                                <div className="space-y-1">
+                                                    <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Warranty & Returns</p>
+                                                    <p className="text-sm font-bold text-brand-ink italic">{product.warrantyDetails}</p>
+                                                </div>
+                                            )}
                                             <div className="space-y-1">
                                                 <p className="text-[12px] md:text-sm uppercase font-black text-brand-muted tracking-widest">Delivery Information</p>
-                                                <p className="text-sm font-bold text-brand-ink italic">White-glove delivery available. Typical shipping: 3-7 business days.</p>
+                                                <p className="text-sm font-bold text-brand-ink italic">{product.deliveryTime || 'White-glove delivery available. Typical shipping: 3-7 business days.'}</p>
                                             </div>
                                         </div>
                                     </details>

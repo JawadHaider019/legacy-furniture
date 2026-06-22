@@ -17,6 +17,18 @@ import {
 import ReactQuill from 'react-quill-new';
 import 'react-quill-new/dist/quill.snow.css';
 
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    ['clean']
+  ],
+  clipboard: {
+    matchVisual: false,
+  }
+};
+
 const Add = () => {
   const navigate = useNavigate();
   const { token, logout } = useAuth();
@@ -36,6 +48,7 @@ const Add = () => {
   const [description, setDescription] = useState("");
 
   const [dynamicAttributes, setDynamicAttributes] = useState([]);
+  const [hasVariants, setHasVariants] = useState(false);
   const [variants, setVariants] = useState([]);
 
   const [trackInventory, setTrackInventory] = useState(true);
@@ -151,6 +164,7 @@ const Add = () => {
         description: v.description
       }));
       formData.append("variants", JSON.stringify(cleanedVariants));
+      formData.append("hasVariants", hasVariants);
 
       formData.append("quantity", Number(quantity || 0));
       formData.append("trackInventory", trackInventory);
@@ -301,6 +315,7 @@ const Add = () => {
                       theme="snow"
                       value={description}
                       onChange={setDescription}
+                      modules={quillModules}
                       placeholder="Describe the provenance and aesthetic of this creation..."
                       className="bg-white/50 border border-brand-bronze/20 rounded-sm"
                     />
@@ -359,113 +374,134 @@ const Add = () => {
             </div>
           </div>
 
-          {/* 4. VARIANTS */}
+          {/* 4. HAS VARIANTS TOGGLE */}
           <div className="luxury-card p-6 sm:p-10">
-            <h3 className="text-lg font-bold uppercase tracking-widest text-brand-ink mb-6 flex items-center gap-3">
-              <FontAwesomeIcon icon={faBoxes} className="text-brand-bronze" /> Product Variants
-            </h3>
-            <div className="space-y-6">
-              {variants.map((variant, vIndex) => (
-                <div key={vIndex} className="bg-white border border-brand-bronze/20 p-4 rounded-sm shadow-sm relative">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
-                    <div className="luxury-input-group col-span-1 ">
-                      <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Name</label>
-                      <input type="text" value={variant.name} onChange={e => {
-                        const newVar = [...variants]; newVar[vIndex].name = e.target.value; setVariants(newVar);
-                      }} className="luxury-input !text-sm" placeholder="e.g. Black / Large" />
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 col-span-2">
-                      <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Price (£)</label>
-                        <input type="number" value={variant.price} onChange={e => {
-                          const newVar = [...variants]; newVar[vIndex].price = e.target.value; setVariants(newVar);
-                        }} className="luxury-input !text-sm" placeholder="Price" />
-                      </div>
-                      <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Cost (£)</label>
-                        <input type="number" value={variant.cost} onChange={e => {
-                          const newVar = [...variants]; newVar[vIndex].cost = e.target.value; setVariants(newVar);
-                        }} className="luxury-input !text-sm" placeholder="Cost" />
-                      </div>
-                      <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Stock</label>
-                        <input type="number" value={variant.stock} onChange={e => {
-                          const newVar = [...variants]; newVar[vIndex].stock = e.target.value; setVariants(newVar);
-                        }} className="luxury-input !text-sm" placeholder="Qty" />
-                      </div>
-                      <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Sale Price</label>
-                        <input type="number" value={variant.discountPrice} onChange={e => {
-                          const newVar = [...variants]; newVar[vIndex].discountPrice = e.target.value; setVariants(newVar);
-                        }} className="luxury-input !text-sm text-red-500 font-bold" placeholder="0" />
-                      </div>
-                      <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">SKU</label>
-                        <input type="text" value={variant.sku} onChange={e => {
-                          const newVar = [...variants]; newVar[vIndex].sku = e.target.value; setVariants(newVar);
-                        }} className="luxury-input !text-sm" placeholder="SKU" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="luxury-input-group mb-4">
-                    <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Description / Details</label>
-                    <div className="quill-luxury">
-                      <ReactQuill
-                        theme="snow"
-                        value={variant.description}
-                        onChange={(content) => {
-                          const newVar = [...variants];
-                          newVar[vIndex].description = content;
-                          setVariants(newVar);
-                        }}
-                        placeholder="Specific details for this variant..."
-                        className="bg-white/50 border border-brand-bronze/20 rounded-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="luxury-input-group">
-                    <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Variant Images</label>
-                    <div className="flex flex-wrap gap-3">
-                      {variant.images?.map((img, imgIndex) => (
-                        <div key={imgIndex} className="relative w-16 h-16 border rounded-sm overflow-hidden group">
-                          <img
-                            src={typeof img === 'string' ? img : (img instanceof File || img instanceof Blob ? URL.createObjectURL(img) : '')}
-                            alt="variant"
-                            className="w-full h-full object-cover"
-                          />
-                          <button type="button" onClick={() => {
-                            const newVar = [...variants];
-                            newVar[vIndex].images = newVar[vIndex].images.filter((_, i) => i !== imgIndex);
-                            setVariants(newVar);
-                          }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                            <FontAwesomeIcon icon={faTrashAlt} className="text-white text-xs" />
-                          </button>
-                        </div>
-                      ))}
-                      <label className="w-16 h-16 flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden text-brand-bronze/50">
-                        <FontAwesomeIcon icon={faCloudUploadAlt} className="text-sm" />
-                        <span className="text-[11px] mt-1">Add</span>
-                        <input type="file" multiple onChange={(e) => {
-                          const files = Array.from(e.target.files);
-                          const newVar = [...variants];
-                          newVar[vIndex].images = [...(newVar[vIndex].images || []), ...files];
-                          setVariants(newVar);
-                        }} hidden accept="image/*" />
-                      </label>
-                    </div>
-                  </div>
-
-                  <button type="button" onClick={() => setVariants(variants.filter((_, i) => i !== vIndex))} className="absolute top-2 right-2 text-brand-muted hover:text-red-400 p-2 transition-colors">
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-bold uppercase tracking-widest text-brand-ink flex items-center gap-3">
+                  <FontAwesomeIcon icon={faBoxes} className="text-brand-bronze" /> Product Variants
+                </h3>
+                <p className="text-[11px] text-brand-muted mt-1 tracking-widest">
+                  {hasVariants ? 'Main price & stock are managed per-variant' : 'Single product — set price & stock below'}
+                </p>
+              </div>
+              <label className="flex items-center cursor-pointer gap-4">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-muted">Has Variants</span>
+                <input type="checkbox" className="sr-only" checked={hasVariants} onChange={() => {
+                  setHasVariants(prev => !prev);
+                  if (hasVariants) setVariants([]);
+                }} />
+                <div className={`w-12 h-6 rounded-full transition-all duration-500 border border-brand-bronze/20 flex items-center px-1 ${hasVariants ? 'bg-brand-ink' : 'bg-brand-cream'}`}>
+                  <div className={`w-4 h-4 rounded-full transition-all duration-500 transform ${hasVariants ? 'translate-x-6 bg-brand-bronze' : 'translate-x-0 bg-brand-bronze/30'}`}></div>
                 </div>
-              ))}
-              <button type="button" onClick={() => setVariants([...variants, { name: "", price: "", cost: "", discountPrice: "", stock: "", sku: "", images: [], description: "" }])} className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-bronze hover:text-brand-ink">
-                + Add Variant
-              </button>
+              </label>
             </div>
+
+            {hasVariants && (
+              <div className="mt-8 space-y-6">
+                {variants.map((variant, vIndex) => (
+                  <div key={vIndex} className="bg-white border border-brand-bronze/20 p-4 rounded-sm shadow-sm relative">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2 mb-4">
+                      <div className="luxury-input-group col-span-1 ">
+                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Name</label>
+                        <input type="text" value={variant.name} onChange={e => {
+                          const newVar = [...variants]; newVar[vIndex].name = e.target.value; setVariants(newVar);
+                        }} className="luxury-input !text-sm" placeholder="e.g. Black / Large" />
+                      </div>
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 col-span-2">
+                        <div className="luxury-input-group">
+                          <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Price (£)</label>
+                          <input type="number" value={variant.price} onChange={e => {
+                            const newVar = [...variants]; newVar[vIndex].price = e.target.value; setVariants(newVar);
+                          }} className="luxury-input !text-sm" placeholder="Price" />
+                        </div>
+                        <div className="luxury-input-group">
+                          <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Cost (£)</label>
+                          <input type="number" value={variant.cost} onChange={e => {
+                            const newVar = [...variants]; newVar[vIndex].cost = e.target.value; setVariants(newVar);
+                          }} className="luxury-input !text-sm" placeholder="Cost" />
+                        </div>
+                        <div className="luxury-input-group">
+                          <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Stock</label>
+                          <input type="number" value={variant.stock} onChange={e => {
+                            const newVar = [...variants]; newVar[vIndex].stock = e.target.value; setVariants(newVar);
+                          }} className="luxury-input !text-sm" placeholder="Qty" />
+                        </div>
+                        <div className="luxury-input-group">
+                          <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Sale Price</label>
+                          <input type="number" value={variant.discountPrice} onChange={e => {
+                            const newVar = [...variants]; newVar[vIndex].discountPrice = e.target.value; setVariants(newVar);
+                          }} className="luxury-input !text-sm text-red-500 font-bold" placeholder="0" />
+                        </div>
+                        <div className="luxury-input-group">
+                          <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">SKU</label>
+                          <input type="text" value={variant.sku} onChange={e => {
+                            const newVar = [...variants]; newVar[vIndex].sku = e.target.value; setVariants(newVar);
+                          }} className="luxury-input !text-sm" placeholder="SKU" />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="luxury-input-group mb-4">
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Description / Details</label>
+                      <div className="quill-luxury">
+                        <ReactQuill
+                          theme="snow"
+                          value={variant.description}
+                          onChange={(content) => {
+                            const newVar = [...variants];
+                            newVar[vIndex].description = content;
+                            setVariants(newVar);
+                          }}
+                          modules={quillModules}
+                          placeholder="Specific details for this variant..."
+                          className="bg-white/50 border border-brand-bronze/20 rounded-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="luxury-input-group">
+                      <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Variant Images</label>
+                      <div className="flex flex-wrap gap-3">
+                        {variant.images?.map((img, imgIndex) => (
+                          <div key={imgIndex} className="relative w-16 h-16 border rounded-sm overflow-hidden group">
+                            <img
+                              src={typeof img === 'string' ? img : (img instanceof File || img instanceof Blob ? URL.createObjectURL(img) : '')}
+                              alt="variant"
+                              className="w-full h-full object-cover"
+                            />
+                            <button type="button" onClick={() => {
+                              const newVar = [...variants];
+                              newVar[vIndex].images = newVar[vIndex].images.filter((_, i) => i !== imgIndex);
+                              setVariants(newVar);
+                            }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <FontAwesomeIcon icon={faTrashAlt} className="text-white text-xs" />
+                            </button>
+                          </div>
+                        ))}
+                        <label className="w-16 h-16 flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden text-brand-bronze/50">
+                          <FontAwesomeIcon icon={faCloudUploadAlt} className="text-sm" />
+                          <span className="text-[11px] mt-1">Add</span>
+                          <input type="file" multiple onChange={(e) => {
+                            const files = Array.from(e.target.files);
+                            const newVar = [...variants];
+                            newVar[vIndex].images = [...(newVar[vIndex].images || []), ...files];
+                            setVariants(newVar);
+                          }} hidden accept="image/*" />
+                        </label>
+                      </div>
+                    </div>
+
+                    <button type="button" onClick={() => setVariants(variants.filter((_, i) => i !== vIndex))} className="absolute top-2 right-2 text-brand-muted hover:text-red-400 p-2 transition-colors">
+                      <FontAwesomeIcon icon={faTrashAlt} />
+                    </button>
+                  </div>
+                ))}
+                <button type="button" onClick={() => setVariants([...variants, { name: "", price: "", cost: "", discountPrice: "", stock: "", sku: "", images: [], description: "" }])} className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-bronze hover:text-brand-ink">
+                  + Add Variant
+                </button>
+              </div>
+            )}
           </div>
 
           {/* 5. INVENTORY & 7. SHIPPING */}
@@ -484,10 +520,12 @@ const Add = () => {
                     <span className="ml-4 text-[11px] font-bold uppercase tracking-widest text-brand-muted">Track Inventory</span>
                   </label>
                 </div>
-                <div className="luxury-input-group">
-                  <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Total Quantity Available *</label>
-                  <input required type="number" value={quantity} onChange={e => setQuantity(e.target.value)} className="luxury-input" placeholder="0" />
-                </div>
+                {!hasVariants && (
+                  <div className="luxury-input-group">
+                    <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Total Quantity Available *</label>
+                    <input required={!hasVariants} type="number" value={quantity} onChange={e => setQuantity(e.target.value)} className="luxury-input" placeholder="0" />
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-6">
                   <div className="luxury-input-group">
                     <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Stock Status</label>
@@ -543,46 +581,47 @@ const Add = () => {
             </div>
           </div>
 
-          {/* 6. PRICING */}
-          <div className="luxury-card p-6 sm:p-10">
-            <h3 className="text-lg font-bold uppercase tracking-widest text-brand-ink mb-6 flex items-center gap-3">
-              <FontAwesomeIcon icon={faPoundSign} className="text-brand-bronze" /> Pricing & Tax Settings
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="luxury-input-group">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Cost Price *</label>
-                <input required type="number" value={cost} onChange={e => setCost(e.target.value)} className="luxury-input" />
+          {/* 6. PRICING (hidden when hasVariants) */}
+          {!hasVariants && (
+            <div className="luxury-card p-6 sm:p-10">
+              <h3 className="text-lg font-bold uppercase tracking-widest text-brand-ink mb-6 flex items-center gap-3">
+                <FontAwesomeIcon icon={faPoundSign} className="text-brand-bronze" /> Pricing &amp; Tax Settings
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                <div className="luxury-input-group">
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Cost Price *</label>
+                  <input required={!hasVariants} type="number" value={cost} onChange={e => setCost(e.target.value)} className="luxury-input" />
+                </div>
+                <div className="luxury-input-group">
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Original Price *</label>
+                  <input required={!hasVariants} type="number" value={price} onChange={e => setPrice(e.target.value)} className="luxury-input" />
+                </div>
+                <div className="luxury-input-group">
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Discounted Price</label>
+                  <input type="number" value={discountprice} onChange={e => setDiscountprice(e.target.value)} className="luxury-input" />
+                </div>
               </div>
-              <div className="luxury-input-group">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Original Price *</label>
-                <input required type="number" value={price} onChange={e => setPrice(e.target.value)} className="luxury-input" />
-              </div>
-              <div className="luxury-input-group">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Discounted Price</label>
-                <input type="number" value={discountprice} onChange={e => setDiscountprice(e.target.value)} className="luxury-input" />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="luxury-input-group">
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Discount Start Date</label>
+                  <input type="date" value={discountStartDate} onChange={e => setDiscountStartDate(e.target.value)} className="luxury-input bg-white !py-3" />
+                </div>
+                <div className="luxury-input-group">
+                  <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Discount End Date</label>
+                  <input type="date" value={discountEndDate} onChange={e => setDiscountEndDate(e.target.value)} className="luxury-input bg-white !py-3" />
+                </div>
+                <div className="flex items-center h-full pt-6">
+                  <label className="flex items-center cursor-pointer group w-fit">
+                    <input type="checkbox" className="sr-only" checked={taxIncluded} onChange={() => setTaxIncluded((prev) => !prev)} />
+                    <div className={`w-12 h-6 rounded-full transition-all duration-500 border border-brand-bronze/20 flex items-center px-1 ${taxIncluded ? "bg-brand-ink" : "bg-brand-cream"}`}>
+                      <div className={`w-4 h-4 rounded-full transition-all duration-500 transform ${taxIncluded ? "translate-x-6 bg-brand-bronze" : "translate-x-0 bg-brand-bronze/30"}`}></div>
+                    </div>
+                    <span className="ml-4 text-[11px] font-bold uppercase tracking-widest text-brand-muted">Tax Included (VAT)</span>
+                  </label>
+                </div>
               </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="luxury-input-group">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Discount Start Date</label>
-                <input type="date" value={discountStartDate} onChange={e => setDiscountStartDate(e.target.value)} className="luxury-input bg-white !py-3" />
-              </div>
-              <div className="luxury-input-group">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Discount End Date</label>
-                <input type="date" value={discountEndDate} onChange={e => setDiscountEndDate(e.target.value)} className="luxury-input bg-white !py-3" />
-              </div>
-              <div className="flex items-center h-full pt-6">
-                <label className="flex items-center cursor-pointer group w-fit">
-                  <input type="checkbox" className="sr-only" checked={taxIncluded} onChange={() => setTaxIncluded((prev) => !prev)} />
-                  <div className={`w-12 h-6 rounded-full transition-all duration-500 border border-brand-bronze/20 flex items-center px-1 ${taxIncluded ? "bg-brand-ink" : "bg-brand-cream"}`}>
-                    <div className={`w-4 h-4 rounded-full transition-all duration-500 transform ${taxIncluded ? "translate-x-6 bg-brand-bronze" : "translate-x-0 bg-brand-bronze/30"}`}></div>
-                  </div>
-                  <span className="ml-4 text-[11px] font-bold uppercase tracking-widest text-brand-muted">Tax Included (VAT)</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
+          )}
 
           {/* 9. STATUS & 10. EXTRA */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -614,13 +653,6 @@ const Add = () => {
                     <div className={`w-3 h-3 rounded-full transition-all duration-500 transform ${bestseller ? "translate-x-5 bg-brand-bronze" : "translate-x-0 bg-brand-bronze/30"}`}></div>
                   </div>
                   <span className="ml-3 text-[11px] font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2"><FontAwesomeIcon icon={faStar} className="text-brand-bronze" /> Mark as Bestseller</span>
-                </label>
-                <label className="flex items-center cursor-pointer group w-fit mt-4">
-                  <input type="checkbox" className="sr-only" checked={featuredProduct} onChange={() => setFeaturedProduct((prev) => !prev)} />
-                  <div className={`w-10 h-5 rounded-full transition-all duration-500 border border-brand-bronze/20 flex items-center px-1 ${featuredProduct ? "bg-brand-ink" : "bg-brand-cream"}`}>
-                    <div className={`w-3 h-3 rounded-full transition-all duration-500 transform ${featuredProduct ? "translate-x-5 bg-brand-bronze" : "translate-x-0 bg-brand-bronze/30"}`}></div>
-                  </div>
-                  <span className="ml-3 text-[11px] font-bold uppercase tracking-widest text-brand-muted flex items-center gap-2"><FontAwesomeIcon icon={faChartLine} className="text-brand-bronze" /> Featured Product</span>
                 </label>
               </div>
             </div>

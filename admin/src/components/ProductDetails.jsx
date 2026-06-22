@@ -8,7 +8,7 @@ import { useToast } from '../hooks/useToast'
 import {
   faArrowLeft,
   faTimes,
-  faInfoCircle,
+  faPlusCircle,
   faFlask,
   faCheckCircle,
   faListUl,
@@ -22,6 +22,18 @@ import {
   faBox
 } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, 3, false] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    ['clean']
+  ],
+  clipboard: {
+    matchVisual: false,
+  }
+};
 
 const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
   const toast = useToast()
@@ -49,7 +61,13 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
       modelNumber: "",
       origin: ""
     },
-    variants: product.variants || []
+    variants: product.variants || [],
+    hasVariants: (product.variants && product.variants.length > 0) || false,
+    dynamicAttributes: product.dynamicAttributes || [],
+    warrantyDetails: product.warrantyDetails || "",
+    returnPolicy: product.returnPolicy || "",
+    careInstructions: product.careInstructions || "",
+    deliveryTime: product.deliveryTime || ""
   })
 
   const [loading, setLoading] = useState(false)
@@ -136,7 +154,12 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
         modelNumber: "",
         origin: ""
       },
-      variants: product.variants || []
+      variants: product.variants || [],
+      dynamicAttributes: product.dynamicAttributes || [],
+      warrantyDetails: product.warrantyDetails || "",
+      returnPolicy: product.returnPolicy || "",
+      careInstructions: product.careInstructions || "",
+      deliveryTime: product.deliveryTime || ""
     })
   }, [product, categories])
 
@@ -278,7 +301,7 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
 
       // Add basic fields
       formDataToSend.append('id', product._id)
-      formDataToSend.append('name', stripHtml(formData.name))
+      formDataToSend.append('name', cleanName(formData.name))
       formDataToSend.append('description', formData.description)
       formDataToSend.append('category', formData.category)
       formDataToSend.append('subcategory', formData.subcategory)
@@ -292,6 +315,12 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
       // Add Furniture fields
       formDataToSend.append("brand", formData.brand);
       formDataToSend.append("specs", JSON.stringify(formData.specs));
+      formDataToSend.append("dynamicAttributes", JSON.stringify(formData.dynamicAttributes || []));
+      formDataToSend.append("hasVariants", (formData.hasVariants || false).toString());
+      formDataToSend.append("warrantyDetails", formData.warrantyDetails || "");
+      formDataToSend.append("returnPolicy", formData.returnPolicy || "");
+      formDataToSend.append("careInstructions", formData.careInstructions || "");
+      formDataToSend.append("deliveryTime", formData.deliveryTime || "");
 
       // Clean variants before stringifying
       const cleanedVariants = formData.variants.map(v => ({
@@ -552,7 +581,7 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl font-serif text-brand-ink mb-4">{product.name}</h2>
-              <div className="text-sm text-brand-muted leading-relaxed font-serif-italic opacity-80 rich-text" dangerouslySetInnerHTML={{ __html: product.description || 'No descriptive record available for this creation.' }} />
+              <div className="text-sm text-brand-muted leading-relaxed font-sans opacity-80 rich-text" dangerouslySetInnerHTML={{ __html: product.description || 'No descriptive record available for this creation.' }} />
             </div>
 
             <div className="grid grid-cols-2 gap-12">
@@ -595,23 +624,37 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
               <FontAwesomeIcon icon={faListUl} className="text-brand-bronze/40 text-xs" />
               <h4 className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-muted">Technical Specs</h4>
             </div>
-            <div className="space-y-2">
-              <div className="flex justify-between text-[12px]">
-                <span className="text-brand-muted opacity-60 uppercase">Dimensions</span>
-                <span className="font-bold">{product.specs?.dimensions || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between text-[12px]">
-                <span className="text-brand-muted opacity-60 uppercase">Material</span>
-                <span className="font-bold">{product.specs?.material || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between text-[12px]">
-                <span className="text-brand-muted opacity-60 uppercase">SKU</span>
-                <span className="font-bold">{product.specs?.sku || 'N/A'}</span>
-              </div>
-              <div className="flex justify-between text-[12px]">
-                <span className="text-brand-muted opacity-60 uppercase">Assembly</span>
-                <span className="font-bold">{product.specs?.assembly ? 'Required' : 'Assembled'}</span>
-              </div>
+            <div className="space-y-3">
+              {(product.dynamicAttributes || []).map((attr, idx) => (
+                <div key={idx} className="flex justify-between text-[11px] border-b border-brand-bronze/5 pb-2">
+                  <span className="text-brand-muted opacity-60 uppercase tracking-widest">{attr.key}</span>
+                  <span className="font-bold text-brand-ink">{attr.value}</span>
+                </div>
+              ))}
+              {(!product.dynamicAttributes || product.dynamicAttributes.length === 0) && (
+                <p className="text-[11px] text-brand-muted italic opacity-50">No specifications defined.</p>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div className="p-8 bg-brand-cream/30 border border-brand-bronze/10 mt-8">
+          <div className="flex items-center gap-3 mb-6">
+            <FontAwesomeIcon icon={faPlusCircle} className="text-brand-bronze/40 text-xs" />
+            <h4 className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-muted">Policies & Archive Care</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] uppercase tracking-widest text-brand-muted opacity-60">Warranty & Returns</span>
+              <span className="text-[11px] font-bold text-brand-ink">{product.warrantyDetails || 'N/A'}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] uppercase tracking-widest text-brand-muted opacity-60">Care Instructions</span>
+              <span className="text-[11px] font-bold text-brand-ink">{product.careInstructions || 'N/A'}</span>
+            </div>
+            <div className="flex flex-col gap-1">
+              <span className="text-[10px] uppercase tracking-widest text-brand-muted opacity-60">Assembly Information</span>
+              <span className="text-[11px] font-bold text-brand-ink">{product.deliveryTime || 'N/A'}</span>
             </div>
           </div>
         </div>
@@ -642,7 +685,7 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
                       <span className="text-sm font-serif text-brand-bronze">£ {v.price?.toLocaleString()}</span>
                     </div>
                     <div
-                      className="text-[12px] text-brand-muted leading-relaxed font-serif-italic line-clamp-2 mb-2 rich-text"
+                      className="text-[12px] text-brand-muted leading-relaxed font-sans line-clamp-2 mb-2 rich-text"
                       dangerouslySetInnerHTML={{ __html: v.description || 'No specific details provided.' }}
                     />
                     <div className="flex gap-4">
@@ -741,58 +784,47 @@ const EditMode = ({
           </div>
 
           <div className="space-y-6">
-            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Pricing & Inventory</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost Price</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">£</span>
-                  <input
-                    type="number"
-                    name="cost"
-                    value={formData.cost}
-                    onChange={onChange}
-                    className="luxury-input !pl-10"
-                  />
+            <div className="flex items-center justify-between">
+              <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Pricing &amp; Inventory</h3>
+              <label className="flex items-center cursor-pointer gap-3">
+                <span className="text-[11px] font-bold uppercase tracking-widest text-brand-muted">Has Variants</span>
+                <input type="checkbox" className="sr-only" checked={formData.hasVariants || false} onChange={() =>
+                  setFormData(prev => ({ ...prev, hasVariants: !prev.hasVariants, variants: !prev.hasVariants ? prev.variants : [] }))
+                } />
+                <div className={`w-10 h-5 rounded-full transition-all duration-500 border border-brand-bronze/20 flex items-center px-0.5 ${formData.hasVariants ? 'bg-brand-ink' : 'bg-brand-cream'}`}>
+                  <div className={`w-4 h-4 rounded-full transition-all duration-500 transform ${formData.hasVariants ? 'translate-x-5 bg-brand-bronze' : 'translate-x-0 bg-brand-bronze/30'}`}></div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Original Price</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">£</span>
-                  <input
-                    type="number"
-                    name="price"
-                    value={formData.price}
-                    onChange={onChange}
-                    className="luxury-input !pl-10"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Discounted Price</label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-bronze/40 text-[12px]">£</span>
-                  <input
-                    type="number"
-                    name="discountprice"
-                    value={formData.discountprice}
-                    onChange={onChange}
-                    className="luxury-input !pl-10 text-brand-bronze font-bold"
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Total Quantity</label>
-                <input
-                  type="number"
-                  name="quantity"
-                  value={formData.quantity}
-                  onChange={onChange}
-                  className="luxury-input"
-                />
-              </div>
+              </label>
             </div>
+            {!formData.hasVariants && (
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost Price</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">£</span>
+                    <input type="number" name="cost" value={formData.cost} onChange={onChange} className="luxury-input !pl-10" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Original Price</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">£</span>
+                    <input type="number" name="price" value={formData.price} onChange={onChange} className="luxury-input !pl-10" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Discounted Price</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-bronze/40 text-[12px]">£</span>
+                    <input type="number" name="discountprice" value={formData.discountprice} onChange={onChange} className="luxury-input !pl-10 text-brand-bronze font-bold" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Total Quantity</label>
+                  <input type="number" name="quantity" value={formData.quantity} onChange={onChange} className="luxury-input" />
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
@@ -835,6 +867,7 @@ const EditMode = ({
                 theme="snow"
                 value={formData.description}
                 onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
+                modules={quillModules}
                 placeholder="Describe the provenance and aesthetic of this creation..."
                 className="bg-white/50 border border-brand-bronze/20 rounded-sm"
               />
@@ -850,298 +883,372 @@ const EditMode = ({
           <div className="grid grid-cols-1 gap-12">
 
             <div className="space-y-6">
-              <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Dimensions & Weight</h3>
-              <div className="grid grid-cols-2 gap-4">
+              <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze flex items-center gap-2">
+                <FontAwesomeIcon icon={faListUl} /> Dimensions & Weight
+              </h3>
+              <div className="space-y-4">
+                {(formData.dynamicAttributes || []).map((attr, index) => (
+                  <div key={index} className="flex flex-col md:flex-row gap-4 items-center bg-brand-cream/30 p-4 border border-brand-bronze/10">
+                    <div className="flex-1 w-full">
+                      <input
+                        type="text"
+                        value={attr.key}
+                        onChange={e => {
+                          const newArr = [...formData.dynamicAttributes];
+                          newArr[index].key = e.target.value;
+                          setFormData(prev => ({ ...prev, dynamicAttributes: newArr }));
+                        }}
+                        className="luxury-input text-sm"
+                        placeholder="Feature (e.g. Material)"
+                      />
+                    </div>
+                    <div className="flex-1 w-full">
+                      <input
+                        type="text"
+                        value={attr.value}
+                        onChange={e => {
+                          const newArr = [...formData.dynamicAttributes];
+                          newArr[index].value = e.target.value;
+                          setFormData(prev => ({ ...prev, dynamicAttributes: newArr }));
+                        }}
+                        className="luxury-input !text-sm"
+                        placeholder="Value (e.g. Solid Wood)"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newArr = formData.dynamicAttributes.filter((_, i) => i !== index);
+                        setFormData(prev => ({ ...prev, dynamicAttributes: newArr }));
+                      }}
+                      className="text-red-400 hover:text-red-500 p-2"
+                    >
+                      <FontAwesomeIcon icon={faTrashAlt} />
+                    </button>
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setFormData(prev => ({
+                    ...prev,
+                    dynamicAttributes: [...(prev.dynamicAttributes || []), { key: "", value: "" }]
+                  }))}
+                  className="text-[11px] font-bold uppercase tracking-[0.2em] text-brand-bronze hover:text-brand-ink"
+                >
+                  + Add Specification
+                </button>
+              </div>
+            </div>
+          </div>
+          {/* Policies & Care Instructions */}
+          <div className="space-y-6 pt-6 border-l-2 border-brand-bronze/10 pl-6">
+            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze flex items-center gap-2">
+              <FontAwesomeIcon icon={faPlusCircle} /> Policies & Care Instructions
+            </h3>
+            <div className="grid grid-cols-1 gap-6">
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Warranty & Returns</label>
                 <input
                   type="text"
-                  placeholder="Dimensions"
-                  value={formData.specs.dimensions}
-                  onChange={(e) => onChange({ target: { name: 'specs', value: { ...formData.specs, dimensions: e.target.value } } })}
+                  value={formData.warrantyDetails}
+                  onChange={(e) => setFormData(prev => ({ ...prev, warrantyDetails: e.target.value }))}
                   className="luxury-input text-xs"
+                  placeholder="e.g. 10 Years Warranty on Frame"
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Care Instructions</label>
                 <input
                   type="text"
-                  placeholder="Weight"
-                  value={formData.specs.weight}
-                  onChange={(e) => onChange({ target: { name: 'specs', value: { ...formData.specs, weight: e.target.value } } })}
+                  value={formData.careInstructions}
+                  onChange={(e) => setFormData(prev => ({ ...prev, careInstructions: e.target.value }))}
                   className="luxury-input text-xs"
+                  placeholder="e.g. Wipe with dry cloth"
                 />
+              </div>
+              <div className="space-y-2">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Assembly Information</label>
                 <input
                   type="text"
-                  placeholder="Material"
-                  value={formData.specs.material}
-                  onChange={(e) => onChange({ target: { name: 'specs', value: { ...formData.specs, material: e.target.value } } })}
+                  value={formData.deliveryTime}
+                  onChange={(e) => setFormData(prev => ({ ...prev, deliveryTime: e.target.value }))}
                   className="luxury-input text-xs"
-                />
-                <input
-                  type="text"
-                  placeholder="SKU"
-                  value={formData.specs.sku}
-                  onChange={(e) => onChange({ target: { name: 'specs', value: { ...formData.specs, sku: e.target.value } } })}
-                  className="luxury-input text-xs"
+                  placeholder="e.g. Minimal assembly required"
                 />
               </div>
             </div>
           </div>
 
-          {/* Variants Edit */}
+          {/* Variants Edit — only shown when hasVariants is ON */}
           <div className="space-y-6">
             <div className="flex justify-between items-center">
               <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Variants</h3>
-              <button
-                type="button"
-                onClick={() => {
-                  const newVariants = [...formData.variants, { name: "", price: "", discountPrice: "", stock: "", sku: "", images: [], description: "" }];
-                  setFormData(prev => ({ ...prev, variants: newVariants }));
-                }}
-                className="text-[12px] font-bold uppercase text-brand-bronze"
-              >
-                + Add Variant
-              </button>
+              {formData.hasVariants && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newVariants = [...formData.variants, { name: "", price: "", discountPrice: "", stock: "", sku: "", images: [], description: "" }];
+                    setFormData(prev => ({ ...prev, variants: newVariants }));
+                  }}
+                  className="text-[12px] font-bold uppercase text-brand-bronze"
+                >
+                  + Add Variant
+                </button>
+              )}
             </div>
 
-            <div className="space-y-4">
-              {formData.variants.map((v, vIndex) => (
-                <div key={vIndex} className="p-6 bg-brand-cream/20 border border-brand-bronze/10 rounded-sm relative">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
-                    <div className="space-y-2">
-                      <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Name</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. Large / Oak Wood"
-                        value={v.name}
-                        onChange={(e) => {
-                          const newVariants = [...formData.variants];
-                          newVariants[vIndex].name = e.target.value;
-                          setFormData(prev => ({ ...prev, variants: newVariants }));
-                        }}
-                        className="luxury-input text-xs"
-                      />
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
-                      <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Price (£)</label>
-                        <input
-                          type="number"
-                          placeholder="Price"
-                          value={v.price}
-                          onChange={(e) => {
-                            const newVariants = [...formData.variants];
-                            newVariants[vIndex].price = e.target.value;
-                            setFormData(prev => ({ ...prev, variants: newVariants }));
-                          }}
-                          className="luxury-input text-xs"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost (£)</label>
-                        <input
-                          type="number"
-                          placeholder="Cost"
-                          value={v.cost}
-                          onChange={(e) => {
-                            const newVariants = [...formData.variants];
-                            newVariants[vIndex].cost = e.target.value;
-                            setFormData(prev => ({ ...prev, variants: newVariants }));
-                          }}
-                          className="luxury-input text-xs"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Stock</label>
-                        <input
-                          type="number"
-                          placeholder="Qty"
-                          value={v.stock}
-                          onChange={(e) => {
-                            const newVariants = [...formData.variants];
-                            newVariants[vIndex].stock = e.target.value;
-                            setFormData(prev => ({ ...prev, variants: newVariants }));
-                          }}
-                          className="luxury-input text-xs"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Sale Price</label>
-                        <input
-                          type="number"
-                          placeholder="Sale Price"
-                          value={v.discountPrice}
-                          onChange={(e) => {
-                            const newVariants = [...formData.variants];
-                            newVariants[vIndex].discountPrice = e.target.value;
-                            setFormData(prev => ({ ...prev, variants: newVariants }));
-                          }}
-                          className="luxury-input text-xs text-red-500 font-bold"
-                        />
-                      </div>
-                      <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">SKU</label>
+            {formData.hasVariants ? (
+              <div className="space-y-4">
+                {formData.variants.map((v, vIndex) => (
+                  <div key={vIndex} className="p-6 bg-brand-cream/20 border border-brand-bronze/10 rounded-sm relative">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-4">
+                      <div className="space-y-2">
+                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Name</label>
                         <input
                           type="text"
-                          placeholder="SKU"
-                          value={v.sku}
+                          placeholder="e.g. Large / Oak Wood"
+                          value={v.name}
                           onChange={(e) => {
                             const newVariants = [...formData.variants];
-                            newVariants[vIndex].sku = e.target.value;
+                            newVariants[vIndex].name = e.target.value;
                             setFormData(prev => ({ ...prev, variants: newVariants }));
                           }}
                           className="luxury-input text-xs"
                         />
                       </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mb-4">
-                    <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Description</label>
-                    <div className="quill-luxury">
-                      <ReactQuill
-                        theme="snow"
-                        value={v.description}
-                        onChange={(content) => {
-                          const newVariants = [...formData.variants];
-                          newVariants[vIndex].description = content;
-                          setFormData(prev => ({ ...prev, variants: newVariants }));
-                        }}
-                        placeholder="Specific details for this variant..."
-                        className="bg-white/50 border border-brand-bronze/20 rounded-sm"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60 mb-2 block">Variant Images</label>
-                    <div className="flex flex-wrap gap-3">
-                      {v.images?.map((img, imgIndex) => (
-                        <div key={imgIndex} className="relative w-14 h-14 border rounded-sm overflow-hidden group/img">
-                          <img
-                            src={
-                              typeof img === 'string'
-                                ? img
-                                : (img && (img instanceof File || img instanceof Blob) ? URL.createObjectURL(img) : '')
-                            }
-                            alt="variant"
-                            className="w-full h-full object-cover"
+                      <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
+                        <div className="space-y-1">
+                          <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Price (£)</label>
+                          <input
+                            type="number"
+                            placeholder="Price"
+                            value={v.price}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIndex].price = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            className="luxury-input text-xs"
                           />
-                          <button type="button" onClick={() => {
-                            const newVariants = [...formData.variants];
-                            newVariants[vIndex].images = newVariants[vIndex].images.filter((_, i) => i !== imgIndex);
-                            setFormData(prev => ({ ...prev, variants: newVariants }));
-                          }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
-                            <FontAwesomeIcon icon={faTimes} className="text-white text-[12px]" />
-                          </button>
                         </div>
-                      ))}
-                      <label className="w-14 h-14 flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden text-brand-bronze/50">
-                        <FontAwesomeIcon icon={faCloudUploadAlt} className="text-xs" />
-                        <span className="text-[12px] mt-1 uppercase font-bold">Add</span>
-                        <input type="file" multiple onChange={(e) => {
-                          const files = Array.from(e.target.files);
-                          const newVariants = [...formData.variants];
-                          newVariants[vIndex].images = [...(newVariants[vIndex].images || []), ...files];
-                          setFormData(prev => ({ ...prev, variants: newVariants }));
-                        }} hidden accept="image/*" />
-                      </label>
+                        <div className="space-y-1">
+                          <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost (£)</label>
+                          <input
+                            type="number"
+                            placeholder="Cost"
+                            value={v.cost}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIndex].cost = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            className="luxury-input text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Stock</label>
+                          <input
+                            type="number"
+                            placeholder="Qty"
+                            value={v.stock}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIndex].stock = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            className="luxury-input text-xs"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Sale Price</label>
+                          <input
+                            type="number"
+                            placeholder="Sale Price"
+                            value={v.discountPrice}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIndex].discountPrice = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            className="luxury-input text-xs text-red-500 font-bold"
+                          />
+                        </div>
+                        <div className="space-y-1">
+                          <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">SKU</label>
+                          <input
+                            type="text"
+                            placeholder="SKU"
+                            value={v.sku}
+                            onChange={(e) => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIndex].sku = e.target.value;
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }}
+                            className="luxury-input text-xs"
+                          />
+                        </div>
+                      </div>
                     </div>
-                  </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const newVariants = formData.variants.filter((_, i) => i !== vIndex);
-                      setFormData(prev => ({ ...prev, variants: newVariants }));
-                    }}
-                    className="absolute top-2 right-2 text-brand-muted hover:text-red-400 p-2 transition-colors"
-                  >
-                    <FontAwesomeIcon icon={faTrashAlt} />
-                  </button>
-                </div>
-              ))}
-            </div>
+                    <div className="space-y-2 mb-4">
+                      <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Description</label>
+                      <div className="quill-luxury">
+                        <ReactQuill
+                          theme="snow"
+                          value={v.description}
+                          onChange={(content) => {
+                            const newVariants = [...formData.variants];
+                            newVariants[vIndex].description = content;
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }}
+                          modules={quillModules}
+                          placeholder="Specific details for this variant..."
+                          className="bg-white/50 border border-brand-bronze/20 rounded-sm"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60 mb-2 block">Variant Images</label>
+                      <div className="flex flex-wrap gap-3">
+                        {v.images?.map((img, imgIndex) => (
+                          <div key={imgIndex} className="relative w-14 h-14 border rounded-sm overflow-hidden group/img">
+                            <img
+                              src={
+                                typeof img === 'string'
+                                  ? img
+                                  : (img && (img instanceof File || img instanceof Blob) ? URL.createObjectURL(img) : '')
+                              }
+                              alt="variant"
+                              className="w-full h-full object-cover"
+                            />
+                            <button type="button" onClick={() => {
+                              const newVariants = [...formData.variants];
+                              newVariants[vIndex].images = newVariants[vIndex].images.filter((_, i) => i !== imgIndex);
+                              setFormData(prev => ({ ...prev, variants: newVariants }));
+                            }} className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/img:opacity-100 transition-opacity">
+                              <FontAwesomeIcon icon={faTimes} className="text-white text-[12px]" />
+                            </button>
+                          </div>
+                        ))}
+                        <label className="w-14 h-14 flex flex-col items-center justify-center border border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm overflow-hidden text-brand-bronze/50">
+                          <FontAwesomeIcon icon={faCloudUploadAlt} className="text-xs" />
+                          <span className="text-[12px] mt-1 uppercase font-bold">Add</span>
+                          <input type="file" multiple onChange={(e) => {
+                            const files = Array.from(e.target.files);
+                            const newVariants = [...formData.variants];
+                            newVariants[vIndex].images = [...(newVariants[vIndex].images || []), ...files];
+                            setFormData(prev => ({ ...prev, variants: newVariants }));
+                          }} hidden accept="image/*" />
+                        </label>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const newVariants = formData.variants.filter((_, i) => i !== vIndex);
+                        setFormData(prev => ({ ...prev, variants: newVariants }));
+                      }}
+                      className="absolute top-2 right-2 text-brand-muted hover:text-red-400 p-2 transition-colors"
+                    >
+                      <FontAwesomeIcon icon={faTrashAlt} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="text-[11px] text-brand-muted/60 uppercase tracking-widest py-6 border border-dashed border-brand-bronze/10 text-center">
+                Enable "Has Variants" above to add product variations.
+              </p>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Media Management */}
-        <div className="border-t border-brand-bronze/10 pt-12">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze mb-8">Featured Images</h3>
+      {/* Media Management */}
 
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
-            {/* Existing Images */}
-            {formData.image?.map((img, index) => (
-              <div key={index} className="relative aspect-square group">
-                <img src={img} className="w-full h-full object-cover border border-brand-bronze/10" />
-                <button
-                  type="button"
-                  onClick={() => onRemoveExistingImage(index)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
-                >
-                  <FontAwesomeIcon icon={faTimes} className="text-[12px]" />
-                </button>
+      <div className="border-t border-brand-bronze/10 pt-12">
+        <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze mb-8">Featured Images</h3>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
+          {/* Existing Images */}
+          {formData.image?.map((img, index) => (
+            <div key={index} className="relative aspect-square group">
+              <img src={img} className="w-full h-full object-cover border border-brand-bronze/10" />
+              <button
+                type="button"
+                onClick={() => onRemoveExistingImage(index)}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all hover:bg-red-600 shadow-lg"
+              >
+                <FontAwesomeIcon icon={faTimes} className="text-[12px]" />
+              </button>
+            </div>
+          ))}
+
+          {/* New Images */}
+          {newImages.map((image, index) => (
+            <div key={index} className="relative aspect-square group">
+              <img src={image && (image instanceof File || image instanceof Blob) ? URL.createObjectURL(image) : ''} className="w-full h-full object-cover border border-brand-bronze/30 opacity-60" />
+              <button
+                type="button"
+                onClick={() => onRemoveNewImage(index)}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center shadow-lg"
+              >
+                <FontAwesomeIcon icon={faTimes} className="text-[12px]" />
+              </button>
+              <div className="absolute inset-0 flex items-center justify-center">
+                <FontAwesomeIcon icon={faCloudUploadAlt} className="text-brand-bronze opacity-40" />
               </div>
-            ))}
+            </div>
+          ))}
 
-            {/* New Images */}
-            {newImages.map((image, index) => (
-              <div key={index} className="relative aspect-square group">
-                <img src={image && (image instanceof File || image instanceof Blob) ? URL.createObjectURL(image) : ''} className="w-full h-full object-cover border border-brand-bronze/30 opacity-60" />
-                <button
-                  type="button"
-                  onClick={() => onRemoveNewImage(index)}
-                  className="absolute -top-2 -right-2 w-6 h-6 bg-red-400 text-white rounded-full flex items-center justify-center shadow-lg"
-                >
-                  <FontAwesomeIcon icon={faTimes} className="text-[12px]" />
-                </button>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <FontAwesomeIcon icon={faCloudUploadAlt} className="text-brand-bronze opacity-40" />
-                </div>
-              </div>
-            ))}
+          {/* Multi-upload Trigger */}
+          <label className="aspect-square border-2 border-dashed border-brand-bronze/20 flex flex-col items-center justify-center cursor-pointer hover:bg-brand-cream/50 transition-colors group">
+            <FontAwesomeIcon icon={faPlus} className="text-brand-bronze/30 group-hover:text-brand-bronze transition-colors mb-2" />
+            <span className="text-[12px] font-bold uppercase tracking-widest text-brand-muted/40 group-hover:text-brand-muted/80 transition-colors">Add Media</span>
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={onImageUpload}
+              className="hidden"
+            />
+          </label>
+        </div>
 
-            {/* Multi-upload Trigger */}
-            <label className="aspect-square border-2 border-dashed border-brand-bronze/20 flex flex-col items-center justify-center cursor-pointer hover:bg-brand-cream/50 transition-colors group">
-              <FontAwesomeIcon icon={faPlus} className="text-brand-bronze/30 group-hover:text-brand-bronze transition-colors mb-2" />
-              <span className="text-[12px] font-bold uppercase tracking-widest text-brand-muted/40 group-hover:text-brand-muted/80 transition-colors">Add Media</span>
-              <input
-                type="file"
-                multiple
-                accept="image/*"
-                onChange={onImageUpload}
-                className="hidden"
-              />
-            </label>
-          </div>
-
-          {removedImages.length > 0 && (
+        {
+          removedImages.length > 0 && (
             <p className="mt-6 text-[12px] font-bold uppercase tracking-widest text-red-400 animate-pulse">
               <FontAwesomeIcon icon={faTrash} className="mr-2" />
               {removedImages.length} Artifact(s) queued for removal
             </p>
-          )}
+          )
+        }
+      </div>
+
+      {/* Fiscal Overview */}
+      <div className="bg-brand-ink p-10 flex flex-col md:flex-row items-center justify-between gap-12">
+        <div className="flex items-center gap-10">
+          <div>
+            <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">Original Price</p>
+            <p className="text-2xl font-serif text-white">£ {parseFloat(formData.price || 0).toLocaleString()}</p>
+          </div>
+          <div className="w-[1px] h-10 bg-white/10 hidden md:block"></div>
+          <div>
+            <p className="text-[12px] uppercase tracking-widest text-white mb-2">Discount</p>
+            <p className="text-2xl font-serif text-white">
+              {discountPercentage > 0 ? `${discountPercentage.toFixed(1)}%` : 'No Discount'}
+            </p>
+          </div>
         </div>
 
-        {/* Fiscal Overview */}
-        <div className="bg-brand-ink p-10 flex flex-col md:flex-row items-center justify-between gap-12">
-          <div className="flex items-center gap-10">
-            <div>
-              <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">Original Price</p>
-              <p className="text-2xl font-serif text-white">£ {parseFloat(formData.price || 0).toLocaleString()}</p>
-            </div>
-            <div className="w-[1px] h-10 bg-white/10 hidden md:block"></div>
-            <div>
-              <p className="text-[12px] uppercase tracking-widest text-white mb-2">Discount</p>
-              <p className="text-2xl font-serif text-white">
-                {discountPercentage > 0 ? `${discountPercentage.toFixed(1)}%` : 'No Discount'}
-              </p>
-            </div>
-          </div>
-
-          <div className="text-right">
-            <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2"> Selling Price</p>
-            <p className="text-4xl font-serif text-white">£ {actualSellingPrice.toLocaleString()}</p>
-          </div>
+        <div className="text-right">
+          <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2"> Selling Price</p>
+          <p className="text-4xl font-serif text-white">£ {actualSellingPrice.toLocaleString()}</p>
         </div>
       </div>
-    </div>
+    </div >
   )
 }
 
