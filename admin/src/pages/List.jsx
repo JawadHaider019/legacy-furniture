@@ -307,9 +307,13 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
             </p>
           </div>
           <div className="text-right shrink-0 ml-4 min-w-[80px]">
-            <p className="text-lg font-sans font-bold text-brand-ink">£ {item.price.toLocaleString()}</p>
-            {item.discountprice > 0 && (
-              <p className="text-sm text-red-400 line-through">£ {item.discountprice.toLocaleString()}</p>
+            {item.discountprice > 0 ? (
+              <>
+                <p className="text-sm text-red-400 line-through">£ {item.price.toLocaleString()}</p>
+                <p className="text-lg font-sans font-bold text-brand-ink">£ {item.discountprice.toLocaleString()}</p>
+              </>
+            ) : (
+              <p className="text-lg font-sans font-bold text-brand-ink">£ {item.price.toLocaleString()}</p>
             )}
           </div>
         </div>
@@ -593,10 +597,7 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
                     <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.2em] text-brand-muted">Technical Specifications</h4>
                   </div>
                   <div className="grid grid-cols-2 gap-y-4 text-[12px] md:text-sm">
-                    <div className="flex flex-col">
-                      <span className="text-brand-muted opacity-60 uppercase tracking-widest">Brand</span>
-                      <span className="font-bold text-brand-ink uppercase">{product.brand}</span>
-                    </div>
+
                     {product.specs?.dimensions && (
                       <div className="flex flex-col">
                         <span className="text-brand-muted opacity-60 uppercase tracking-widest">Dimensions</span>
@@ -635,14 +636,15 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
                             <h5 className="text-[12px] md:text-sm font-bold uppercase text-brand-ink">{v.name}</h5>
                             <span className="text-[12px] md:text-sm font-serif text-brand-bronze">£ {v.price?.toLocaleString()}</span>
                           </div>
-                          <div className="grid grid-cols-3 gap-4 text-[12px] md:text-sm text-brand-muted opacity-60 uppercase tracking-widest font-bold">
+                          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-[11px] md:text-xs text-brand-muted opacity-60 uppercase tracking-widest font-bold mt-2 border-t border-brand-bronze/5 pt-2">
+                            <span>Price: £ {v.price?.toLocaleString()}</span>
+                            {v.discountPrice > 0 && (
+                              <span className="text-red-500 font-black italic">Sale: £ {v.discountPrice?.toLocaleString()}</span>
+                            )}
                             <span>Cost: £ {(v.cost || product.cost)?.toLocaleString()}</span>
                             <span>Stock: {v.stock}</span>
                             <span>SKU: {v.sku || 'N/A'}</span>
                           </div>
-                          {v.description && (
-                            <p className="text-[12px] md:text-sm text-brand-muted italic mt-2 line-clamp-1">{v.description}</p>
-                          )}
                         </div>
                       </div>
                     ))}

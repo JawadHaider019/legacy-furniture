@@ -155,6 +155,7 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
         origin: ""
       },
       variants: product.variants || [],
+      hasVariants: (product.variants && product.variants.length > 0) || false,
       dynamicAttributes: product.dynamicAttributes || [],
       warrantyDetails: product.warrantyDetails || "",
       returnPolicy: product.returnPolicy || "",
@@ -214,18 +215,41 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
 
   // Calculate basic pricing metrics
   const calculatePricingSummary = () => {
-    const cost = parseFloat(formData.cost) || 0;
-    const price = parseFloat(formData.price) || 0;
-    const discountPrice = parseFloat(formData.discountprice) || 0;
+    let price = parseFloat(formData.price) || 0;
+    let sellingPrice = (parseFloat(formData.discountprice) > 0 ? parseFloat(formData.discountprice) : price) || 0;
+    let isRange = false;
+    let minPrice = price;
+    let maxPrice = price;
+    let minSellingPrice = sellingPrice;
+    let maxSellingPrice = sellingPrice;
 
-    const actualSellingPrice = discountPrice > 0 ? discountPrice : price;
-    const discountAmount = discountPrice > 0 ? price - discountPrice : 0;
-    const discountPercentage = price > 0 ? ((discountAmount / price) * 100) : 0;
+    if (formData.hasVariants && formData.variants && formData.variants.length > 0) {
+      const variantPrices = formData.variants.map(v => parseFloat(v.price) || 0).filter(p => !isNaN(p));
+      const variantSellingPrices = formData.variants.map(v =>
+        (parseFloat(v.discountPrice) > 0 ? parseFloat(v.discountPrice) : parseFloat(v.price)) || 0
+      ).filter(p => !isNaN(p));
+
+      if (variantPrices.length > 0) {
+        minPrice = Math.min(...variantPrices);
+        maxPrice = Math.max(...variantPrices);
+        minSellingPrice = Math.min(...variantSellingPrices);
+        maxSellingPrice = Math.max(...variantSellingPrices);
+
+        if (minPrice !== maxPrice || minSellingPrice !== maxSellingPrice) {
+          isRange = true;
+        }
+      }
+    }
+
+    const discountAmount = maxPrice > 0 ? maxPrice - maxSellingPrice : 0;
+    const discountPercentage = maxPrice > 0 ? ((discountAmount / maxPrice) * 100) : 0;
 
     return {
       discountAmount: isNaN(discountAmount) ? 0 : discountAmount,
       discountPercentage: isNaN(discountPercentage) ? 0 : discountPercentage,
-      actualSellingPrice: isNaN(actualSellingPrice) ? 0 : actualSellingPrice
+      actualSellingPrice: isRange ? `${minSellingPrice.toLocaleString()} - ${maxSellingPrice.toLocaleString()}` : minSellingPrice.toLocaleString(),
+      originalPriceDisplay: isRange ? `${minPrice.toLocaleString()} - ${maxPrice.toLocaleString()}` : minPrice.toLocaleString(),
+      isRange
     };
   }
 
@@ -682,7 +706,14 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
                   <div className="flex-1">
                     <div className="flex justify-between mb-1">
                       <span className="text-md font-bold text-brand-ink uppercase">{v.name}</span>
-                      <span className="text-sm font-serif text-brand-bronze">£ {v.price?.toLocaleString()}</span>
+                      <div className="flex flex-col items-end">
+                        <span className={`text-sm font-serif ${v.discountPrice > 0 ? 'text-red-400 line-through' : 'text-brand-bronze'}`}>
+                          £ {v.price?.toLocaleString()}
+                        </span>
+                        {v.discountPrice > 0 && (
+                          <span className="text-sm font-serif text-brand-bronze">£ {v.discountPrice?.toLocaleString()}</span>
+                        )}
+                      </div>
                     </div>
                     <div
                       className="text-[12px] text-brand-muted leading-relaxed font-sans line-clamp-2 mb-2 rich-text"
@@ -726,7 +757,9 @@ const EditMode = ({
   const {
     discountAmount,
     discountPercentage,
-    actualSellingPrice
+    actualSellingPrice,
+    originalPriceDisplay,
+    isRange
   } = pricingSummary;
 
   return (
@@ -1090,24 +1123,6 @@ const EditMode = ({
                       </div>
                     </div>
 
-                    <div className="space-y-2 mb-4">
-                      <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Description</label>
-                      <div className="quill-luxury">
-                        <ReactQuill
-                          theme="snow"
-                          value={v.description}
-                          onChange={(content) => {
-                            const newVariants = [...formData.variants];
-                            newVariants[vIndex].description = content;
-                            setFormData(prev => ({ ...prev, variants: newVariants }));
-                          }}
-                          modules={quillModules}
-                          placeholder="Specific details for this variant..."
-                          className="bg-white/50 border border-brand-bronze/20 rounded-sm"
-                        />
-                      </div>
-                    </div>
-
                     <div className="space-y-2">
                       <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60 mb-2 block">Variant Images</label>
                       <div className="flex flex-wrap gap-3">
@@ -1231,8 +1246,10 @@ const EditMode = ({
       <div className="bg-brand-ink p-10 flex flex-col md:flex-row items-center justify-between gap-12">
         <div className="flex items-center gap-10">
           <div>
-            <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">Original Price</p>
-            <p className="text-2xl font-serif text-white">£ {parseFloat(formData.price || 0).toLocaleString()}</p>
+            <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">
+              {isRange ? 'Original Price Range' : 'Original Price'}
+            </p>
+            <p className="text-2xl font-serif text-white">£ {originalPriceDisplay}</p>
           </div>
           <div className="w-[1px] h-10 bg-white/10 hidden md:block"></div>
           <div>
@@ -1244,11 +1261,13 @@ const EditMode = ({
         </div>
 
         <div className="text-right">
-          <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2"> Selling Price</p>
-          <p className="text-4xl font-serif text-white">£ {actualSellingPrice.toLocaleString()}</p>
+          <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">
+            {isRange ? 'Selling Price Range' : 'Selling Price'}
+          </p>
+          <p className="text-4xl font-serif text-white">£ {actualSellingPrice}</p>
         </div>
       </div>
-    </div >
+    </div>
   )
 }
 

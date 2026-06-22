@@ -442,23 +442,6 @@ const Add = () => {
                       </div>
                     </div>
 
-                    <div className="luxury-input-group mb-4">
-                      <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Description / Details</label>
-                      <div className="quill-luxury">
-                        <ReactQuill
-                          theme="snow"
-                          value={variant.description}
-                          onChange={(content) => {
-                            const newVar = [...variants];
-                            newVar[vIndex].description = content;
-                            setVariants(newVar);
-                          }}
-                          modules={quillModules}
-                          placeholder="Specific details for this variant..."
-                          className="bg-white/50 border border-brand-bronze/20 rounded-sm"
-                        />
-                      </div>
-                    </div>
 
                     <div className="luxury-input-group">
                       <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Variant Images</label>
