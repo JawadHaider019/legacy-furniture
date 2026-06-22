@@ -1,13 +1,23 @@
 import { motion } from 'motion/react';
 import { Plus, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { ShopContext } from '../context/ShopContext';
 import { slugify } from '../utils/slugify';
+import { cleanName as cleanText } from '../utils/cleanText';
 
 export default function ProductCard({ product, isWishlisted, onWishlistToggle }) {
     const navigate = useNavigate();
-    const currentPrice = product.discountprice && product.discountprice < product.price ? product.discountprice : product.price;
-    const originalPrice = product.discountprice && product.discountprice < product.price ? product.price : null;
-    const discountValue = originalPrice ? Math.round(((originalPrice - currentPrice) / originalPrice) * 100) : 0;
+    const { currency, categories } = useContext(ShopContext);
+    const price = Number(product.price);
+    const salePrice = Number(product.discountprice);
+    const hasDiscount = salePrice > 0 && salePrice < price;
+
+    const currentPrice = hasDiscount ? salePrice : price;
+    const originalPrice = hasDiscount ? price : null;
+    const discountValue = hasDiscount ? Math.round(((price - salePrice) / price) * 100) : 0;
+
+    const cleanName = cleanText(product.name);
 
     return (
         <motion.div
@@ -15,7 +25,7 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle })
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             className="group cursor-pointer"
-            onClick={() => navigate(`/product/${slugify(product.name)}`)}
+            onClick={() => navigate(`/product/${slugify(cleanName)}`)}
         >
             <div className="relative aspect-[4/5] overflow-hidden mb-3 md:mb-8 bg-white shadow-sm ring-1 ring-brand-ink/5">
                 <img
@@ -60,23 +70,51 @@ export default function ProductCard({ product, isWishlisted, onWishlistToggle })
 
             <div className="flex flex-col gap-2">
                 <div className="flex justify-between items-start">
-                    <h3 className="text-brand-ink font-serif text-sm md:text-lg uppercase tracking-tight group-hover:text-brand-bronze transition-colors leading-none line-clamp-2">
-                        {product.name}
-                    </h3>
+                    <div
+                        className="text-brand-ink text-sm md:text-lg tracking-tight group-hover:text-brand-bronze transition-colors leading-none line-clamp-2"
+                        style={{
+                            fontFamily: "'Cormorant Garamond', serif",
+                            fontWeight: 500,
+                            textTransform: 'uppercase',
+                        }}
+                    >
+                        {cleanName}
+                        {product.reviewsCount > 0 && (
+                            <div className="flex items-center gap-2 mt-1">
+                                <div className="flex items-center gap-0.5">
+                                    {[...Array(5)].map((_, i) => (
+                                        <svg
+                                            key={i}
+                                            className={`w-3 h-3 ${i < Math.floor(product.rating) ? 'text-yellow-500 fill-yellow-500' : 'text-brand-ink/10 fill-none'}`}
+                                            xmlns="http://www.w3.org/2001/svg"
+                                            viewBox="0 0 24 24"
+                                            stroke="currentColor"
+                                            strokeWidth="1"
+                                        >
+                                            <path strokeLinecap="round" strokeLinejoin="round" d="M11.48 3.499a.562.562 0 011.04 0l2.125 5.111a.563.563 0 00.475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 00-.182.557l1.285 5.385a.562.562 0 01-.84.61l-4.725-2.885a.563.563 0 00-.586 0L6.982 20.54a.562.562 0 01-.84-.61l1.285-5.386a.562.562 0 00-.182-.557l-4.204-3.602a.563.563 0 01.321-.988l5.518-.442a.563.563 0 00.475-.345L11.48 3.5z" />
+                                        </svg>
+                                    ))}
+                                </div>
+
+                            </div>
+                        )}
+                    </div>
                     <div className="flex flex-col items-end">
                         <p className="text-brand-ink font-sans font-medium text-sm md:text-base">
-                            ${currentPrice.toLocaleString()}
+                            {currency}{currentPrice.toLocaleString()}
                         </p>
                         {originalPrice && (
                             <p className="text-[10px] md:text-xs text-brand-muted line-through opacity-50">
-                                ${originalPrice.toLocaleString()}
+                                {currency}{originalPrice.toLocaleString()}
                             </p>
                         )}
                     </div>
                 </div>
+
+
                 <div className="hidden md:flex items-center gap-3">
                     <span className="text-brand-bronze text-premium-xs italic lowercase">
-                        {product.category}
+                        {categories.find(c => c._id === product.category || c.name === product.category)?.name || product.category}
                     </span>
                     <div className="h-[1px] flex-1 bg-brand-ink/5" />
                     <span className="text-premium-xs text-brand-ink/20 lowercase">Ready to ship</span>

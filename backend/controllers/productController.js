@@ -377,6 +377,8 @@ const updateProduct = async (req, res) => {
       }
     }
 
+    console.log("Variations before image processing:", JSON.stringify(updateData.variants, null, 2));
+
     // Handle new image uploads
     if (req.files && req.files.length > 0) {
       const mainImageFiles = req.files.filter(file => file.fieldname.startsWith('image'));
@@ -401,13 +403,18 @@ const updateProduct = async (req, res) => {
         const parts = file.fieldname.split('_');
         const vIndex = parseInt(parts[1]);
 
-        if (updateData.variants[vIndex]) {
+        if (updateData.variants && updateData.variants[vIndex]) {
           if (!updateData.variants[vIndex].images) updateData.variants[vIndex].images = [];
           const result = await cloudinary.uploader.upload(file.path, { resource_type: "image", folder: "products/variants" });
           updateData.variants[vIndex].images.push(result.secure_url);
+          console.log(`Attached image to variant ${vIndex}: ${result.secure_url}`);
+        } else {
+          console.log(`WARNING: Variant index ${vIndex} not found in updateData.variants`);
         }
       }));
     }
+
+    console.log("Final Variations before DB update:", JSON.stringify(updateData.variants, null, 2));
 
     updateData.image = finalImages;
 

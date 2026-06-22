@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { NavLink } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
-  faDollarSign, faChartLine, faClipboardList, faClock, faPlus,
+  faPoundSign, faChartLine, faClipboardList, faClock, faPlus,
   faBoxes, faShoppingCart, faWarehouse, faChartPie, faTags,
   faArrowTrendUp, faArrowTrendDown, faUsers, faRocket, faPercent,
   faBell, faSync, faExclamationTriangle, faTimes, faFire,
@@ -45,7 +45,7 @@ const StatCard = React.memo(({ title, value, icon, color, change, subtitle, tren
       <div className="flex-1">
         <p className="text-brand-muted text-[12px] md:text-sm uppercase tracking-[0.2em] font-medium mb-3">{title}</p>
         <p className="text-2xl sm:text-3xl font-sans text-brand-ink">
-          {typeof value === 'number' && value >= 1000 ? `Rs ${value.toLocaleString()}` : value || 0}
+          {typeof value === 'number' && value >= 1000 ? `£ ${value.toLocaleString()}` : value || 0}
         </p>
         {subtitle && <p className="text-[12px] md:text-sm text-brand-muted/70 mt-2 font-medium italic">{subtitle}</p>}
         {change && (
@@ -327,7 +327,7 @@ const Dashboard = () => {
         data: {
           labels: profitTrend.map(item => item.period),
           datasets: [{
-            label: 'Profit (Rs)',
+            label: 'Profit (£)',
             data: profitTrend.map(item => item.profit),
             backgroundColor: 'rgba(16, 185, 129, 0.8)',
             borderColor: 'rgb(16, 185, 129)',
@@ -348,7 +348,7 @@ const Dashboard = () => {
               beginAtZero: true,
               ticks: {
                 callback: function (value) {
-                  return 'Rs ' + value.toLocaleString();
+                  return '£ ' + value.toLocaleString();
                 }
               }
             }
@@ -360,7 +360,7 @@ const Dashboard = () => {
           labels: profitGrowth.map(item => item.period),
           datasets: [
             {
-              label: 'Profit (Rs)',
+              label: 'Profit (£)',
               data: profitGrowth.map(item => item.profit),
               backgroundColor: 'rgba(16, 185, 129, 0.8)',
               borderColor: 'rgb(16, 185, 129)',
@@ -398,11 +398,11 @@ const Dashboard = () => {
               position: 'left',
               title: {
                 display: true,
-                text: 'Profit (Rs)'
+                text: 'Profit (£)'
               },
               ticks: {
                 callback: function (value) {
-                  return 'Rs ' + value.toLocaleString();
+                  return '£ ' + value.toLocaleString();
                 }
               }
             },
@@ -460,7 +460,7 @@ const Dashboard = () => {
               beginAtZero: true,
               ticks: {
                 callback: function (value) {
-                  return 'Rs ' + value.toLocaleString();
+                  return '£ ' + value.toLocaleString();
                 }
               }
             }
@@ -493,7 +493,7 @@ const Dashboard = () => {
           data: {
             labels: ['Revenue', 'Profit', 'Expenses'],
             datasets: [{
-              label: 'Amount (Rs)',
+              label: 'Amount (£)',
               data: [combinedMetrics.totalRevenue, combinedMetrics.totalProfit, combinedMetrics.totalCost],
               backgroundColor: ['rgba(59, 130, 246, 0.8)', 'rgba(16, 185, 129, 0.8)', 'rgba(239, 68, 68, 0.8)'],
               borderColor: ['rgb(59, 130, 246)', 'rgb(16, 185, 129)', 'rgb(239, 68, 68)'],
@@ -753,7 +753,7 @@ const Dashboard = () => {
             title="Total Revenue"
             value={combinedMetrics.totalRevenue}
             subtitle="Gross Income"
-            icon={faDollarSign}
+            icon={faPoundSign}
             color="bg-green-500"
           />
           <StatCard
@@ -880,7 +880,7 @@ const Dashboard = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-serif text-brand-ink mb-2">Rs {order.amount.toLocaleString()}</p>
+                      <p className="text-sm font-serif text-brand-ink mb-2">£ {order.amount.toLocaleString()}</p>
                       <StatusBadge status={order.status} />
                     </div>
                   </div>

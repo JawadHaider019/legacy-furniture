@@ -4,6 +4,7 @@ import { backendUrl, currency } from '../App'
 import { useToast } from '../hooks/useToast'
 import ProductDetails from '../components/ProductDetails'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { cleanName } from '../utils/cleanText'
 import {
   faBox,
   faTags,
@@ -13,7 +14,7 @@ import {
   faCalendarAlt,
   faShoppingBag,
   faPercent,
-  faDollarSign,
+  faPoundSign,
   faCube,
   faFire,
   faPlus,
@@ -59,7 +60,12 @@ const List = ({ token }) => {
       const response = await axios.get(backendUrl + '/api/product/list?status=all')
 
       if (response.data.success) {
-        setProducts(response.data.products)
+        setProducts(response.data.products);
+        // Sync selected product if currently in view/edit
+        if (selectedProduct) {
+          const updated = response.data.products.find(p => p._id === selectedProduct._id);
+          if (updated) setSelectedProduct(updated);
+        }
       } else {
         toast.error(response.data.message)
       }
@@ -213,7 +219,7 @@ const List = ({ token }) => {
               <ProductDetails
                 product={selectedProduct}
                 token={token}
-                onUpdate={fetchProducts}
+                onSave={fetchProducts}
                 onBack={() => setViewMode('list')}
               />
             )}
@@ -293,17 +299,17 @@ const ProductListView = ({ item, onView, onEdit, onDelete, onStatusChange, onSto
       <div className="flex-1 flex flex-col">
         <div className="flex justify-between items-start mb-2">
           <div className="flex-1">
-            <h3 className="font-serif text-lg text-brand-ink mb-1 group-hover:text-brand-bronze transition-colors truncate">
-              {item.name}
+            <h3 className="font-serif text-lg text-brand-ink mb-1 group-hover:text-brand-bronze transition-colors break-words">
+              {cleanName(item.name)}
             </h3>
             <p className="text-[12px] md:text-sm font-bold uppercase tracking-widest text-brand-muted opacity-60">
               Ref: {item._id.slice(-8).toUpperCase()}
             </p>
           </div>
-          <div className="text-right">
-            <p className="text-lg font-sans font-bold text-brand-ink">Rs {item.price.toLocaleString()}</p>
+          <div className="text-right shrink-0 ml-4 min-w-[80px]">
+            <p className="text-lg font-sans font-bold text-brand-ink">£ {item.price.toLocaleString()}</p>
             {item.discountprice > 0 && (
-              <p className="text-sm text-red-400 line-through">Rs {item.discountprice.toLocaleString()}</p>
+              <p className="text-sm text-red-400 line-through">£ {item.discountprice.toLocaleString()}</p>
             )}
           </div>
         </div>
@@ -497,7 +503,7 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
         <div className="relative z-10 flex justify-between items-center px-10 py-8 border-b border-brand-bronze/10">
           <div>
             <h2 className="text-sm font-bold uppercase tracking-[0.3em] text-brand-bronze mb-2">Product Details</h2>
-            <h3 className="text-3xl font-serif text-brand-ink">{product.name}</h3>
+            <h3 className="text-3xl font-serif text-brand-ink">{cleanName(product.name)}</h3>
           </div>
           <button
             onClick={onClose}
@@ -546,9 +552,7 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
                   <h4 className="text-[12px] md:text-sm font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Description</h4>
                   <div className="flex-1 h-[1px] bg-brand-bronze/10"></div>
                 </div>
-                <p className="text-sm text-brand-muted leading-relaxed font-medium italic">
-                  "{product.description || 'No description available for this product.'}"
-                </p>
+                <div className="text-sm text-brand-muted leading-relaxed font-medium rich-text" dangerouslySetInnerHTML={{ __html: product.description || 'No description available for this product.' }} />
               </section>
 
               <div className="grid grid-cols-2 gap-12">
@@ -571,11 +575,11 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
                   <div className="space-y-4">
                     <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2">
                       <span className="text-[12px] md:text-sm uppercase tracking-widest text-brand-muted">Cost Price</span>
-                      <span className="text-[12px] md:text-sm font-bold text-brand-ink uppercase tracking-wider">Rs {product.cost?.toLocaleString() || 0}</span>
+                      <span className="text-[12px] md:text-sm font-bold text-brand-ink uppercase tracking-wider">£ {product.cost?.toLocaleString() || 0}</span>
                     </div>
                     <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2 text-brand-bronze">
                       <span className="text-[12px] md:text-sm uppercase tracking-widest">Selling Price</span>
-                      <span className="text-[12px] md:text-sm font-bold uppercase tracking-wider">Rs {(product.discountprice || product.price).toLocaleString()}</span>
+                      <span className="text-[12px] md:text-sm font-bold uppercase tracking-wider">£ {(product.discountprice || product.price).toLocaleString()}</span>
                     </div>
                   </div>
                 </section>
@@ -629,10 +633,10 @@ const ProductDetailsPreview = ({ product, onClose, onEdit, categories }) => {
                         <div className="flex-1">
                           <div className="flex justify-between items-start mb-2">
                             <h5 className="text-[12px] md:text-sm font-bold uppercase text-brand-ink">{v.name}</h5>
-                            <span className="text-[12px] md:text-sm font-serif text-brand-bronze">Rs {v.price?.toLocaleString()}</span>
+                            <span className="text-[12px] md:text-sm font-serif text-brand-bronze">£ {v.price?.toLocaleString()}</span>
                           </div>
                           <div className="grid grid-cols-3 gap-4 text-[12px] md:text-sm text-brand-muted opacity-60 uppercase tracking-widest font-bold">
-                            <span>Cost: Rs {(v.cost || product.cost)?.toLocaleString()}</span>
+                            <span>Cost: £ {(v.cost || product.cost)?.toLocaleString()}</span>
                             <span>Stock: {v.stock}</span>
                             <span>SKU: {v.sku || 'N/A'}</span>
                           </div>

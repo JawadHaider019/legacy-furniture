@@ -28,7 +28,7 @@ export default function CategoryScroll() {
                     {categories.map((category, idx) => (
                         <motion.div
                             key={category._id}
-                            onClick={() => navigate(`/collection/${category.name.toLowerCase()}`)}
+                            onClick={() => navigate(`/shop/${category.name.toLowerCase()}`)}
                             initial={{ opacity: 0, y: 20 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}

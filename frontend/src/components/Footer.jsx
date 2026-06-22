@@ -25,12 +25,12 @@ export default function Footer() {
                     </div>
 
                     <div>
-                        <h4 className="text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold text-white/40 mb-8">Collection</h4>
+                        <h4 className="text-[12px] md:text-sm uppercase tracking-[0.3em] font-bold text-white/40 mb-8">Shop</h4>
                         <ul className="space-y-4 text-sm font-light">
-                            <li><Link to="/collection/living" className="hover:text-white transition-colors">Living Room</Link></li>
-                            <li><Link to="/collection/dining" className="hover:text-white transition-colors">Dining Room</Link></li>
-                            <li><Link to="/collection/bedroom" className="hover:text-white transition-colors">Bedroom</Link></li>
-                            <li><Link to="/collection/lighting" className="hover:text-white transition-colors">Lighting</Link></li>
+                            <li><Link to="/shop/living" className="hover:text-white transition-colors">Living Room</Link></li>
+                            <li><Link to="/shop/dining" className="hover:text-white transition-colors">Dining Room</Link></li>
+                            <li><Link to="/shop/bedroom" className="hover:text-white transition-colors">Bedroom</Link></li>
+                            <li><Link to="/shop/lighting" className="hover:text-white transition-colors">Lighting</Link></li>
                             <li><Link to="/shop" className="hover:text-white transition-colors">All Pieces</Link></li>
                         </ul>
                     </div>

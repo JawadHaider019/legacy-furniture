@@ -124,7 +124,7 @@ const OtherTab = () => {
         {/* Fixed Charges Input */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Fixed Delivery Charges (Rs)
+            Fixed Delivery Charges (£)
           </label>
           <input
             type="number"
@@ -147,7 +147,7 @@ const OtherTab = () => {
         {/* Free Delivery Above */}
         <div className="mb-4">
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Free Delivery Above (Rs)
+            Free Delivery Above (£)
           </label>
           <input
             type="number"
@@ -172,8 +172,8 @@ const OtherTab = () => {
           <h4 className="font-medium text-gray-900 mb-2">Current Settings Preview:</h4>
           <div className="text-sm text-gray-600 space-y-1">
             <p>• Delivery Mode: <span className="font-medium">Fixed Charges</span></p>
-            <p>• Delivery Charge: <span className="font-medium">Rs {deliverySettings.fixedCharge}</span></p>
-            <p>• Free Delivery: <span className="font-medium">Orders above Rs {deliverySettings.freeDeliveryAbove}</span></p>
+            <p>• Delivery Charge: <span className="font-medium">£ {deliverySettings.fixedCharge}</span></p>
+            <p>• Free Delivery: <span className="font-medium">Orders above £ {deliverySettings.freeDeliveryAbove}</span></p>
           </div>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import ProductCard from '../components/ProductCard';
 import { Heart, ArrowRight, ShoppingBag } from 'lucide-react';
+import { cleanName as cleanText } from '../utils/cleanText';
 import toast from 'react-hot-toast';
 
 export default function Favorites({ favorites, onWishlistToggle }) {
@@ -13,7 +14,7 @@ export default function Favorites({ favorites, onWishlistToggle }) {
     const handleQuickAdd = (product) => {
         // Default variants for quick add
         addToCart(product._id, 'default', 'default');
-        toast.success(`${product.name} added to sanctuary bag`, {
+        toast.success(`${cleanText(product.name)} added to sanctuary bag`, {
             style: {
                 background: '#1A1A1A',
                 color: '#F4F1ED',

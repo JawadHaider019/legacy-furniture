@@ -1,4 +1,4 @@
-import { ShoppingBag, Menu, X, Heart, User } from 'lucide-react';
+import { ShoppingBag, Menu, X, Heart, User, LogOut, Mail, UserCircle } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -7,10 +7,11 @@ import { ShopContext } from '../context/ShopContext';
 
 export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLogin }) {
     const [isOpen, setIsOpen] = useState(false);
+    const [showProfileMenu, setShowProfileMenu] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const navigate = useNavigate();
     const location = useLocation();
-    const { categories, deliverySettings, currency, businessDetails } = useContext(ShopContext);
+    const { categories, deliverySettings, currency, businessDetails, token, user, logout } = useContext(ShopContext);
 
     const forceDarkText = location.pathname.startsWith('/product') || location.pathname === '/checkout';
     const isDarkText = scrolled || forceDarkText;
@@ -32,7 +33,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
         <>
             {/* ANNOUNCEMENT BAR */}
             {deliverySettings?.freeDeliveryAbove > 0 && <div className={`bg-brand-ink text-brand-cream py-2 px-6 text-center text-[10px] uppercase tracking-[0.2em] font-bold z-[100] relative transition-all duration-500 overflow-hidden ${deliverySettings?.freeDeliveryAbove ? 'h-auto opacity-100' : 'h-0 opacity-0 py-0'}`}>
-                {deliverySettings?.freeDeliveryAbove ? `Free Shipping Over   ${deliverySettings.freeDeliveryAbove.toLocaleString()}*` : ''}
+                {deliverySettings?.freeDeliveryAbove ? `Free Shipping Over   ${currency}${deliverySettings.freeDeliveryAbove.toLocaleString()}*` : ''}
             </div>}
 
             <nav
@@ -45,7 +46,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                     {/* NAVIGATION (Left) */}
                     <div className="hidden lg:flex items-center gap-10 w-1/3">
                         <button onClick={() => navigate('/')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Home</button>
-                        <button onClick={() => navigate('/shop')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Collection</button>
+                        <button onClick={() => navigate('/shop')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Shop</button>
                         <button onClick={() => navigate('/orders')} className={`text-premium-xs transition-colors luxury-underline ${isDarkText ? 'text-brand-ink' : 'text-white'}`}>Orders</button>
                     </div>
 
@@ -80,12 +81,69 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                                 )}
                             </button>
 
-                            <button
-                                onClick={onOpenLogin}
-                                className={`transition-colors ${isDarkText ? 'text-brand-ink' : 'text-white'}`}
-                            >
-                                <User size={18} strokeWidth={1.5} />
-                            </button>
+                            {token ? (
+                                <div className="relative">
+                                    <button
+                                        onClick={() => setShowProfileMenu(!showProfileMenu)}
+                                        onMouseEnter={() => setShowProfileMenu(true)}
+                                        className={`transition-colors flex items-center gap-2 ${isDarkText ? 'text-brand-ink' : 'text-white'}`}
+                                    >
+                                        <User size={18} strokeWidth={1.5} />
+                                        {user && <span className="text-[10px] uppercase tracking-widest font-bold hidden xl:block">{user.name.split(' ')[0]}</span>}
+                                    </button>
+
+                                    <AnimatePresence>
+                                        {showProfileMenu && (
+                                            <motion.div
+                                                initial={{ opacity: 0, y: 10 }}
+                                                animate={{ opacity: 1, y: 0 }}
+                                                exit={{ opacity: 0, y: 10 }}
+                                                onMouseLeave={() => setShowProfileMenu(false)}
+                                                className="absolute right-0 mt-4 w-64 bg-white border border-brand-ink/5 shadow-2xl p-6 z-[100]"
+                                            >
+                                                <div className="flex flex-col gap-4">
+                                                    <div className="pb-4 border-b border-brand-ink/5">
+                                                        <div className="flex items-center gap-3 mb-3">
+                                                            <div className="flex items-center gap-2 text-[10px] text-brand-muted font-bold  tracking-widest opacity-60">
+
+                                                                <UserCircle size={16} className="text-brand-bronze" />
+                                                                <p className="text-xs font-serif italic text-brand-ink leading-tight capitalize">
+                                                                    {user?.name || 'Valued Client'}
+                                                                </p>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center gap-2 text-[10px] text-brand-muted font-bold  tracking-widest opacity-60">
+                                                            <Mail size={12} strokeWidth={1.5} />
+                                                            {user?.email}
+                                                        </div>
+                                                    </div>
+
+
+
+                                                    <button
+                                                        onClick={() => {
+                                                            logout();
+                                                            setShowProfileMenu(false);
+                                                            navigate('/');
+                                                        }}
+                                                        className="flex items-center gap-2 border-brand-ink/5 group/logout"
+                                                    >
+                                                        <LogOut size={14} className="text-brand-ink group-hover/logout:text-red-500 transition-colors" />
+                                                        <span className="text-[11px] uppercase tracking-widest font-black text-brand-ink group-hover/logout:text-red-500 transition-colors">Sign Out</span>
+                                                    </button>
+                                                </div>
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
+                            ) : (
+                                <button
+                                    onClick={onOpenLogin}
+                                    className={`transition-colors ${isDarkText ? 'text-brand-ink' : 'text-white'}`}
+                                >
+                                    <User size={18} strokeWidth={1.5} />
+                                </button>
+                            )}
                         </div>
 
                         <button
@@ -140,7 +198,7 @@ export default function Navbar({ cartCount, wishlistCount, onOpenCart, onOpenLog
                                     ...categories.map(cat => ({
                                         label: cat.name,
                                         sub: cat.description.split('.')[0], // Short summary
-                                        path: `/collection/${cat.name.toLowerCase()}`
+                                        path: `/shop/${cat.name.toLowerCase()}`
                                     })),
                                     { label: "Contact Us", sub: "Get in touch", path: "/contact" }
                                 ].map((item, idx) => (

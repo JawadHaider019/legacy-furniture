@@ -5,7 +5,7 @@ import { toast } from "react-hot-toast";
 export const ShopContext = createContext();
 
 const ShopContextProvider = (props) => {
-    const currency = '$';
+    const currency = '£';
     const delivery_fee = 49;
     const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -302,7 +302,19 @@ const ShopContextProvider = (props) => {
             }
         } catch (error) {
             console.log(error);
-            toast.error(error.message);
+            if (error.response?.status === 401) {
+                toast.error("Login Required", {
+                    style: {
+                        background: '#1A1A1A',
+                        color: '#C5A059',
+                        fontSize: '10px',
+                        textTransform: 'uppercase',
+                        borderRadius: '0px'
+                    }
+                });
+            } else {
+                toast.error(error.message);
+            }
         }
     };
 

@@ -28,7 +28,15 @@ export default function RouterContent({
     onOpenLogin, syncOrders, isSyncing
 }) {
     const navigate = useNavigate();
-    const { products, getCartCount, getCartAmount } = useContext(ShopContext);
+    const { products, getCartCount, getCartAmount, token } = useContext(ShopContext);
+
+    const handleToggleWishlist = (id) => {
+        if (!token) {
+            onOpenLogin();
+            return;
+        }
+        toggleWishlist(id);
+    };
 
     return (
         <div className="min-h-screen bg-brand-cream selection:bg-brand-bronze selection:text-white">
@@ -45,13 +53,13 @@ export default function RouterContent({
                         <Home
                             products={products}
                             wishlistItems={wishlistItems}
-                            toggleWishlist={toggleWishlist}
+                            toggleWishlist={handleToggleWishlist}
                         />
                     } />
                     <Route path="/shop" element={
                         <Collection
                             wishlistItems={wishlistItems}
-                            onWishlistToggle={toggleWishlist}
+                            onWishlistToggle={handleToggleWishlist}
                         />
                     } />
                     <Route path="/orders" element={
@@ -60,13 +68,13 @@ export default function RouterContent({
                     <Route path="/favorites" element={
                         <Favorites
                             favorites={products.filter(p => wishlistItems.includes(p._id))}
-                            onWishlistToggle={toggleWishlist}
+                            onWishlistToggle={handleToggleWishlist}
                         />
                     } />
-                    <Route path="/collection/:category" element={
+                    <Route path="/shop/:category" element={
                         <Collection
                             wishlistItems={wishlistItems}
-                            onWishlistToggle={toggleWishlist}
+                            onWishlistToggle={handleToggleWishlist}
                         />
                     } />
                     <Route path="/checkout" element={
@@ -81,7 +89,7 @@ export default function RouterContent({
                     <Route path="/blog/:id" element={<BlogDetail />} />
                     <Route path="/product/:slug" element={
                         <ProductDetail
-                            onWishlistToggle={toggleWishlist}
+                            onWishlistToggle={handleToggleWishlist}
                             isWishlisted={(id) => wishlistItems.includes(id)}
                             onOpenLogin={onOpenLogin}
                         />

@@ -34,9 +34,8 @@ import {
   faMoneyBillWave,
   faCreditCard,
   faWallet,
-  faFileInvoiceDollar,
+  faPoundSign,
   faMoneyBill,
-  faHandHoldingUsd,
   faCaretDown,
   faExternalLinkAlt,
   faFileAlt
@@ -717,7 +716,7 @@ const BillingSummary = ({ order }) => {
   return (
     <div>
       <h5 className="text-lg font-semibold text-black mb-2 flex items-center">
-        <FontAwesomeIcon icon={faFileInvoiceDollar} className="mr-2" />
+        <FontAwesomeIcon icon={faPoundSign} className="mr-2" />
         Billing Summary
       </h5>
       <div className="bg-gray-50 rounded border border-gray-200 p-3 text-sm">

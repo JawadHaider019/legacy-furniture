@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react'
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 import axios from 'axios'
+import { cleanName } from '../utils/cleanText';
 import { backendUrl, currency } from '../App'
 import { useToast } from '../hooks/useToast'
 import {
@@ -73,35 +76,14 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
     return '';
   };
 
-  // Fetch categories from backend
+  // Fetch categories once on mount
   useEffect(() => {
-    const fetchCategories = async () => {
+    const fetchCats = async () => {
       try {
         setCategoriesLoading(true)
         const response = await axios.get(backendUrl + '/api/categories')
-
         if (response.data && Array.isArray(response.data)) {
           setCategories(response.data)
-
-          // Auto-mapping: If product has a category/subcategory name, find the corresponding ID
-          const catValue = product.category
-          const subValue = product.subcategory
-
-          const catMatch = response.data.find(cat => cat._id === catValue || cat.name === catValue)
-
-          if (catMatch) {
-            // Found the category, now load its subcategories
-            setSubcategories(catMatch.subcategories || [])
-
-            // Update formData with IDs instead of names so selects work
-            const subMatch = (catMatch.subcategories || []).find(sub => sub._id === subValue || sub.name === subValue)
-
-            setFormData(prev => ({
-              ...prev,
-              category: catMatch._id,
-              subcategory: subMatch ? subMatch._id : (prev.subcategory || '')
-            }))
-          }
         }
       } catch (error) {
         console.error('Error fetching categories:', error)
@@ -110,9 +92,53 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
         setCategoriesLoading(false)
       }
     }
+    fetchCats()
+  }, [])
 
-    fetchCategories()
-  }, [product._id]) // Only run when product changes
+  // Sync and Normalize formData whenever product or categories change
+  useEffect(() => {
+    if (!product || categories.length === 0) return;
+
+    const catValue = product.category
+    const subValue = product.subcategory
+
+    // Find the category match (by ID or name)
+    const catMatch = categories.find(cat => cat._id === catValue || cat.name === catValue)
+
+    let subMatch = null;
+    if (catMatch) {
+      // Load subcategories for this category
+      setSubcategories(catMatch.subcategories || [])
+      // Find subcategory match within this category
+      subMatch = (catMatch.subcategories || []).find(sub => sub._id === subValue || sub.name === subValue)
+    }
+
+    setFormData({
+      ...product,
+      name: product.name || '',
+      description: product.description || '',
+      category: catMatch ? catMatch._id : (product.category || ''),
+      subcategory: subMatch ? subMatch._id : (product.subcategory || ''),
+      cost: product.cost || 0,
+      price: product.price || 0,
+      discountprice: product.discountprice || 0,
+      quantity: Math.max(0, product.quantity || 0),
+      bestseller: product.bestseller || false,
+      status: product.status || 'draft',
+      brand: product.brand || '',
+      specs: product.specs || {
+        dimensions: "",
+        weight: "",
+        assembly: false,
+        sku: "",
+        warranty: "",
+        material: "",
+        modelNumber: "",
+        origin: ""
+      },
+      variants: product.variants || []
+    })
+  }, [product, categories])
 
   // Update subcategories when category changes
   useEffect(() => {
@@ -252,7 +278,7 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
 
       // Add basic fields
       formDataToSend.append('id', product._id)
-      formDataToSend.append('name', formData.name)
+      formDataToSend.append('name', stripHtml(formData.name))
       formDataToSend.append('description', formData.description)
       formDataToSend.append('category', formData.category)
       formDataToSend.append('subcategory', formData.subcategory)
@@ -266,7 +292,20 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
       // Add Furniture fields
       formDataToSend.append("brand", formData.brand);
       formDataToSend.append("specs", JSON.stringify(formData.specs));
-      formDataToSend.append("variants", JSON.stringify(formData.variants));
+
+      // Clean variants before stringifying
+      const cleanedVariants = formData.variants.map(v => ({
+        ...v,
+        name: cleanName(v.name),
+        description: v.description,
+        price: Number(v.price) || 0,
+        cost: Number(v.cost) || 0,
+        stock: Number(v.stock) || 0,
+        discountPrice: Number(v.discountPrice) || 0,
+        // Filter out File objects from the JSON image array - they'll be uploaded separately
+        images: (v.images || []).filter(img => typeof img === 'string')
+      }));
+      formDataToSend.append("variants", JSON.stringify(cleanedVariants));
 
       // Append variant images (Multiple images per variant)
       formData.variants.forEach((v, vIndex) => {
@@ -306,6 +345,7 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
         setRemovedImages([])
 
         onSave()
+        onBack()
       } else {
         toast.error(response.data.message)
       }
@@ -425,6 +465,7 @@ const ProductDetails = ({ product, mode, token, onBack, onSave }) => {
                 pricingSummary={calculatePricingSummary()}
                 getCategoryName={getCategoryName}
                 getSubcategoryName={getSubcategoryName}
+                setFormData={setFormData}
                 ingredientCount={ingredientCount}
                 benefitCount={benefitCount}
               />
@@ -511,9 +552,7 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
           <div className="space-y-8">
             <div>
               <h2 className="text-3xl font-serif text-brand-ink mb-4">{product.name}</h2>
-              <p className="text-sm text-brand-muted leading-relaxed italic opacity-80">
-                "{product.description || 'No descriptive record available for this creation.'}"
-              </p>
+              <div className="text-sm text-brand-muted leading-relaxed font-serif-italic opacity-80 rich-text" dangerouslySetInnerHTML={{ __html: product.description || 'No descriptive record available for this creation.' }} />
             </div>
 
             <div className="grid grid-cols-2 gap-12">
@@ -534,12 +573,12 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
                 <h4 className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-muted">Valuation</h4>
                 <div className="space-y-3">
                   <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2">
-                    <span className="text-[12px] uppercase tracking-widest text-brand-muted opacity-60">Portfolio Value</span>
-                    <span className="text-sm font-bold text-brand-ink font-sans">Rs {product.price.toLocaleString()}</span>
+                    <span className="text-[12px] uppercase tracking-widest text-brand-muted opacity-60">Original Price</span>
+                    <span className="text-sm font-bold text-brand-ink font-sans">£ {product.price.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between items-end border-b border-brand-bronze/10 pb-2 text-brand-bronze">
                     <span className="text-[12px] uppercase tracking-widest">Adjusted Value</span>
-                    <span className="text-sm font-bold font-sans">Rs {product.discountprice.toLocaleString()}</span>
+                    <span className="text-sm font-bold font-sans">£ {product.discountprice.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
@@ -548,14 +587,8 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
         </section>
 
         {/* Brand & Specifications */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div className="p-8 bg-brand-cream/30 border border-brand-bronze/10">
-            <div className="flex items-center gap-3 mb-6">
-              <FontAwesomeIcon icon={faInfoCircle} className="text-brand-bronze/40 text-xs" />
-              <h4 className="text-[12px] font-bold uppercase tracking-[0.2em] text-brand-muted">Legacy Brand</h4>
-            </div>
-            <p className="text-xl font-sans font-bold text-brand-ink">{product.brand || 'Unspecified Brand'}</p>
-          </div>
+        <div className="grid grid-cols-1 gap-8">
+
 
           <div className="p-8 bg-brand-cream/30 border border-brand-bronze/10">
             <div className="flex items-center gap-3 mb-6">
@@ -606,13 +639,14 @@ const ViewMode = ({ product, getCategoryName, getSubcategoryName }) => {
                   <div className="flex-1">
                     <div className="flex justify-between mb-1">
                       <span className="text-md font-bold text-brand-ink uppercase">{v.name}</span>
-                      <span className="text-sm font-serif text-brand-bronze">Rs {v.price?.toLocaleString()}</span>
+                      <span className="text-sm font-serif text-brand-bronze">£ {v.price?.toLocaleString()}</span>
                     </div>
-                    <p className="text-[12px] text-brand-muted leading-relaxed italic line-clamp-2 mb-2">
-                      {v.description || 'No specific details provided.'}
-                    </p>
+                    <div
+                      className="text-[12px] text-brand-muted leading-relaxed font-serif-italic line-clamp-2 mb-2 rich-text"
+                      dangerouslySetInnerHTML={{ __html: v.description || 'No specific details provided.' }}
+                    />
                     <div className="flex gap-4">
-                      <span className="text-sm font-bold uppercase text-brand-muted opacity-60 font-sans">Cost: Rs {(v.cost || product.cost)?.toLocaleString()}</span>
+                      <span className="text-sm font-bold uppercase text-brand-muted opacity-60 font-sans">Cost: £ {(v.cost || product.cost)?.toLocaleString()}</span>
                       <span className="text-sm font-bold uppercase text-brand-muted opacity-60 font-sans">Stock: {v.stock}</span>
                       <span className="text-sm font-bold uppercase text-brand-muted opacity-60">SKU: {v.sku}</span>
                     </div>
@@ -642,6 +676,7 @@ const EditMode = ({
   pricingSummary,
   getCategoryName,
   getSubcategoryName,
+  setFormData,
   ingredientCount,
   benefitCount
 }) => {
@@ -657,10 +692,10 @@ const EditMode = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
         <div className="space-y-8">
           <div className="space-y-6">
-            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Identity & Classification</h3>
+            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Product Information</h3>
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Asset Name</label>
+                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Product Name</label>
                 <input
                   type="text"
                   name="name"
@@ -706,12 +741,12 @@ const EditMode = ({
           </div>
 
           <div className="space-y-6">
-            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Valuation Scale</h3>
+            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Pricing & Inventory</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Acquisition Cost</label>
+                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost Price</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">RS</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">£</span>
                   <input
                     type="number"
                     name="cost"
@@ -722,9 +757,9 @@ const EditMode = ({
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Market Value</label>
+                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Original Price</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">RS</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-muted/40 text-[12px]">£</span>
                   <input
                     type="number"
                     name="price"
@@ -735,9 +770,9 @@ const EditMode = ({
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Adjusted Value</label>
+                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Discounted Price</label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-bronze/40 text-[12px]">RS</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-brand-bronze/40 text-[12px]">£</span>
                   <input
                     type="number"
                     name="discountprice"
@@ -748,7 +783,7 @@ const EditMode = ({
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Units Available</label>
+                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Total Quantity</label>
                 <input
                   type="number"
                   name="quantity"
@@ -763,10 +798,10 @@ const EditMode = ({
 
         <div className="space-y-8">
           <div className="space-y-6">
-            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Status & Visibility</h3>
+            <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Visibility & Status</h3>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Archive Status</label>
+                <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Product Status</label>
                 <select
                   name="status"
                   value={formData.status}
@@ -794,15 +829,16 @@ const EditMode = ({
           </div>
 
           <div className="space-y-2">
-            <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Curatorial Statement</label>
-            <textarea
-              name="description"
-              value={formData.description}
-              onChange={onChange}
-              rows="6"
-              className="luxury-input resize-none"
-              placeholder="Describe the provenance and aesthetic of this creation..."
-            />
+            <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Product Description</label>
+            <div className="quill-luxury">
+              <ReactQuill
+                theme="snow"
+                value={formData.description}
+                onChange={(content) => setFormData(prev => ({ ...prev, description: content }))}
+                placeholder="Describe the provenance and aesthetic of this creation..."
+                className="bg-white/50 border border-brand-bronze/20 rounded-sm"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -811,20 +847,10 @@ const EditMode = ({
       <div className="border-t border-brand-bronze/10 pt-12">
         <div className="space-y-12">
           {/* Brand & Specs Edit */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          <div className="grid grid-cols-1 gap-12">
+
             <div className="space-y-6">
-              <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Brand Identity</h3>
-              <input
-                type="text"
-                name="brand"
-                value={formData.brand}
-                onChange={onChange}
-                className="luxury-input"
-                placeholder="e.g. Auden Atelier"
-              />
-            </div>
-            <div className="space-y-6">
-              <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Detailed Specs</h3>
+              <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze">Dimensions & Weight</h3>
               <div className="grid grid-cols-2 gap-4">
                 <input
                   type="text"
@@ -894,7 +920,7 @@ const EditMode = ({
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-4">
                       <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Price (Rs)</label>
+                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Price (£)</label>
                         <input
                           type="number"
                           placeholder="Price"
@@ -908,7 +934,7 @@ const EditMode = ({
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost (Rs)</label>
+                        <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Cost (£)</label>
                         <input
                           type="number"
                           placeholder="Cost"
@@ -968,16 +994,19 @@ const EditMode = ({
 
                   <div className="space-y-2 mb-4">
                     <label className="text-[12px] font-bold uppercase tracking-widest text-brand-muted opacity-60">Variant Description</label>
-                    <textarea
-                      placeholder="Specific details for this variant..."
-                      value={v.description}
-                      onChange={(e) => {
-                        const newVariants = [...formData.variants];
-                        newVariants[vIndex].description = e.target.value;
-                        setFormData(prev => ({ ...prev, variants: newVariants }));
-                      }}
-                      className="luxury-input text-xs min-h-[60px] resize-none"
-                    />
+                    <div className="quill-luxury">
+                      <ReactQuill
+                        theme="snow"
+                        value={v.description}
+                        onChange={(content) => {
+                          const newVariants = [...formData.variants];
+                          newVariants[vIndex].description = content;
+                          setFormData(prev => ({ ...prev, variants: newVariants }));
+                        }}
+                        placeholder="Specific details for this variant..."
+                        className="bg-white/50 border border-brand-bronze/20 rounded-sm"
+                      />
+                    </div>
                   </div>
 
                   <div className="space-y-2">
@@ -985,7 +1014,15 @@ const EditMode = ({
                     <div className="flex flex-wrap gap-3">
                       {v.images?.map((img, imgIndex) => (
                         <div key={imgIndex} className="relative w-14 h-14 border rounded-sm overflow-hidden group/img">
-                          <img src={typeof img === 'string' ? img : URL.createObjectURL(img)} alt="variant" className="w-full h-full object-cover" />
+                          <img
+                            src={
+                              typeof img === 'string'
+                                ? img
+                                : (img && (img instanceof File || img instanceof Blob) ? URL.createObjectURL(img) : '')
+                            }
+                            alt="variant"
+                            className="w-full h-full object-cover"
+                          />
                           <button type="button" onClick={() => {
                             const newVariants = [...formData.variants];
                             newVariants[vIndex].images = newVariants[vIndex].images.filter((_, i) => i !== imgIndex);
@@ -1026,7 +1063,7 @@ const EditMode = ({
 
         {/* Media Management */}
         <div className="border-t border-brand-bronze/10 pt-12">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze mb-8">Visual Documentation</h3>
+          <h3 className="text-[12px] font-bold uppercase tracking-[0.3em] text-brand-bronze mb-8">Featured Images</h3>
 
           <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-6">
             {/* Existing Images */}
@@ -1046,7 +1083,7 @@ const EditMode = ({
             {/* New Images */}
             {newImages.map((image, index) => (
               <div key={index} className="relative aspect-square group">
-                <img src={URL.createObjectURL(image)} className="w-full h-full object-cover border border-brand-bronze/30 opacity-60" />
+                <img src={image && (image instanceof File || image instanceof Blob) ? URL.createObjectURL(image) : ''} className="w-full h-full object-cover border border-brand-bronze/30 opacity-60" />
                 <button
                   type="button"
                   onClick={() => onRemoveNewImage(index)}
@@ -1086,21 +1123,21 @@ const EditMode = ({
         <div className="bg-brand-ink p-10 flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="flex items-center gap-10">
             <div>
-              <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">Portfolio Value</p>
-              <p className="text-2xl font-serif text-white">Rs {parseFloat(formData.price || 0).toLocaleString()}</p>
+              <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">Original Price</p>
+              <p className="text-2xl font-serif text-white">£ {parseFloat(formData.price || 0).toLocaleString()}</p>
             </div>
             <div className="w-[1px] h-10 bg-white/10 hidden md:block"></div>
             <div>
-              <p className="text-[12px] uppercase tracking-widest text-white mb-2">Asset Yield</p>
+              <p className="text-[12px] uppercase tracking-widest text-white mb-2">Discount</p>
               <p className="text-2xl font-serif text-white">
-                {discountPercentage > 0 ? `${discountPercentage.toFixed(1)}% Reduction` : 'Full Value'}
+                {discountPercentage > 0 ? `${discountPercentage.toFixed(1)}%` : 'No Discount'}
               </p>
             </div>
           </div>
 
           <div className="text-right">
-            <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2">Realized Market Value</p>
-            <p className="text-4xl font-serif text-white">Rs {actualSellingPrice.toLocaleString()}</p>
+            <p className="text-[12px] uppercase tracking-widest text-white/40 mb-2"> Selling Price</p>
+            <p className="text-4xl font-serif text-white">£ {actualSellingPrice.toLocaleString()}</p>
           </div>
         </div>
       </div>

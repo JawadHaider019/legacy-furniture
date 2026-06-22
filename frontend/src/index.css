@@ -84,3 +84,36 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #ccc;
 }
+
+/* Rich Text Formatting for Descriptions */
+.rich-text ul {
+  list-style-type: disc !important;
+  margin-left: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.rich-text ol {
+  list-style-type: decimal !important;
+  margin-left: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.rich-text li {
+  margin-bottom: 0.25rem !important;
+}
+
+.rich-text strong,
+.rich-text b {
+  font-weight: 700 !important;
+}
+
+.rich-text p {
+  margin-bottom: 0.75rem !important;
+}
+
+.rich-text h1,
+.rich-text h2,
+.rich-text h3 {
+  margin-top: 1.5rem !important;
+  margin-bottom: 0.5rem !important;
+}

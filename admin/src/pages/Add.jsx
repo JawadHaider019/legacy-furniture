@@ -1,4 +1,6 @@
 import React, { useState, useCallback, useMemo, memo, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { cleanName } from "../utils/cleanText";
 import axios from "axios";
 import { useToast } from "../hooks/useToast";
 import { backendUrl } from "../App";
@@ -9,11 +11,14 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faBox, faTags, faSpinner, faExclamationTriangle, faPlusCircle, faCloudUploadAlt,
   faStar, faChartLine, faBoxes, faTrashAlt, faPercent, faReceipt, faShoppingBag,
-  faCalendarAlt, faDollarSign, faFlask, faInfoCircle, faCheckCircle, faListUl,
-  faLink, faWeightHanging, faTruck, faVideo, faEye
+  faCalendarAlt, faPoundSign, faFlask, faInfoCircle, faCheckCircle, faListUl,
+  faLink, faWeightHanging, faTruck, faVideo, faEye, faTimes
 } from '@fortawesome/free-solid-svg-icons';
+import ReactQuill from 'react-quill-new';
+import 'react-quill-new/dist/quill.snow.css';
 
 const Add = () => {
+  const navigate = useNavigate();
   const { token, logout } = useAuth();
   const toast = useToast();
 
@@ -69,9 +74,9 @@ const Add = () => {
         setCategories(response.data);
         if (response.data.length > 0) {
           const firstCategory = response.data[0];
-          setCategory(firstCategory._id);
+          setCategory(firstCategory.name);
           if (firstCategory.subcategories && firstCategory.subcategories.length > 0) {
-            setSubCategory(firstCategory.subcategories[0]._id);
+            setSubCategory(firstCategory.subcategories[0].name);
           }
         }
       }
@@ -132,14 +137,20 @@ const Add = () => {
     try {
       const formData = new FormData();
 
-      formData.append("name", name);
-      formData.append("shortDescription", shortDescription);
+      formData.append("name", cleanName(name));
+      formData.append("shortDescription", cleanName(shortDescription));
       formData.append("description", description);
       formData.append("category", category);
       formData.append("subcategory", subCategory);
 
       formData.append("dynamicAttributes", JSON.stringify(dynamicAttributes));
-      formData.append("variants", JSON.stringify(variants));
+
+      const cleanedVariants = variants.map(v => ({
+        ...v,
+        name: cleanName(v.name),
+        description: v.description
+      }));
+      formData.append("variants", JSON.stringify(cleanedVariants));
 
       formData.append("quantity", Number(quantity || 0));
       formData.append("trackInventory", trackInventory);
@@ -190,6 +201,7 @@ const Add = () => {
       if (data.success) {
         toast.success(data.message);
         resetForm();
+        navigate("/list");
       } else {
         toast.error(data.message);
       }
@@ -232,17 +244,36 @@ const Add = () => {
             </h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-6">
               {images.map((img, index) => (
-                <label key={index} className="aspect-square relative flex flex-col items-center justify-center border-2 border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 cursor-pointer transition-all rounded-sm">
+                <div key={index} className="aspect-square relative group border-2 border-dashed border-brand-bronze/30 bg-brand-cream/20 hover:bg-brand-cream/40 transition-all rounded-sm">
                   {img ? (
-                    <img src={URL.createObjectURL(img)} alt="preview" className="w-full h-full object-cover" />
+                    <>
+                      <img
+                        src={img instanceof File || img instanceof Blob ? URL.createObjectURL(img) : (typeof img === 'string' ? img : '')}
+                        alt="preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const newImages = [...images];
+                          newImages[index] = null;
+                          setImages(newImages);
+                        }}
+                        className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center hover:bg-red-600 transition-colors z-10 shadow-lg"
+                      >
+                        <FontAwesomeIcon icon={faTimes} className="text-[10px]" />
+                      </button>
+                    </>
                   ) : (
-                    <div className="text-center p-2">
-                      <FontAwesomeIcon icon={faCloudUploadAlt} className="text-2xl text-brand-bronze/50 mb-2" />
-                      <span className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted">{index === 0 ? "Featured Image" : "Gallery " + index}</span>
-                    </div>
+                    <label className="w-full h-full flex flex-col items-center justify-center cursor-pointer">
+                      <div className="text-center p-2">
+                        <FontAwesomeIcon icon={faCloudUploadAlt} className="text-2xl text-brand-bronze/50 mb-2" />
+                        <span className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted">{index === 0 ? "Featured Image" : "Gallery " + index}</span>
+                      </div>
+                      <input type="file" onChange={(e) => handleImageChange(index, e.target.files[0])} hidden accept="image/*" />
+                    </label>
                   )}
-                  <input type="file" onChange={(e) => handleImageChange(index, e.target.files[0])} hidden accept="image/*" />
-                </label>
+                </div>
               ))}
             </div>
             {/* Removed imageAltText and videoUrl inputs */}
@@ -265,7 +296,15 @@ const Add = () => {
                 </div>
                 <div className="luxury-input-group">
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-brand-muted mb-2">Product Description *</label>
-                  <textarea required value={description} onChange={e => setDescription(e.target.value)} className="luxury-input h-32 reszie-none" placeholder="Enter comprehensive product description here..." />
+                  <div className="quill-luxury">
+                    <ReactQuill
+                      theme="snow"
+                      value={description}
+                      onChange={setDescription}
+                      placeholder="Describe the provenance and aesthetic of this creation..."
+                      className="bg-white/50 border border-brand-bronze/20 rounded-sm"
+                    />
+                  </div>
                 </div>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -273,14 +312,14 @@ const Add = () => {
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-brand-muted mb-2">Category *</label>
                   <select required value={category} onChange={e => { setCategory(e.target.value); setSubCategory(""); }} className="luxury-input bg-transparent">
                     <option value="">Select Category</option>
-                    {categories.map(cat => <option key={cat._id} value={cat._id}>{cat.name}</option>)}
+                    {categories.map(cat => <option key={cat._id} value={cat.name}>{cat.name}</option>)}
                   </select>
                 </div>
                 <div className="luxury-input-group">
                   <label className="block text-[11px] font-bold uppercase tracking-[0.2em] text-brand-muted mb-2">Sub Category</label>
                   <select value={subCategory} onChange={e => setSubCategory(e.target.value)} className="luxury-input bg-transparent">
                     <option value="">Select Subcategory</option>
-                    {subcategories.map(sub => <option key={sub._id} value={sub._id}>{sub.name}</option>)}
+                    {subcategories.map(sub => <option key={sub._id} value={sub.name}>{sub.name}</option>)}
                   </select>
                 </div>
               </div>
@@ -337,13 +376,13 @@ const Add = () => {
                     </div>
                     <div className="grid grid-cols-2 md:grid-cols-5 gap-2 col-span-2">
                       <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Price (Rs)</label>
+                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Price (£)</label>
                         <input type="number" value={variant.price} onChange={e => {
                           const newVar = [...variants]; newVar[vIndex].price = e.target.value; setVariants(newVar);
                         }} className="luxury-input !text-sm" placeholder="Price" />
                       </div>
                       <div className="luxury-input-group">
-                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Cost (Rs)</label>
+                        <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Cost (£)</label>
                         <input type="number" value={variant.cost} onChange={e => {
                           const newVar = [...variants]; newVar[vIndex].cost = e.target.value; setVariants(newVar);
                         }} className="luxury-input !text-sm" placeholder="Cost" />
@@ -371,9 +410,19 @@ const Add = () => {
 
                   <div className="luxury-input-group mb-4">
                     <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-1">Variant Description / Details</label>
-                    <textarea value={variant.description} onChange={e => {
-                      const newVar = [...variants]; newVar[vIndex].description = e.target.value; setVariants(newVar);
-                    }} className="luxury-input !text-sm min-h-[80px]" placeholder="Specific details for this variant..." />
+                    <div className="quill-luxury">
+                      <ReactQuill
+                        theme="snow"
+                        value={variant.description}
+                        onChange={(content) => {
+                          const newVar = [...variants];
+                          newVar[vIndex].description = content;
+                          setVariants(newVar);
+                        }}
+                        placeholder="Specific details for this variant..."
+                        className="bg-white/50 border border-brand-bronze/20 rounded-sm"
+                      />
+                    </div>
                   </div>
 
                   <div className="luxury-input-group">
@@ -381,7 +430,11 @@ const Add = () => {
                     <div className="flex flex-wrap gap-3">
                       {variant.images?.map((img, imgIndex) => (
                         <div key={imgIndex} className="relative w-16 h-16 border rounded-sm overflow-hidden group">
-                          <img src={typeof img === 'string' ? img : URL.createObjectURL(img)} alt="variant" className="w-full h-full object-cover" />
+                          <img
+                            src={typeof img === 'string' ? img : (img instanceof File || img instanceof Blob ? URL.createObjectURL(img) : '')}
+                            alt="variant"
+                            className="w-full h-full object-cover"
+                          />
                           <button type="button" onClick={() => {
                             const newVar = [...variants];
                             newVar[vIndex].images = newVar[vIndex].images.filter((_, i) => i !== imgIndex);
@@ -493,7 +546,7 @@ const Add = () => {
           {/* 6. PRICING */}
           <div className="luxury-card p-6 sm:p-10">
             <h3 className="text-lg font-bold uppercase tracking-widest text-brand-ink mb-6 flex items-center gap-3">
-              <FontAwesomeIcon icon={faDollarSign} className="text-brand-bronze" /> Pricing & Tax Settings
+              <FontAwesomeIcon icon={faPoundSign} className="text-brand-bronze" /> Pricing & Tax Settings
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="luxury-input-group">
@@ -501,7 +554,7 @@ const Add = () => {
                 <input required type="number" value={cost} onChange={e => setCost(e.target.value)} className="luxury-input" />
               </div>
               <div className="luxury-input-group">
-                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Selling Price *</label>
+                <label className="block text-[11px] font-bold uppercase tracking-widest text-brand-muted mb-2">Original Price *</label>
                 <input required type="number" value={price} onChange={e => setPrice(e.target.value)} className="luxury-input" />
               </div>
               <div className="luxury-input-group">

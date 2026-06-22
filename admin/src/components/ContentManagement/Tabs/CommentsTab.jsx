@@ -665,7 +665,7 @@ const CommentsTab = () => {
                                 {productName}
                               </div>
                               <div className="text-xs text-gray-500 capitalize mb-1">
-                                {comment.targetType} • Rs {productPrice}
+                                {comment.targetType} • £ {productPrice}
                               </div>
                               <div className="flex items-center space-x-2 mt-1">
                                 <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${comment.isRead
@@ -921,7 +921,7 @@ const CommentsTab = () => {
                           {productName}
                         </div>
                         <div className="text-xs text-gray-500 capitalize">
-                          {comment.targetType} • Rs {productPrice}
+                          {comment.targetType} • £ {productPrice}
                         </div>
                       </div>
                     </div>

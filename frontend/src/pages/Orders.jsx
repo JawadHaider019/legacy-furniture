@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContext, useEffect } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { Package, ChevronRight, Clock, MapPin, ArrowUpRight, Ship, CheckCircle2, RotateCcw } from 'lucide-react';
+import { cleanName as cleanText } from '../utils/cleanText';
 
 export default function Orders({ orders, syncOrders, isSyncing }) {
     const navigate = useNavigate();
@@ -157,7 +158,7 @@ export default function Orders({ orders, syncOrders, isSyncing }) {
                                                 <img src={item.image} className="w-full h-full object-cover grayscale opacity-80 group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-700" />
                                             </div>
                                             <div className="flex-1 space-y-2">
-                                                <h4 className="text-[12px] font-black uppercase tracking-widest text-brand-ink">{item.name}</h4>
+                                                <h4 className="text-[12px] font-black uppercase tracking-widest text-brand-ink">{cleanText(item.name)}</h4>
                                                 <div className="flex flex-wrap gap-x-4 gap-y-1">
                                                     <span className="text-[12px] md:text-sm uppercase tracking-widest font-bold text-brand-muted">Qty: {item.quantity}</span>
                                                     {item.variant && (

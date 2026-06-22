@@ -84,9 +84,9 @@ export default function Journal() {
                                 <h3 className="text-xl md:text-2xl font-serif text-brand-ink group-hover:text-brand-bronze transition-colors duration-500 uppercase tracking-tight">
                                     {blog.title}
                                 </h3>
-                                <p className="text-brand-muted text-xs md:text-base font-light leading-relaxed line-clamp-3">
+                                {/* <p className="text-brand-muted text-xs md:text-base font-light leading-relaxed line-clamp-3">
                                     {blog.excerpt}
-                                </p>
+                                </p> */}
                                 <div className="pt-4">
                                     <button className="text-premium-xs luxury-underline pb-1 inline-flex items-center gap-4">
                                         Read Narrative <ArrowUpRight size={14} />

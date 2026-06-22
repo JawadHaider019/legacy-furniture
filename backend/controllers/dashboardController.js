@@ -238,7 +238,7 @@ export const getDashboardStats = async (req, res) => {
           id: order._id.toString(),
           type: 'order',
           title: 'High Value Order',
-          message: `Order #${order._id} - Rs ${order.amount.toLocaleString()}`,
+          message: `Order #${order._id} - £ ${order.amount.toLocaleString()}`,
           priority: 'medium',
           timestamp: new Date(order.date).toISOString(),
           read: false
@@ -857,7 +857,7 @@ export const getAlerts = async (req, res) => {
         id: order._id.toString(),
         type: 'order',
         title: 'High Value Order',
-        message: `Order #${order._id} - Rs ${order.amount.toLocaleString()}`,
+        message: `Order #${order._id} - £ ${order.amount.toLocaleString()}`,
         priority: 'medium',
         timestamp: new Date(order.date).toISOString(),
         read: false

@@ -1,4 +1,4 @@
-import { useState, useMemo, useContext } from 'react';
+import { useState, useMemo, useContext, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import ProductCard from '../components/ProductCard';
@@ -8,10 +8,11 @@ import { Filter, X, ChevronDown, SlidersHorizontal } from 'lucide-react';
 export default function Collection({ wishlistItems, onWishlistToggle }) {
     const { category } = useParams();
     const navigate = useNavigate();
-    const { products, categories } = useContext(ShopContext);
+    const { products, categories, currency, loading } = useContext(ShopContext);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
     const [priceRange, setPriceRange] = useState(10000);
-    const [selectedBrands, setSelectedBrands] = useState([]);
+
+    const [selectedSubcategory, setSelectedSubcategory] = useState("");
     const [sortBy, setBy] = useState('featured');
 
     // Filter logic
@@ -20,16 +21,26 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
 
         // Category filter
         if (category && category !== 'all') {
-            result = result.filter(p => p.category && p.category.toLowerCase() === category.toLowerCase());
+            const catId = categories.find(c => c.name.toLowerCase() === category.toLowerCase())?._id;
+            result = result.filter(p => {
+                const pCat = p.category?.toString();
+                return pCat && (pCat.toLowerCase() === category.toLowerCase() || pCat === catId);
+            });
+        }
+
+        // Subcategory filter
+        if (selectedSubcategory) {
+            const subId = categories.flatMap(c => c.subcategories || []).find(s => s.name.toLowerCase() === selectedSubcategory.toLowerCase())?._id;
+            result = result.filter(p => {
+                const pSub = p.subcategory?.toString();
+                return pSub && (pSub.toLowerCase() === selectedSubcategory.toLowerCase() || pSub === subId);
+            });
         }
 
         // Price filter
         result = result.filter(p => p.price <= priceRange);
 
-        // Brand filter
-        if (selectedBrands.length > 0) {
-            result = result.filter(p => selectedBrands.includes(p.brand));
-        }
+
 
         // Sorting
         if (sortBy === 'price-asc') result = [...result].sort((a, b) => a.price - b.price);
@@ -37,15 +48,19 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
         if (sortBy === 'rating') result = [...result].sort((a, b) => b.rating - a.rating);
 
         return result;
-    }, [category, priceRange, selectedBrands, sortBy]);
+    }, [category, selectedSubcategory, priceRange, sortBy, products, categories]);
 
-    const allBrands = Array.from(new Set(products.map(p => p.brand)));
+    // Subcategories for current category
+    const currentCategoryObj = useMemo(() => {
+        return categories.find(cat => cat.name.toLowerCase() === category?.toLowerCase());
+    }, [categories, category]);
 
-    const toggleBrand = (brand) => {
-        setSelectedBrands(prev =>
-            prev.includes(brand) ? prev.filter(b => b !== brand) : [...prev, brand]
-        );
-    };
+    const subcategories = currentCategoryObj?.subcategories || [];
+
+    // Reset subcategory when category changes
+    useEffect(() => {
+        setSelectedSubcategory("");
+    }, [category]);
 
     return (
         <div className="min-h-screen bg-brand-cream pb-24">
@@ -117,31 +132,13 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                     className="w-full accent-brand-ink cursor-pointer grayscale opacity-50 hover:opacity-100 transition-opacity"
                                 />
                                 <div className="flex justify-between text-[11px] font-bold tracking-widest text-brand-ink">
-                                    <span>$0</span>
-                                    <span>Up to ${priceRange.toLocaleString()}</span>
+                                    <span>{currency}0</span>
+                                    <span>Up to {currency}{priceRange.toLocaleString()}</span>
                                 </div>
                             </div>
                         </div>
 
-                        <div>
-                            <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Brands</h4>
-                            <div className="space-y-3">
-                                {allBrands.map(brand => (
-                                    <button
-                                        key={brand}
-                                        onClick={() => toggleBrand(brand)}
-                                        className="flex items-center gap-3 group w-full text-left"
-                                    >
-                                        <div className={`w-4 h-4 border border-brand-ink/20 flex items-center justify-center transition-all ${selectedBrands.includes(brand) ? 'bg-brand-ink border-brand-ink' : 'group-hover:border-brand-ink/40'}`}>
-                                            {selectedBrands.includes(brand) && <div className="w-1.5 h-1.5 bg-white rounded-full" />}
-                                        </div>
-                                        <span className={`text-[11px] uppercase tracking-widest font-bold transition-colors ${selectedBrands.includes(brand) ? 'text-brand-ink' : 'text-brand-muted group-hover:text-brand-ink'}`}>
-                                            {brand}
-                                        </span>
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
+
 
                         <div>
                             <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Categories</h4>
@@ -158,10 +155,35 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                             </div>
                         </div>
 
+                        {subcategories.length > 0 && (
+                            <div>
+                                <h4 className="text-[11px] uppercase tracking-[0.2em] font-bold mb-4 text-brand-ink/60">Sub Categories</h4>
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={() => setSelectedSubcategory("")}
+                                        className={`block w-full text-left text-[11px] uppercase tracking-widest font-bold transition-colors ${selectedSubcategory === "" ? 'text-brand-bronze italic' : 'text-brand-muted hover:text-brand-ink'}`}
+                                    >
+                                        All {category}
+                                    </button>
+                                    {subcategories.map(sub => (
+                                        <button
+                                            key={sub._id}
+                                            onClick={() => setSelectedSubcategory(sub.name)}
+                                            className={`block w-full text-left text-[11px] uppercase tracking-widest font-bold transition-colors ${selectedSubcategory.toLowerCase() === sub.name.toLowerCase() ? 'text-brand-bronze italic' : 'text-brand-muted hover:text-brand-ink'}`}
+                                        >
+                                            {sub.name}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         <button
                             onClick={() => {
-                                setSelectedBrands([]);
                                 setPriceRange(10000);
+                                setBy('featured');
+                                setSelectedSubcategory("");
+                                navigate('/shop');
                             }}
                             className="text-[11px] uppercase tracking-[0.3em] font-black luxury-underline text-brand-ink/40 hover:text-red-500"
                         >
@@ -171,13 +193,20 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
 
                     {/* PRODUCT GRID */}
                     <main className="lg:col-span-9">
-                        {filteredProducts.length === 0 ? (
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-32 space-y-4">
+                                <div className="w-12 h-12 border-4 border-brand-bronze border-t-transparent rounded-full animate-spin"></div>
+                                <p className="text-[11px] uppercase tracking-[0.3em] font-bold text-brand-muted">Curating Collection...</p>
+                            </div>
+                        ) : filteredProducts.length === 0 ? (
                             <div className="py-20 text-center border border-dashed border-brand-ink/10">
                                 <p className="text-lg font-serif italic text-brand-ink/40">No products match these criteria.</p>
                                 <button
                                     onClick={() => {
-                                        setSelectedBrands([]);
                                         setPriceRange(10000);
+                                        setBy('featured');
+                                        setSelectedSubcategory("");
+                                        navigate('/shop');
                                     }}
                                     className="mt-4 text-[11px] uppercase tracking-[0.2em] font-bold luxury-underline"
                                 >
@@ -234,6 +263,18 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                             </div>
 
                             <div className="space-y-12">
+                                <button
+                                    onClick={() => {
+                                        setPriceRange(10000);
+                                        setBy('featured');
+                                        setSelectedSubcategory("");
+                                        navigate('/shop');
+                                        setShowMobileFilters(false);
+                                    }}
+                                    className="w-full py-6 border border-brand-ink/10 text-brand-ink uppercase text-[12px] tracking-[0.3em] font-bold mb-4"
+                                >
+                                    Clear All
+                                </button>
                                 <button
                                     onClick={() => setShowMobileFilters(false)}
                                     className="w-full py-6 bg-brand-ink text-white uppercase text-[12px] tracking-[0.3em] font-black"

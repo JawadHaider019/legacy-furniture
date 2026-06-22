@@ -20,7 +20,7 @@ import Teams from './pages/Teams.jsx';
 import Other from './pages/Other.jsx';
 
 export const backendUrl = import.meta.env.VITE_BACKEND_URL;
-export const currency = 'Rs.'
+export const currency = '£'
 import Favicon from './components/Favicon.jsx';
 
 const App = () => {

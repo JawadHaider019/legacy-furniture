@@ -126,6 +126,20 @@ export const addComment = async (req, res) => {
 
     const saved = await comment.save();
 
+    // ✅ Update product rating and reviewsCount dynamically
+    if (targetType === "product" && productId) {
+      const allProductComments = await Comment.find({ productId, targetType: "product" });
+      const totalReviews = allProductComments.length;
+      const averageRating = totalReviews > 0
+        ? allProductComments.reduce((sum, c) => sum + (c.rating || 0), 0) / totalReviews
+        : 0;
+
+      await Product.findByIdAndUpdate(productId, {
+        rating: averageRating,
+        reviewsCount: totalReviews
+      });
+    }
+
     // Populate the response to match frontend expectations
     const populatedComment = await Comment.findById(saved._id)
       .populate("productId", "name price images")
@@ -372,6 +386,22 @@ export const deleteComment = async (req, res) => {
   try {
     const deleted = await Comment.findByIdAndDelete(req.params.id);
     if (!deleted) return res.status(404).json({ message: "Comment not found" });
+
+    // ✅ Update product rating and reviewsCount if it was a product review
+    if (deleted.targetType === "product" && deleted.productId) {
+      const productId = deleted.productId;
+      const allProductComments = await Comment.find({ productId, targetType: "product" });
+      const totalReviews = allProductComments.length;
+      const averageRating = totalReviews > 0
+        ? allProductComments.reduce((sum, c) => sum + (c.rating || 0), 0) / totalReviews
+        : 0;
+
+      await Product.findByIdAndUpdate(productId, {
+        rating: averageRating,
+        reviewsCount: totalReviews
+      });
+    }
+
     res.json({ message: "Comment deleted successfully" });
   } catch (err) {
     res.status(400).json({ message: "Failed to delete comment", error: err.message });

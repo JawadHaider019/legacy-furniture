@@ -52,9 +52,9 @@ export default function BlogSection() {
                                 {blog.title}
                                 <ArrowUpRight size={20} className="shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                             </h3>
-                            <p className="text-brand-muted text-xs md:text-sm font-light leading-relaxed line-clamp-2">
+                            {/* <p className="text-brand-muted text-xs md:text-sm font-light leading-relaxed line-clamp-2">
                                 {blog.excerpt}
-                            </p>
+                            </p> */}
                         </div>
                     </motion.div>
                 ))}

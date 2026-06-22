@@ -2,6 +2,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useContext, useEffect, useState, useMemo } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { slugify } from '../utils/slugify';
+import { cleanName as cleanText } from '../utils/cleanText';
 import { motion, AnimatePresence } from 'motion/react';
 import {
     ArrowLeft, ShoppingBag, Heart, Share2, Star,
@@ -15,11 +16,12 @@ import toast from 'react-hot-toast';
 export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLogin }) {
     const { slug } = useParams();
     const navigate = useNavigate();
-    const { products, addToCart, currency, getProductReviews, addProductReview, backendUrl, user, deliverySettings } = useContext(ShopContext);
+    const { products, categories, addToCart, currency, getProductReviews, addProductReview, backendUrl, user, deliverySettings } = useContext(ShopContext);
 
     // Lightbox State
     const [isLightboxOpen, setIsLightboxOpen] = useState(false);
     const [lightboxIndex, setLightboxIndex] = useState(0);
+    const [lightboxImages, setLightboxImages] = useState([]);
 
     // Review System State
     const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
@@ -31,7 +33,13 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
     });
     const [isSubmittingReview, setIsSubmittingReview] = useState(false);
 
-    const product = useMemo(() => products.find(p => slugify(p.name) === slug), [products, slug]);
+    const product = useMemo(() => products.find(p => slugify(cleanText(p.name)) === slug), [products, slug]);
+
+    const cleanTitle = useMemo(() => {
+        if (!product?.name) return '';
+        return cleanText(product.name);
+    }, [product?.name]);
+
     const id = product?._id;
     const [selectedImage, setSelectedImage] = useState(0);
     const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
@@ -40,9 +48,49 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
     const [currentMSRP, setCurrentMSRP] = useState(0);
     const [qty, setQty] = useState(1);
 
-    const relatedProducts = products
-        .filter(p => p.category === product?.category && p._id !== product?._id)
-        .slice(0, 4);
+    const relatedProducts = useMemo(() => {
+        if (!product?.category) return [];
+
+        // Helper to get normalized category identifier (preferably ID)
+        const getCategoryId = (cat) => {
+            if (!cat) return null;
+            if (typeof cat === 'object') return String(cat._id || cat.id || '');
+            // If it's a string, it might be an ID or a Name
+            const foundById = categories.find(c => c._id === cat);
+            if (foundById) return String(foundById._id);
+            const foundByName = categories.find(c => c.name === cat);
+            if (foundByName) return String(foundByName._id);
+            return String(cat);
+        };
+
+        const targetCatId = getCategoryId(product.category);
+
+        return products
+            .filter(p => {
+                if (p._id === product._id) return false;
+                const pCatId = getCategoryId(p.category);
+                return pCatId === targetCatId;
+            })
+            .slice(0, 8);
+    }, [products, product, categories]);
+
+    const { averageRating, displayReviewsCount } = useMemo(() => {
+        if (dynamicReviews.length > 0) {
+            const count = dynamicReviews.length;
+            const avg = dynamicReviews.reduce((acc, r) => acc + (r.rating || 0), 0) / count;
+            return { averageRating: avg, displayReviewsCount: count };
+        }
+        return { averageRating: product?.rating || 0, displayReviewsCount: product?.reviewsCount || 0 };
+    }, [dynamicReviews, product?.rating, product?.reviewsCount]);
+
+    const ratingBreakdown = useMemo(() => {
+        const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        dynamicReviews.forEach(r => {
+            const rating = Math.round(r.rating);
+            if (counts[rating] !== undefined) counts[rating]++;
+        });
+        return counts;
+    }, [dynamicReviews]);
 
     const allDisplayImages = useMemo(() => {
         if (!product) return [];
@@ -59,8 +107,6 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
         if (product) {
             setSelectedVariantIndex(0);
             setSelectedImage(0);
-            setCurrentPrice(product.price);
-            setCurrentMSRP(product.discountprice || product.price);
 
             // Fetch dynamic reviews
             const fetchReviews = async () => {
@@ -76,20 +122,27 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
         if (product && product.variants && product.variants[selectedVariantIndex]) {
             const variant = product.variants[selectedVariantIndex];
 
-            // MSRP is the base price of the variant, or falling back to product base price
             const msrp = Number(variant.price) || Number(product.price);
 
-            // Current Price is the variant's discount price, 
-            // fallback to variant's base price (if no variant discount), 
-            // fallback to product's discount price, 
-            // finally fallback to product's base price.
-            let price = Number(variant.discountPrice) || Number(variant.price) || Number(product.discountprice) || Number(product.price);
+            let price;
+            if (Number(variant.discountPrice) > 0) {
+                price = Number(variant.discountPrice);
+            } else if (Number(product.discountprice) > 0 && msrp === Number(product.price)) {
+                price = Number(product.discountprice);
+            } else {
+                price = msrp;
+            }
 
             setCurrentMSRP(msrp);
             setCurrentPrice(price);
         } else if (product) {
-            setCurrentPrice(Number(product.discountprice) || Number(product.price));
-            setCurrentMSRP(Number(product.price));
+            const msrp = Number(product.price);
+            const price = (Number(product.discountprice) > 0 && Number(product.discountprice) < msrp)
+                ? Number(product.discountprice)
+                : msrp;
+
+            setCurrentPrice(price);
+            setCurrentMSRP(msrp);
         }
     }, [selectedVariantIndex, product]);
 
@@ -127,6 +180,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                             <div
                                 className="relative aspect-[1/1] overflow-hidden bg-white shadow-sm cursor-zoom-in group"
                                 onClick={() => {
+                                    setLightboxImages(allDisplayImages);
                                     setLightboxIndex(selectedImage);
                                     setIsLightboxOpen(true);
                                 }}
@@ -167,17 +221,17 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                         {/* RIGHT: Product Information */}
                         <div className="lg:col-span-5 flex flex-col">
                             <div className="mb-8">
-                                <h1 className="text-xl sm:text-2xl md:text-3xl font-serif text-brand-ink mb-1 uppercase tracking-tight leading-tight">
-                                    {product.name} {product.variants && product.variants[selectedVariantIndex] ? `- ${product.variants[selectedVariantIndex].name}` : ''}
+                                <h1
+                                    className="text-xl sm:text-2xl md:text-3xl text-brand-ink mb-1 uppercase tracking-tight leading-tight !font-serif"
+                                    style={{ fontFamily: "'Cormorant Garamond', serif", fontWeight: 600, textTransform: 'uppercase' }}
+                                >
+                                    {cleanTitle} {product.variants && product.variants[selectedVariantIndex] ? `- ${product.variants[selectedVariantIndex].name}` : ''}
                                 </h1>
-                                <p className="text-premium-xs text-brand-muted mb-4 lowercase">
-                                    by <span className="text-brand-ink italic">{product.brand || 'Auden Atelier'}</span>
-                                </p>
 
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="flex items-center gap-0.5 text-brand-ink">
                                         {[...Array(5)].map((_, i) => (
-                                            <Star key={i} size={14} fill={i < Math.floor(product.rating) ? "currentColor" : "none"} strokeWidth={1} />
+                                            <Star key={i} size={14} fill={i < Math.floor(averageRating) ? "currentColor" : "none"} strokeWidth={1} />
                                         ))}
                                     </div>
                                     <div className="h-4 w-[1px] bg-brand-ink/10" />
@@ -188,14 +242,14 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         }}
                                         className="text-premium-xs text-brand-ink/60 hover:text-brand-ink transition-colors border-b border-brand-ink/20"
                                     >
-                                        {product.reviewsCount} Ratings & Reviews
+                                        {displayReviewsCount} Ratings & Reviews
                                     </button>
                                 </div>
 
                                 <div className="h-[1px] w-full bg-brand-ink/5 mb-8" />
 
                                 <div className="space-y-4 mb-8">
-                                    {currentMSRP > 0 && (
+                                    {discountValue > 0 && (
                                         <div className="flex items-center gap-3 text-brand-muted italic">
                                             <span className="text-lg line-through font-sans">{currency}{currentMSRP.toFixed(2)}</span>
                                             <span className="text-sm font-bold text-red-600 uppercase tracking-widest">{discountValue}% Off MSRP</span>
@@ -219,42 +273,50 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
 
 
                                 {/* VARIANTS */}
-                                {product.variants && product.variants.length > 0 && (
-                                    <div className="space-y-8 mb-10">
-                                        <div>
-                                            <h4 className="text-[10px] md:text-sm uppercase tracking-[0.2em] font-black mb-4 flex justify-between">
-                                                Select Variant
-                                                <span className="text-brand-muted font-normal lowercase italic">Current: {product.variants[selectedVariantIndex]?.name}</span>
-                                            </h4>
-                                            <div className="flex flex-wrap gap-2">
-                                                {product.variants.map((variant, idx) => (
-                                                    <button
-                                                        key={idx}
-                                                        onClick={() => {
-                                                            setSelectedVariantIndex(idx);
-                                                            setSelectedImage(0);
-                                                        }}
-                                                        className={`px-5 py-3 text-[10px] font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
-                                                    >
-                                                        {variant.name}
-                                                    </button>
-                                                ))}
+                                {product.variants && product.variants.length > 0 &&
+                                    product.variants.some(v => v.name && v.name.toLowerCase() !== 'default') && (
+                                        <div className="space-y-8 mb-10">
+                                            <div>
+                                                <h4 className="text-[10px] md:text-sm uppercase tracking-[0.2em] font-black mb-4 flex justify-between">
+                                                    Select Variant
+                                                    <span className="text-brand-muted font-normal lowercase italic">Current: {product.variants[selectedVariantIndex]?.name}</span>
+                                                </h4>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {product.variants.map((variant, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => {
+                                                                setSelectedVariantIndex(idx);
+                                                                setSelectedImage(0);
+                                                            }}
+                                                            className={`px-5 py-3 text-[10px] font-black uppercase tracking-widest border transition-all ${selectedVariantIndex === idx ? 'border-brand-ink bg-brand-ink text-white' : 'border-brand-ink/10 hover:border-brand-ink/40 bg-white'}`}
+                                                        >
+                                                            {variant.name}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                )}
+                                    )}
 
                                 {/* QUANTITY & ACTIONS */}
                                 <div className="flex gap-4 mb-10">
-                                    <div className="w-24 border border-brand-ink/10 flex items-center justify-between px-3 relative">
-                                        <span className="text-[12px] md:text-sm absolute -top-2 left-2 bg-brand-cream px-1 uppercase font-bold text-brand-muted">Qty</span>
-                                        <select
+                                    <div className="w-32 border border-brand-ink/10 flex items-center justify-between px-1 relative h-[64px]">
+                                        <span className="text-[10px] absolute -top-2 left-2 bg-brand-cream px-1 uppercase font-black text-brand-muted tracking-widest leading-none">Qty</span>
+                                        <button
+                                            onClick={() => setQty(prev => Math.max(1, prev - 1))}
+                                            className="w-10 h-full flex items-center justify-center text-brand-ink hover:bg-brand-ink/5 transition-colors text-lg"
+                                        >-</button>
+                                        <input
+                                            type="number"
                                             value={qty}
-                                            onChange={(e) => setQty(Number(e.target.value))}
-                                            className="w-full bg-transparent outline-none text-sm font-bold py-4 appearance-none"
-                                        >
-                                            {[1, 2, 3, 4, 5, 10].map(n => <option key={n} value={n}>{n}</option>)}
-                                        </select>
+                                            onChange={(e) => setQty(Math.max(1, parseInt(e.target.value) || 1))}
+                                            className="w-12 text-center text-sm font-black text-brand-ink bg-transparent outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                        />
+                                        <button
+                                            onClick={() => setQty(prev => prev + 1)}
+                                            className="w-10 h-full flex items-center justify-center text-brand-ink hover:bg-brand-ink/5 transition-colors text-lg"
+                                        >+</button>
                                     </div>
                                     <button
                                         onClick={() => product && addToCart(product._id, product.variants?.[selectedVariantIndex]?.name || 'default')}
@@ -298,14 +360,15 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                         </summary>
                                         <div className="pt-4 space-y-4">
                                             <p className="text-[12px] md:text-sm font-bold text-brand-ink/40 uppercase tracking-widest italic">Item#: {product.specs?.sku}</p>
-                                            <p className="text-[12px] md:text-sm font-light leading-relaxed text-brand-ink mb-6">
+                                            <div className="text-[12px] md:text-sm font-light leading-relaxed text-brand-ink mb-6 rich-text">
                                                 {product.variants && product.variants[selectedVariantIndex]?.description ? (
-                                                    <span className="block mb-4 p-4 bg-brand-cream/30 border-l-2 border-brand-bronze italic">
-                                                        {product.variants[selectedVariantIndex].description}
-                                                    </span>
+                                                    <div
+                                                        className="block mb-4 p-4 bg-brand-cream/30 border-l-2 border-brand-bronze italic"
+                                                        dangerouslySetInnerHTML={{ __html: product.variants[selectedVariantIndex].description }}
+                                                    />
                                                 ) : null}
-                                                {product.description}
-                                            </p>
+                                                <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                                            </div>
                                             <div className="p-4 bg-brand-ink/5 rounded-sm">
                                                 <p className="text-[12px] md:text-sm font-bold text-red-800 uppercase tracking-widest mb-1 flex items-center gap-2">
                                                     <Info size={12} /> Important WARNING
@@ -372,48 +435,41 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                 <div className="flex flex-col gap-2 mb-8">
                                     <div className="flex items-center gap-3">
                                         <span className="text-4xl md:text-5xl font-sans font-black text-brand-ink">
-                                            {dynamicReviews.length > 0
-                                                ? (dynamicReviews.reduce((acc, r) => acc + r.rating, 0) / dynamicReviews.length).toFixed(1)
-                                                : (product.rating || 0)}
+                                            {averageRating.toFixed(1)}
                                         </span>
                                         <div className="flex flex-col">
                                             <div className="flex items-center gap-0.5 text-brand-ink">
-                                                {[...Array(5)].map((_, i) => {
-                                                    const avg = dynamicReviews.length > 0
-                                                        ? dynamicReviews.reduce((acc, r) => acc + r.rating, 0) / dynamicReviews.length
-                                                        : (product.rating || 0);
-                                                    return <Star key={i} size={14} fill={i < Math.floor(avg) ? "currentColor" : "none"} strokeWidth={1} />;
-                                                })}
+                                                {[...Array(5)].map((_, i) => (
+                                                    <Star key={i} size={14} fill={i < Math.floor(averageRating) ? "currentColor" : "none"} strokeWidth={1} />
+                                                ))}
                                             </div>
                                             <span className="text-[12px] md:text-sm font-bold tracking-widest text-brand-ink/40 uppercase">
-                                                {dynamicReviews.length || product.reviewsCount} Ratings
+                                                {displayReviewsCount} Ratings
                                             </span>
                                         </div>
                                     </div>
                                 </div>
 
-                                <div className="space-y-3 mb-12">
-                                    {[
-                                        { s: 5, c: 25 },
-                                        { s: 4, c: 3 },
-                                        { s: 3, c: 2 },
-                                        { s: 2, c: 1 },
-                                        { s: 1, c: 1 }
-                                    ].map(row => (row.c > 0 && (
-                                        <div key={row.s} className="flex items-center gap-4 group cursor-pointer">
-                                            <span className="text-[12px] md:text-sm font-bold w-4 opacity-40">{row.s}</span>
-                                            <div className="flex-1 h-2 bg-brand-ink/5 relative overflow-hidden rounded-full">
-                                                <motion.div
-                                                    initial={{ width: 0 }}
-                                                    whileInView={{ width: `${(row.c / product.reviewsCount) * 100}%` }}
-                                                    viewport={{ once: true }}
-                                                    transition={{ duration: 1, ease: "easeOut" }}
-                                                    className="absolute inset-y-0 left-0 bg-brand-ink"
-                                                />
+                                <div className="space-y-3 mb-10">
+                                    {[5, 4, 3, 2, 1].map(star => {
+                                        const count = ratingBreakdown[star] || 0;
+                                        const percentage = displayReviewsCount > 0 ? (count / displayReviewsCount) * 100 : 0;
+                                        return (
+                                            <div key={star} className="flex items-center gap-4 group">
+                                                <span className="text-[10px] md:text-sm font-bold w-4 opacity-40">{star}</span>
+                                                <div className="flex-1 h-1.5 bg-brand-ink/5 relative overflow-hidden rounded-full">
+                                                    <motion.div
+                                                        initial={{ width: 0 }}
+                                                        whileInView={{ width: `${percentage}%` }}
+                                                        viewport={{ once: true }}
+                                                        transition={{ duration: 1, ease: "easeOut" }}
+                                                        className="absolute inset-y-0 left-0 bg-brand-ink"
+                                                    />
+                                                </div>
+                                                <span className="text-[10px] md:text-sm font-bold text-brand-muted w-4 opacity-40">{count}</span>
                                             </div>
-                                            <span className="text-[12px] md:text-sm font-bold text-brand-muted w-4">{row.c}</span>
-                                        </div>
-                                    )))}
+                                        );
+                                    })}
                                 </div>
 
                                 <button
@@ -457,8 +513,18 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                 className="grid grid-cols-1 md:grid-cols-4 gap-8"
                                             >
                                                 <div className="md:col-span-1">
-                                                    <h5 className="text-[12px] md:text-sm font-black uppercase tracking-[0.2em] mb-1">{review.author}</h5>
-                                                    <span className="text-[12px] md:text-sm font-black px-2 py-0.5 bg-green-100 text-green-800 uppercase tracking-widest rounded-sm">Verified Inhabitant</span>
+                                                    <h5 className="text-[12px] md:text-sm font-black  tracking-[0.2em] mb-1">
+                                                        {user && review.email === user.email ? (
+                                                            <span className="text-brand-bronze italic">Your Review</span>
+                                                        ) : (
+                                                            (() => {
+                                                                const email = review.email || "";
+                                                                const [local, domain] = email.split('@');
+                                                                if (!local || !domain) return "Verified Inhabitant";
+                                                                return `${local[0]}****@${domain}`;
+                                                            })()
+                                                        )}
+                                                    </h5>
                                                     <p className="text-[12px] md:text-sm text-brand-muted italic mt-3 uppercase tracking-widest">
                                                         {new Date(review.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
                                                     </p>
@@ -469,9 +535,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                             <Star key={i} size={12} fill={i < review.rating ? "currentColor" : "none"} strokeWidth={1} />
                                                         ))}
                                                     </div>
-                                                    <p className="text-[12px] md:text-sm font-black uppercase tracking-widest mb-3">
-                                                        {review.rating >= 4 ? 'EXCELLENT PURCHASE' : 'ARCHIVE PERSPECTIVE'}
-                                                    </p>
+
                                                     <p className="text-sm font-light leading-relaxed text-brand-ink/80 mb-6 italic">
                                                         "{review.content}"
                                                     </p>
@@ -481,9 +545,12 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                             {review.reviewImages.map((img, idx) => (
                                                                 <div
                                                                     key={idx}
-                                                                    className="w-20 aspect-square overflow-hidden cursor-pointer group"
+                                                                    className="w-20 aspect-square overflow-hidden cursor-zoom-in group"
                                                                     onClick={() => {
-                                                                        window.open(img.url, '_blank');
+                                                                        const images = review.reviewImages.map(r => r.url);
+                                                                        setLightboxImages(images);
+                                                                        setLightboxIndex(idx);
+                                                                        setIsLightboxOpen(true);
                                                                     }}
                                                                 >
                                                                     <img src={img.url} className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all border border-brand-ink/5" />
@@ -493,12 +560,27 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                                     )}
 
                                                     <div className="flex justify-between items-center text-[12px] md:text-sm font-black uppercase tracking-[0.2em] text-brand-muted border-t border-brand-ink/5 pt-4">
-                                                        <div className="flex gap-4">
-                                                            <span>Was this helpful?</span>
-                                                            <button className="text-brand-ink hover:text-brand-bronze underline decoration-brand-bronze/30 underline-offset-4">Yes ({review.likes || 0})</button>
-                                                            <button className="text-brand-ink hover:text-brand-bronze underline decoration-brand-bronze/30 underline-offset-4">No ({review.dislikes || 0})</button>
-                                                        </div>
-                                                        {review.hasReply && <span className="bg-brand-bronze/5 px-2 py-1 italic">Atelier Responded</span>}
+
+                                                        {review.hasReply && (
+                                                            <div className="flex flex-col gap-4 w-full">
+                                                                <div className="flex justify-between items-center w-full">
+                                                                    <span className="bg-brand-bronze/5 px-2 py-1 italic text-brand-bronze text-[10px] md:text-[11px] font-black uppercase tracking-widest">Admin Responded</span>
+                                                                </div>
+
+                                                                {review.reply && (
+                                                                    <div className="p-5 bg-brand-cream/50 border-l-2 border-brand-bronze mt-2">
+                                                                        <div className="flex items-center gap-2 mb-2">
+                                                                            <span className="text-[10px] font-black uppercase tracking-widest text-brand-ink">Official Response</span>
+                                                                            <span className="w-1 h-1 rounded-full bg-brand-bronze opacity-40"></span>
+                                                                            <span className="text-[10px] text-brand-muted uppercase tracking-widest">{new Date(review.reply.date).toLocaleDateString()}</span>
+                                                                        </div>
+                                                                        <p className="text-sm font-light text-brand-ink/70 leading-relaxed italic">
+                                                                            "{review.reply.content}"
+                                                                        </p>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </div>
                                                 </div>
                                             </motion.div>
@@ -527,12 +609,12 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                     </section>
 
                     {/* RELATED PRODUCTS */}
-                    {relatedProducts.length > 1 && (
+                    {relatedProducts.length > 0 && (
                         <motion.section
                             initial={{ opacity: 0, y: 40 }}
                             whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true }}
-                            className="pt-16 border-t border-brand-ink/5"
+                            className="py-16 border-t border-brand-ink/5"
                         >
                             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10">
                                 <div className="max-w-xl">
@@ -540,14 +622,14 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     <h2 className="text-3xl md:text-4xl font-light italic font-serif">Related Products</h2>
                                 </div>
                                 <button
-                                    onClick={() => navigate('/')}
+                                    onClick={() => navigate('/shop')}
                                     className="group flex items-center gap-2 text-[12px] md:text-sm font-bold uppercase tracking-widest"
                                 >
                                     Shop All
                                     <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                 </button>
                             </div>
-                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 md:gap-12">
+                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-12">
                                 {relatedProducts.map(relProduct => (
                                     <ProductCard
                                         key={relProduct._id}
@@ -594,19 +676,19 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                                     key={lightboxIndex}
                                     initial={{ opacity: 0, scale: 0.9 }}
                                     animate={{ opacity: 1, scale: 1 }}
-                                    src={allDisplayImages[lightboxIndex]}
+                                    src={lightboxImages[lightboxIndex]}
                                     className="max-w-full max-h-[80vh] object-contain shadow-2xl"
                                 />
 
                                 <button
-                                    onClick={() => setLightboxIndex(prev => (prev > 0 ? prev - 1 : allDisplayImages.length - 1))}
+                                    onClick={() => setLightboxIndex(prev => (prev > 0 ? prev - 1 : lightboxImages.length - 1))}
                                     className="absolute left-0 h-full px-8 text-white/20 hover:text-white transition-colors group"
                                 >
                                     <ChevronLeft size={64} strokeWidth={1} className="group-hover:scale-125 transition-transform" />
                                 </button>
 
                                 <button
-                                    onClick={() => setLightboxIndex(prev => (prev < allDisplayImages.length - 1 ? prev + 1 : 0))}
+                                    onClick={() => setLightboxIndex(prev => (prev < lightboxImages.length - 1 ? prev + 1 : 0))}
                                     className="absolute right-0 h-full px-8 text-white/20 hover:text-white transition-colors group"
                                 >
                                     <ChevronRight size={64} strokeWidth={1} className="group-hover:scale-125 transition-transform" />
@@ -614,7 +696,7 @@ export default function ProductDetail({ onWishlistToggle, isWishlisted, onOpenLo
                             </div>
 
                             <div className="absolute bottom-10 flex gap-4 overflow-x-auto p-4 max-w-full no-scrollbar">
-                                {allDisplayImages.map((img, i) => (
+                                {lightboxImages.map((img, i) => (
                                     <button
                                         key={i}
                                         onClick={() => setLightboxIndex(i)}

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useContext } from 'react';
 import { ShopContext } from '../context/ShopContext';
 import { slugify } from '../utils/slugify';
+import { cleanName as cleanText } from '../utils/cleanText';
 
 export default function CartSidebar({ cartOpen, setCartOpen }) {
     const navigate = useNavigate();
@@ -69,7 +70,7 @@ export default function CartSidebar({ cartOpen, setCartOpen }) {
                                                     className="w-20 aspect-square border border-brand-ink/5 bg-white overflow-hidden shadow-sm flex-shrink-0 cursor-pointer"
                                                     onClick={() => {
                                                         setCartOpen(false);
-                                                        navigate(`/product/${slugify(productData.name)}`);
+                                                        navigate(`/product/${slugify(cleanText(productData.name))}`);
                                                     }}
                                                 >
                                                     <img src={productData.image[0]} alt={productData.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
@@ -80,10 +81,10 @@ export default function CartSidebar({ cartOpen, setCartOpen }) {
                                                             className="cursor-pointer"
                                                             onClick={() => {
                                                                 setCartOpen(false);
-                                                                navigate(`/product/${slugify(productData.name)}`);
+                                                                navigate(`/product/${slugify(cleanText(productData.name))}`);
                                                             }}
                                                         >
-                                                            <h5 className="text-xs font-bold uppercase tracking-wider mb-1 leading-tight">{productData.name}</h5>
+                                                            <h5 className="text-xs font-bold uppercase tracking-wider mb-1 leading-tight">{cleanText(productData.name)}</h5>
                                                             <div className="flex flex-wrap gap-x-2 gap-y-1 mb-1">
                                                                 <span className="text-[11px] uppercase tracking-wider text-brand-muted font-semibold">
                                                                     {variantKey}
