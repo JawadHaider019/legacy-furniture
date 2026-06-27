@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate, useParams } from 'react-router-dom';
 import { ShopContext } from '../context/ShopContext';
 import { Toaster } from 'react-hot-toast';
 
@@ -20,6 +20,13 @@ import Contact from '../pages/Contact';
 import Journal from '../pages/Journal';
 import BlogDetail from '../pages/BlogDetail';
 import ProductDetail from '../pages/ProductDetail';
+
+// Helper for legacy redirects with params
+const RedirectToShop = () => {
+    const { category } = useParams();
+    return <Navigate to={`/shop/${category}`} replace />;
+};
+
 
 export default function RouterContent({
     cartOpen, setCartOpen, wishlistItems, toggleWishlist,
@@ -49,6 +56,10 @@ export default function RouterContent({
 
             <main>
                 <Routes>
+                    {/* Legacy Redirects */}
+                    <Route path="/collection" element={<Navigate to="/shop" replace />} />
+                    <Route path="/collection/:category" element={<RedirectToShop />} />
+
                     <Route path="/" element={
                         <Home
                             products={products}
@@ -96,6 +107,7 @@ export default function RouterContent({
                     } />
                 </Routes>
             </main>
+
 
             <Footer />
             <Toaster position="bottom-left" />

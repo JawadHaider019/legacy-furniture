@@ -146,7 +146,7 @@ export default function Collection({ wishlistItems, onWishlistToggle }) {
                                 {categories.map(cat => (
                                     <button
                                         key={cat._id}
-                                        onClick={() => navigate(`/collection/${cat.name.toLowerCase()}`)}
+                                        onClick={() => navigate(`/shop/${cat.name.toLowerCase()}`)}
                                         className={`block w-full text-left text-[11px] uppercase tracking-widest font-bold transition-colors ${category === cat.name.toLowerCase() ? 'text-brand-bronze italic' : 'text-brand-muted hover:text-brand-ink'}`}
                                     >
                                         {cat.name}
